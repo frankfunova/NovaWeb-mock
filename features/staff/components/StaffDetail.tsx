@@ -96,7 +96,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
   };
 
   return (
-    <div className="flex flex-col gap-6 font-sans pt-1">
+    <div className="flex flex-col gap-6 font-sans p-6">
       
       {/* Stats Row (Clean Grid) */}
       <div className="grid grid-cols-3 divide-x divide-slate-100 border border-slate-200 rounded-xl bg-white shadow-sm">

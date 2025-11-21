@@ -41,7 +41,7 @@ export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children
 
       <div className={`absolute flex max-w-full pointer-events-none ${positionClass}`}>
         <div 
-          className={`pointer-events-auto w-screen max-w-md sm:max-w-lg transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
+          className={`pointer-events-auto w-screen max-w-md sm:max-w-xl transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white min-h-[72px]">

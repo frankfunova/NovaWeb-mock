@@ -8,7 +8,7 @@ interface ReservationDetailProps {
 
 export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservation }) => {
   return (
-    <div className="flex flex-col h-full gap-6">
+    <div className="flex flex-col h-full gap-6 p-6">
         {/* Top Profile Section */}
         <div className="flex items-center gap-4 pb-6 border-b border-slate-100">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-2xl font-bold text-slate-500 shadow-inner">
