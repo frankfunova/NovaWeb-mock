@@ -1,7 +1,8 @@
 
-import React, { useState } from 'react';
-import { Staff, Task } from '../../../types';
-import { Icons } from '../constants';
+import React, { useState, useEffect } from 'react';
+import { Staff, Task, ApiUserDashboardResponse } from '../../../types';
+import { Icons } from '../../../constants';
+import { api } from '../../../services/api';
 
 interface StaffDetailProps {
   staff: Staff;
@@ -10,74 +11,47 @@ interface StaffDetailProps {
 
 export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
   const [showClockDetails, setShowClockDetails] = useState(false);
+  const [dashboardData, setDashboardData] = useState<ApiUserDashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock Data matching the desired design
-  const mockStats = {
-    ot: '0:24',
-    payable: '8:24',
-    clockIns: [
-        { in: '9:00 AM', out: '5:24 PM' },
-        { in: '7:00 PM', out: '9:00 PM' } 
-    ],
-    breakdown: [
-      { label: 'Assigned', time: '5:30', pct: '65%', color: 'bg-purple-50 text-purple-700' },
-      { label: 'Other', time: '2:00', pct: '24%', color: 'bg-slate-50 text-slate-600' },
-      { label: 'Travel', time: '0:09', pct: '2%', color: 'bg-amber-50 text-amber-700' },
-      { label: 'Break', time: '0:45', pct: '9%', color: 'bg-rose-50 text-rose-700' },
-    ]
-  };
-
-  const timelineEvents = [
-    {
-      type: 'TASK',
-      title: 'Property Inspection - Unit 305',
-      time: '9:00 AM - 11:15 AM',
-      duration: '2:15',
-      icon: Icons.ClipboardCheck,
-      color: 'text-indigo-600'
-    },
-    {
-      type: 'MEETING',
-      title: 'Team Standup Meeting',
-      time: '11:30 AM - 12:15 PM',
-      duration: '0:45',
-      icon: Icons.Briefcase,
-      color: 'text-purple-600'
-    },
-    {
-      type: 'BREAK',
-      title: 'Lunch Break',
-      time: '12:15 PM - 1:00 PM',
-      duration: '0:45',
-      icon: Icons.Coffee,
-      color: 'text-orange-600'
-    },
-    {
-      type: 'TASK',
-      title: 'HVAC Maintenance - Building A',
-      time: '1:00 PM - 2:30 PM',
-      duration: '1:30',
-      icon: Icons.ClipboardCheck,
-      color: 'text-indigo-600'
-    }
-  ];
+  useEffect(() => {
+    const loadStats = async () => {
+        setLoading(true);
+        try {
+            const data = await api.fetchUserDashboard(staff.id);
+            setDashboardData(data);
+        } catch(e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+    loadStats();
+  }, [staff.id]);
 
   // Calculate Status Breakdown from actual Tasks for the Segmented Bar
   const calculateStatusStats = () => {
-    const stats = {
+    const stats: Record<string, number> = {
         completed: 0,
         'in-progress': 0,
         pending: 0,
-        delayed: 0
+        delayed: 0,
+        new: 0
     };
     let total = 0;
 
     tasks.forEach(t => {
-        const dur = t.duration;
-        if (stats[t.status as keyof typeof stats] !== undefined) {
-            stats[t.status as keyof typeof stats] += dur;
-            total += dur;
+        const dur = t.duration || 0;
+        const status = t.status;
+        
+        if (stats[status] !== undefined) {
+            stats[status] += dur;
+        } else {
+            // Handle unknown statuses by grouping them into pending or a separate bucket
+            // For now, we will just initialize it if missing, though Typescript suggests limited statuses
+            stats[status] = (stats[status] || 0) + dur;
         }
+        total += dur;
     });
     
     return { stats, total };
@@ -91,12 +65,27 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
           case 'in-progress': return 'bg-amber-400';
           case 'pending': return 'bg-sky-400';
           case 'delayed': return 'bg-red-500';
+          case 'new': return 'bg-purple-400';
+          case 'cancelled': return 'bg-slate-400';
           default: return 'bg-slate-300';
       }
   };
 
+  const getIcon = (type: string) => {
+      switch(type) {
+          case 'task': return Icons.ClipboardCheck;
+          case 'meeting': return Icons.Briefcase;
+          case 'break': return Icons.Coffee;
+          default: return Icons.Clock;
+      }
+  };
+
+  if (loading) {
+      return <div className="p-6 text-center text-slate-400">Loading stats...</div>;
+  }
+
   return (
-    <div className="flex flex-col gap-6 font-sans pt-1">
+    <div className="flex flex-col gap-6 font-sans p-6">
       
       {/* Stats Row (Clean Grid) */}
       <div className="grid grid-cols-3 divide-x divide-slate-100 border border-slate-200 rounded-xl bg-white shadow-sm">
@@ -116,17 +105,17 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
 
       {/* Clock In/Out Section */}
       <div className="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-2">
-          {/* Always show first In and last Out as summary if collapsed */}
-          {!showClockDetails && mockStats.clockIns.length > 0 && (
+          {/* Summary */}
+          {!showClockDetails && dashboardData?.clockIns && dashboardData.clockIns.length > 0 && (
               <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2 text-slate-700 font-medium">
                       <Icons.Clock />
-                      <span>In: {mockStats.clockIns[0].in}</span>
+                      <span>In: {dashboardData.clockIns[0].in}</span>
                   </div>
                   <span className="text-slate-300 mx-2">|</span>
                   <div className="flex items-center gap-2 text-slate-700 font-medium">
                       <Icons.Clock />
-                      <span>Out: {mockStats.clockIns[mockStats.clockIns.length - 1].out}</span>
+                      <span>Out: {dashboardData.clockIns[dashboardData.clockIns.length - 1].out}</span>
                   </div>
               </div>
           )}
@@ -134,7 +123,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
           {/* Expanded Details */}
           {showClockDetails && (
             <div className="space-y-2 animate-in slide-in-from-top-1 duration-200">
-                {mockStats.clockIns.map((time, idx) => (
+                {dashboardData?.clockIns?.map((time, idx) => (
                     <div key={idx} className="flex justify-between items-center text-sm border-b border-slate-200/60 last:border-0 pb-1 last:pb-0">
                         <div className="flex items-center gap-2 text-slate-600">
                             <Icons.Clock />
@@ -150,7 +139,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
           )}
 
           {/* Expand Toggle */}
-          {mockStats.clockIns.length > 0 && (
+          {dashboardData?.clockIns && dashboardData.clockIns.length > 0 && (
              <div className="flex justify-end pt-1 border-t border-slate-200/50 mt-2">
                  <button 
                     onClick={() => setShowClockDetails(!showClockDetails)}
@@ -165,7 +154,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
 
       {/* Summary Boxes */}
       <div className="grid grid-cols-4 gap-2">
-          {mockStats.breakdown.map((item, idx) => (
+          {dashboardData?.statsBreakdown?.map((item, idx) => (
              <div key={idx} className="bg-white rounded-lg p-2 border border-slate-200 flex flex-col items-center justify-center text-center shadow-sm hover:border-indigo-200 transition-colors">
                 <div className="text-[9px] text-slate-400 font-bold uppercase mb-1 truncate w-full">{item.label}</div>
                 <div className="text-lg font-semibold text-slate-800 mb-1 leading-none">{item.time}</div>
@@ -211,7 +200,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
                                     <div className={`w-2 h-2 rounded-full ${getStatusColor(status)}`}></div>
                                     <span className="text-slate-600 capitalize">{status}</span>
                                 </div>
-                                <span className="text-slate-400 font-medium">{duration}h ({Math.round(pct)}%)</span>
+                                <span className="text-slate-400 font-medium">{duration.toFixed(1)}h ({Math.round(pct)}%)</span>
                             </div>
                         );
                     })}
@@ -231,7 +220,9 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
              <div className="absolute left-[5px] top-2 bottom-2 w-px bg-slate-200"></div>
 
              <div className="space-y-4">
-                 {timelineEvents.map((event, idx) => (
+                 {dashboardData?.timelineEvents?.map((event, idx) => {
+                     const Icon = getIcon(event.iconType as any);
+                     return (
                      <div key={idx} className="relative pl-6 group">
                          {/* Timeline Dot */}
                          <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full border-2 border-white bg-indigo-500 shadow-sm z-10 ring-1 ring-slate-100"></div>
@@ -239,7 +230,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
                          <div className="bg-white border border-slate-200 rounded-lg p-3 hover:shadow-sm hover:border-indigo-200 transition-all">
                              <div className="flex justify-between items-start mb-0.5">
                                  <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide ${event.color.replace('text-', 'bg-').replace('600', '50')} ${event.color} flex items-center gap-1 w-fit`}>
-                                     <span className="w-3 h-3"><event.icon /></span>
+                                     <span className="w-3 h-3"><Icon /></span>
                                      {event.type}
                                  </div>
                                  <div className="text-xs font-bold text-slate-700 font-mono">{event.duration}</div>
@@ -249,7 +240,7 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
                              <div className="text-sm font-semibold text-slate-800">{event.title}</div>
                          </div>
                      </div>
-                 ))}
+                 )})}
              </div>
           </div>
       </div>

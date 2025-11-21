@@ -1,10 +1,10 @@
 
 export type TaskType = 'cleaning' | 'maintenance' | 'inspection' | 'delivery';
 
-// Added 'new' to TaskStatus
-export type TaskStatus = 'new' | 'pending' | 'in-progress' | 'completed' | 'delayed';
+// Added 'new' to TaskStatus, and backend statuses
+export type TaskStatus = 'new' | 'pending' | 'in-progress' | 'completed' | 'delayed' | 'open' | 'cancelled' | 'closed';
 
-export type TaskPriority = 'low' | 'medium' | 'high';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface FilterState {
   searchQuery: string;
@@ -76,7 +76,8 @@ export interface Reservation {
 
 export type AttendanceStatus = 'Off duty' | 'Shift End' | 'Working' | 'In break' | '--';
 export type Department = 'Toronto Office' | 'Orlando Operation Team' | 'Offshore CS Team' | 'Development Team' | '--';
-export type Position = 'Maintenance' | 'Inspector' | 'Guest Service' | 'Owner Service' | 'Office Admin' | 'Accountant' | 'Dispatcher' | 'Cleaner' | '--';
+// Expanded Position type to include roles found in mock data
+export type Position = 'Maintenance' | 'Inspector' | 'Guest Service' | 'Owner Service' | 'Office Admin' | 'Accountant' | 'Dispatcher' | 'Cleaner' | 'Technician' | 'Housekeeper' | 'Operator' | 'Delivery' | '--';
 export type ViewMode = 'daily' | 'timesheet';
 
 export interface AttendanceUser {
@@ -100,4 +101,131 @@ export interface AttendanceRecord {
   clockInCount?: number;
   clockOutCount?: number;
   totalWorkingDurationSec: number;
+  // Extended fields for timesheet view
+  regularHours?: string;
+  overtimeHours?: string;
+  totalHours?: string;
+  payableHours?: string;
+  hasWarning?: boolean;
+  isOff?: boolean;
+}
+
+// --- Dashboard & Stats Types ---
+
+export interface PerformanceKPIs {
+  completionRate: number;
+  efficiency: number;
+  avgDelay: number;
+}
+
+export interface PerformanceScore {
+  score: number;
+  letterGrade: string;
+  kpis: PerformanceKPIs;
+}
+
+export interface TaskStats {
+  notStarted: number;
+  inProgress: number;
+  completed: number;
+  pending: number;
+  totalTaskActual: string;
+  totalTaskEstimated: string;
+  totalOtherWork: string;
+}
+
+export interface ReviewStats {
+  overallRate: number;
+  totalReviewCount: number;
+  "5stars": number;
+  "4stars": number;
+  "3stars": number;
+  "2stars": number;
+  "1stars": number;
+}
+
+export interface TimelineEvent {
+  type: string;
+  title: string;
+  time: string;
+  duration: string;
+  color: string;
+  iconType: 'task' | 'meeting' | 'break' | 'default';
+}
+
+export interface ApiUserDashboardResponse {
+  performanceScore: PerformanceScore;
+  taskStats: TaskStats;
+  reviewStats: ReviewStats;
+  // Mock fields for UI timeline
+  timelineEvents?: TimelineEvent[]; 
+  clockIns?: { in: string; out: string }[];
+  statsBreakdown?: { label: string; time: string; pct: string; color: string }[];
+}
+
+// --- Backend DTOs (Derived from OpenAPI) ---
+
+export interface ApiUserRef {
+  id: string;
+  fullName: string | null;
+  avatarUrl: string | null;
+  // Extra fields often returned in relations
+  department?: string;
+  position?: string;
+}
+
+export interface ApiListingRef {
+  id: string;
+  title: string | null;
+  nickname: string | null;
+}
+
+export interface ApiTaskOutput {
+  id: string;
+  pmsTaskId: string | null;
+  title: string | null;
+  description: string | null;
+  status: string | null; // open, in_progress, completed, cancelled, closed
+  taskTypeCode: string | null; // maintenance, cleaning, inspection, delivery
+  priority: string | null; // high, medium, low
+  assigneeId: string | null;
+  assignee: ApiUserRef | null;
+  listingId: string | null;
+  listing: ApiListingRef | null;
+  plannedStartAt: string | null; // ISO 8601
+  plannedDurationSec: number | null;
+  actualStart: string | null;
+  actualDurationSec: number | null;
+  dueAt: string | null;
+  feedbackNote?: string | null;
+  extraInfo?: Record<string, any> | null;
+}
+
+export interface ApiReservationOutput {
+  id: string;
+  guestFullName: string | null;
+  reservationCode: string | null; // pmsReservationId or otaConfirmationCode
+  reservationStatusCode: string | null;
+  checkIn: string | null;
+  checkOut: string | null;
+  listing: ApiListingRef | null;
+  guestscount: number | null;
+  nightsCount: number | null;
+  otaTypeCode: string | null;
+  netIncome?: string | null;
+  totalFees?: string | null;
+  // Add other fields from ReservationOutput as needed
+}
+
+export interface ApiAttendanceOutput {
+  id: string;
+  userId: string;
+  user: ApiUserRef | null;
+  attendanceDate: string | null;
+  attendanceStatus: string | null;
+  firstClockInAt: string | null;
+  finalClockOutAt: string | null;
+  totalWorkingDurationSec: number | null;
+  clockInCount?: number;
+  clockOutCount?: number;
 }

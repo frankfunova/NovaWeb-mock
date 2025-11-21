@@ -1,9 +1,20 @@
 
-import { Staff, Task, Reservation, AttendanceRecord } from '../types';
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord } from '../types';
 
+// Helper to create today's date with specific hour
+const getTodayAt = (hour: number, minute: number = 0) => {
+    const d = new Date();
+    d.setHours(hour, minute, 0, 0);
+    return d.toISOString();
+};
+
+// Snowflake ID Generator (Mock)
+const genId = (suffix: string) => `7333${suffix.padStart(14, '0')}`;
+
+// --- MOCK STAFF ---
 export const MOCK_STAFF: Staff[] = [
   {
-    id: 'eh',
+    id: genId('101'),
     name: 'Example Housekeeper',
     initials: 'EH',
     role: 'Housekeeper',
@@ -15,7 +26,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 17,
   },
   {
-    id: 'ff',
+    id: genId('102'),
     name: 'Frank Fu',
     initials: 'FF',
     role: 'Technician',
@@ -27,7 +38,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 17,
   },
   {
-    id: 'th',
+    id: genId('103'),
     name: 'Team Housekeeper',
     initials: 'TH',
     role: 'Housekeeper',
@@ -39,7 +50,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 18,
   },
   {
-    id: 'to',
+    id: genId('104'),
     name: 'Test OP',
     initials: 'TO',
     role: 'Operator',
@@ -51,7 +62,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 17,
   },
   {
-    id: 'js',
+    id: genId('105'),
     name: 'John Smith',
     initials: 'JS',
     role: 'Maintenance',
@@ -63,7 +74,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 20,
   },
   {
-    id: 'ad',
+    id: genId('106'),
     name: 'Alice Doe',
     initials: 'AD',
     role: 'Inspector',
@@ -75,7 +86,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 16,
   },
   {
-    id: 'mk',
+    id: genId('107'),
     name: 'Mike K.',
     initials: 'MK',
     role: 'Delivery',
@@ -87,7 +98,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 15,
   },
   {
-    id: 'sl',
+    id: genId('108'),
     name: 'Sarah Lee',
     initials: 'SL',
     role: 'Housekeeper',
@@ -99,7 +110,7 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 18,
   },
   {
-    id: 'br',
+    id: genId('109'),
     name: 'Ben Ross',
     initials: 'BR',
     role: 'Technician',
@@ -112,668 +123,429 @@ export const MOCK_STAFF: Staff[] = [
   },
 ];
 
-export const INITIAL_TASKS: Task[] = [
+// --- MOCK TASKS (API Output Format) ---
+export const MOCK_API_TASKS: ApiTaskOutput[] = [
   {
-    id: 't1',
-    staffId: 'ff',
+    id: genId('201'),
+    pmsTaskId: 'T-1001',
     title: 'Fix lamp',
-    location: '2607 Guest Room',
-    type: 'maintenance',
-    startTime: 11.25,
-    duration: 1.25,
-    plannedStartTime: 11,
-    plannedDuration: 1,
+    description: 'Bedside lamp flickering in master bedroom',
     status: 'delayed',
-    notes: '+15m late start',
-    priority: 'medium'
+    taskTypeCode: 'maintenance',
+    priority: 'medium',
+    assigneeId: genId('102'), // Frank Fu
+    assignee: { id: genId('102'), fullName: 'Frank Fu', avatarUrl: null },
+    listingId: 'L-001',
+    listing: { id: 'L-001', title: 'Ocean View Villa', nickname: '2607 Guest Room' },
+    plannedStartAt: getTodayAt(11, 0),
+    plannedDurationSec: 3600, // 1h
+    actualStart: getTodayAt(11, 15),
+    actualDurationSec: 3600, // 1h (Actual)
+    dueAt: getTodayAt(12, 0),
+    feedbackNote: '+15m late start',
   },
   {
-    id: 't2',
-    staffId: 'ff',
+    id: genId('202'),
+    pmsTaskId: 'T-1002',
     title: 'Check HVAC',
-    location: 'Beach House',
-    type: 'inspection',
-    startTime: 13,
-    duration: 2,
-    plannedStartTime: 13,
-    plannedDuration: 2,
+    description: 'Routine inspection of AC units',
     status: 'pending',
-    priority: 'medium'
+    taskTypeCode: 'inspection',
+    priority: 'low',
+    assigneeId: genId('102'), // Frank Fu
+    assignee: { id: genId('102'), fullName: 'Frank Fu', avatarUrl: null },
+    listingId: 'L-002',
+    listing: { id: 'L-002', title: 'Beach House', nickname: 'Beach House' },
+    plannedStartAt: getTodayAt(13, 0),
+    plannedDurationSec: 7200, // 2h
+    actualStart: null,
+    actualDurationSec: 0,
+    dueAt: getTodayAt(15, 0),
   },
   {
-    id: 't3',
-    staffId: 'th',
+    id: genId('203'),
+    pmsTaskId: 'T-1003',
     title: 'Deep cleaning',
-    location: 'Ocean View Villa',
-    type: 'cleaning',
-    startTime: 10,
-    duration: 4.5,
-    plannedStartTime: 10,
-    plannedDuration: 4,
-    status: 'in-progress',
-    notes: 'Running overtime',
-    priority: 'medium'
+    description: 'Full turnover cleaning including carpet shampoo',
+    status: 'in_progress',
+    taskTypeCode: 'cleaning',
+    priority: 'high',
+    assigneeId: genId('103'), // Team Housekeeper
+    assignee: { id: genId('103'), fullName: 'Team Housekeeper', avatarUrl: null },
+    listingId: 'L-001',
+    listing: { id: 'L-001', title: 'Ocean View Villa', nickname: 'Ocean View Villa' },
+    plannedStartAt: getTodayAt(10, 0),
+    plannedDurationSec: 14400, // 4h
+    actualStart: getTodayAt(10, 0),
+    actualDurationSec: 16200, // 4.5h
+    dueAt: getTodayAt(14, 0),
+    feedbackNote: 'Running overtime due to extra mess',
   },
   {
-    id: 't4',
-    staffId: 'unassigned',
+    id: genId('204'),
+    pmsTaskId: 'T-1004',
     title: 'Towel Delivery',
-    location: 'Pool Area',
-    type: 'delivery',
-    startTime: 9.5,
-    duration: 0.5,
-    plannedStartTime: 9.5,
-    plannedDuration: 0.5,
+    description: 'Deliver 4 extra pool towels',
     status: 'pending',
-    priority: 'low'
+    taskTypeCode: 'delivery',
+    priority: 'low',
+    assigneeId: null, // Unassigned
+    assignee: null,
+    listingId: 'L-003',
+    listing: { id: 'L-003', title: 'Pool Area', nickname: 'Pool Area' },
+    plannedStartAt: getTodayAt(9, 30),
+    plannedDurationSec: 1800, // 0.5h
+    actualStart: null,
+    actualDurationSec: 0,
+    dueAt: getTodayAt(10, 0),
   },
   {
-    id: 't5',
-    staffId: 'js',
+    id: genId('205'),
+    pmsTaskId: 'T-1005',
     title: 'Pool Filter',
-    location: 'Main Pool',
-    type: 'maintenance',
-    startTime: 13,
-    duration: 2,
-    plannedStartTime: 13,
-    plannedDuration: 2,
+    description: 'Clean and backwash pool filter',
     status: 'completed',
-    priority: 'medium'
+    taskTypeCode: 'maintenance',
+    priority: 'medium',
+    assigneeId: genId('105'), // John Smith
+    assignee: { id: genId('105'), fullName: 'John Smith', avatarUrl: null },
+    listingId: 'L-003',
+    listing: { id: 'L-003', title: 'Main Pool', nickname: 'Main Pool' },
+    plannedStartAt: getTodayAt(13, 0),
+    plannedDurationSec: 7200,
+    actualStart: getTodayAt(13, 0),
+    actualDurationSec: 7200,
+    dueAt: getTodayAt(15, 0),
   },
   {
-    id: 't6',
-    staffId: 'ad',
+    id: genId('206'),
+    pmsTaskId: 'T-1006',
     title: 'Safety Check',
-    location: 'Lobby',
-    type: 'inspection',
-    startTime: 14.5,
-    duration: 1,
-    plannedStartTime: 14.5,
-    plannedDuration: 1,
+    description: 'Monthly safety inspection of lobby area',
     status: 'pending',
-    priority: 'high'
+    taskTypeCode: 'inspection',
+    priority: 'high',
+    assigneeId: genId('106'), // Alice Doe
+    assignee: { id: genId('106'), fullName: 'Alice Doe', avatarUrl: null },
+    listingId: 'L-004',
+    listing: { id: 'L-004', title: 'Lobby', nickname: 'Lobby' },
+    plannedStartAt: getTodayAt(14, 30),
+    plannedDurationSec: 3600,
+    actualStart: null,
+    actualDurationSec: 0,
+    dueAt: getTodayAt(15, 30),
+  },
+  // List View specific tasks matching screenshot
+  {
+    id: genId('207'),
+    pmsTaskId: 'T-1007',
+    title: 'Replace the battery of the light fixture, 1st bedroom - 14...',
+    description: 'Issue reported from Maintenance: Highlighted Answers ...',
+    status: 'open',
+    taskTypeCode: 'maintenance',
+    priority: 'low',
+    assigneeId: genId('102'),
+    assignee: { id: genId('102'), fullName: 'MT - Luis', avatarUrl: null },
+    listingId: '1415MV CG',
+    listing: { id: '1415MV CG', title: '1415MV CG', nickname: '1415MV CG' },
+    plannedStartAt: '2025-11-23T18:45:00Z',
+    plannedDurationSec: 3600, // 1h
+    actualStart: null,
+    actualDurationSec: 0,
+    dueAt: '2025-11-23T19:15:00Z'
   },
   {
-    id: 't7',
-    staffId: 'unassigned',
-    title: 'Room 204 Clean',
-    location: 'Room 204',
-    type: 'cleaning',
-    startTime: 0,
-    duration: 1,
-    plannedStartTime: 0,
-    plannedDuration: 1,
-    status: 'pending',
-    priority: 'medium'
+    id: genId('208'),
+    pmsTaskId: 'T-1008',
+    title: 'check Propane - 3715LA WIR',
+    description: '-',
+    status: 'open',
+    taskTypeCode: 'maintenance',
+    priority: 'low',
+    assigneeId: genId('999'),
+    assignee: { id: genId('999'), fullName: 'Vendor - Golden Grill Carlos Gomes', avatarUrl: null },
+    listingId: '3715LA WIR',
+    listing: { id: '3715LA WIR', title: '3715LA WIR', nickname: '3715LA WIR' },
+    plannedStartAt: '2025-11-20T18:00:00Z',
+    plannedDurationSec: 3600,
+    actualStart: null,
+    actualDurationSec: 0,
+    dueAt: '2025-11-20T19:00:00Z'
   },
+  // New task for Frank Fu to ensure "Completed" segment shows up
   {
-    id: 't8',
-    staffId: 'unassigned',
-    title: 'Lobby Light',
-    location: 'Lobby',
-    type: 'maintenance',
-    startTime: 0,
-    duration: 0.5,
-    plannedStartTime: 0,
-    plannedDuration: 0.5,
-    status: 'pending',
-    priority: 'low'
-  },
-];
-
-export const MOCK_TASKS_LIST: Task[] = [
-    {
-        id: 'mt-1',
-        staffId: 'u1',
-        assigneeName: 'MT - Luis',
-        title: 'Replace the battery of the light fixture, 1st bedroom - 1415MV CG',
-        description: 'Issue reported from Maintenance: Highlighted Answers ...',
-        propertyName: '1415MV CG',
-        location: '1415MV CG',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-23T18:45:00',
-        startTime: 18.75,
-        duration: 0.5,
-        plannedStartTime: 18.75,
-        plannedDuration: 0.5,
-    },
-    {
-        id: 'mt-2',
-        staffId: 'v1',
-        assigneeName: 'Vendor - Golden Grill Carlos Gomes',
-        isVendor: true,
-        title: 'check Propane - 3715LA WIR',
-        description: '-',
-        propertyName: '3715LA WIR',
-        location: '3715LA WIR',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-20T18:00:00',
-        startTime: 18,
-        duration: 1,
-        plannedStartTime: 18,
-        plannedDuration: 1,
-    },
-    {
-        id: 'mt-3',
-        staffId: 'u8',
-        assigneeName: 'MT - Sebastian(Zone 2)',
-        title: 'PH OFF - 1020LFD BV',
-        description: 'PH OFF',
-        propertyName: '1020LFD BV',
-        location: '1020LFD BV',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-29T18:00:00',
-        startTime: 18,
-        duration: 0.5,
-        plannedStartTime: 18,
-        plannedDuration: 0.5,
-    },
-    {
-        id: 'mt-4',
-        staffId: 'u8',
-        assigneeName: 'MT - Sebastian(Zone 2)',
-        title: 'PH ON - 1020LFD BV',
-        description: 'PH ON',
-        propertyName: '1020LFD BV',
-        location: '1020LFD BV',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-24T18:00:00',
-        startTime: 18,
-        duration: 0.5,
-        plannedStartTime: 18,
-        plannedDuration: 0.5,
-    },
-    {
-        id: 'mt-5',
-        staffId: 'u1',
-        assigneeName: 'MT - Luis',
-        title: 'SPA jets not working - 1197AB WIR',
-        description: '> G request > SPA jets not working > consent given',
-        propertyName: '1197AB WIR',
-        location: '1197AB WIR',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-20T18:30:00',
-        startTime: 18.5,
-        duration: 1,
-        plannedStartTime: 18.5,
-        plannedDuration: 1,
-    },
-    {
-        id: 'mt-6',
-        staffId: 'u1',
-        assigneeName: 'MT - Luis',
-        title: 'the toilet upstairs won\'t flush & it\'s not clogged - 1197A...',
-        description: '> G request > the toilet upstairs won\'t flush & it\'s not clo...',
-        propertyName: '1197AB WIR',
-        location: '1197AB WIR',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-20T18:30:00',
-        startTime: 18.5,
-        duration: 1,
-        plannedStartTime: 18.5,
-        plannedDuration: 1,
-    },
-    {
-        id: 'mt-7',
-        staffId: 'v1',
-        assigneeName: 'Vendor - Golden Grill Carlos Gomes',
-        isVendor: true,
-        title: 'Pick up 4B grill - 3715LA WIR',
-        description: 'Pickup 4 Burner grill - 3715LA WIR',
-        propertyName: '3715LA WIR',
-        location: '3715LA WIR',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-23T18:00:00',
-        startTime: 18,
-        duration: 0.5,
-        plannedStartTime: 18,
-        plannedDuration: 0.5,
-    },
-    {
-        id: 'mt-8',
-        staffId: 'u15',
-        assigneeName: 'OP - Johanna(Zone 2)',
-        title: 'Deliver 4B Grill - 3715LA WIR',
-        description: 'Deliver 4 Burner grill - 3715LA WIR Grill code: 3693',
-        propertyName: '3715LA WIR',
-        location: '3715LA WIR',
-        type: 'delivery',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-20T18:00:00',
-        startTime: 18,
-        duration: 0.5,
-        plannedStartTime: 18,
-        plannedDuration: 0.5,
-    },
-    {
-        id: 'mt-9',
-        staffId: 'u7',
-        assigneeName: 'MT - Hugo (Zone2)',
-        title: '[High!] Lights in the back is not working - 4505TB SL',
-        description: 'Lights in the back is not working - 4505TB SL waiting fo...',
-        propertyName: '4505TB SL',
-        location: '4505TB SL',
-        type: 'maintenance',
-        status: 'new',
-        priority: 'high',
-        scheduledAt: '2023-11-20T18:54:00',
-        startTime: 18.9,
-        duration: 1.5,
-        plannedStartTime: 18.9,
-        plannedDuration: 1.5,
-    },
-    {
-        id: 'mt-10',
-        staffId: 'u7',
-        assigneeName: 'MT - Hugo (Zone2)',
-        title: 'Check for leaking due to high bill - 2798OW SL',
-        description: 'Please check if there\'s any leaking in this property. The ...',
-        propertyName: '2798OW SL',
-        location: '2798OW SL',
-        type: 'inspection',
-        status: 'new',
-        priority: 'low',
-        scheduledAt: '2023-11-20T18:00:00',
-        startTime: 18,
-        duration: 1,
-        plannedStartTime: 18,
-        plannedDuration: 1,
-    },
-];
-
-export const MOCK_RESERVATIONS: Reservation[] = [
-  {
-    id: 'r1',
-    propertyCode: '1820SD WIR',
-    reservationCode: 'HA-zYkvtXP',
-    startDate: '2025-12-20',
-    endDate: '2025-12-27',
-    source: 'VRBO',
-    guestName: 'Catherine Henry',
-    nights: 7,
-    status: 'Confirmed',
-    guestCount: 1,
-    payout: 1250.00,
-    email: 'catherine.henry@example.com',
-    phone: '+1 (555) 123-4567'
-  },
-  {
-    id: 'r2',
-    propertyCode: '231BD BV',
-    reservationCode: '',
-    startDate: '2025-12-28',
-    endDate: '2026-01-07',
-    source: 'Airbnb',
-    guestName: 'Victor',
-    nights: 10,
-    status: 'Confirmed',
-    guestCount: 12,
-    payout: 3400.50,
-    email: 'victor@example.com'
-  },
-  {
-    id: 'r3',
-    propertyCode: '8817RS WAW',
-    reservationCode: 'HMQN9PFC8Q',
-    startDate: '2025-12-30',
-    endDate: '2026-01-03',
-    source: 'Airbnb',
-    guestName: 'Jose Nava',
-    nights: 4,
-    status: 'Confirmed',
-    guestCount: 10,
-    payout: 890.00
-  },
-  {
-    id: 'r4',
-    propertyCode: '1244CD CG',
-    reservationCode: 'HMKQPAPXPS',
-    startDate: '2026-02-05',
-    endDate: '2026-02-10',
-    source: 'Airbnb',
-    guestName: 'James Gauthier',
-    nights: 5,
-    status: 'Confirmed',
-    guestCount: 5,
-    payout: 1100.00
-  },
-  {
-    id: 'r5',
-    propertyCode: '1852NC WAW',
-    reservationCode: '',
-    startDate: '2025-12-28',
-    endDate: '2026-01-02',
-    source: 'Airbnb',
-    guestName: 'Samantha',
-    nights: 5,
-    status: 'Confirmed',
-    guestCount: 9,
-    payout: 1550.00
-  },
-  {
-    id: 'r6',
-    propertyCode: '4185PD SL',
-    reservationCode: '',
-    startDate: '2026-02-24',
-    endDate: '2026-03-05',
-    source: 'Airbnb',
-    guestName: 'Brent',
-    nights: 9,
-    status: 'Confirmed',
-    guestCount: 8,
-    payout: 2100.00
-  },
-  {
-    id: 'r7',
-    propertyCode: '3409LW WIR',
-    reservationCode: 'HMAMQ3YAN4',
-    startDate: '2026-01-22',
-    endDate: '2026-01-25',
-    source: 'Airbnb',
-    guestName: 'Janiyah Brown',
-    nights: 3,
-    status: 'Confirmed',
-    guestCount: 11,
-    payout: 750.00
-  },
-  {
-    id: 'r8',
-    propertyCode: '2993PS SL',
-    reservationCode: 'HMYA32SP2W',
-    startDate: '2025-12-27',
-    endDate: '2026-01-10',
-    source: 'Airbnb',
-    guestName: 'Bernardo R Vieira',
-    nights: 14,
-    status: 'Confirmed',
-    guestCount: 9,
-    payout: 4200.00
-  },
-  {
-    id: 'r9',
-    propertyCode: '1060LS CG',
-    reservationCode: '',
-    startDate: '2026-01-21',
-    endDate: '2026-02-05',
-    source: 'Airbnb',
-    guestName: 'Brenda',
-    nights: 15,
-    status: 'Confirmed',
-    guestCount: 4,
-    payout: 3800.00
-  },
-  {
-    id: 'r10',
-    propertyCode: '2540HS WH (New)',
-    reservationCode: 'HMB2M5X4W8',
-    startDate: '2026-01-24',
-    endDate: '2026-01-28',
-    source: 'Airbnb',
-    guestName: 'Gabrielle',
-    nights: 4,
-    status: 'Confirmed',
-    guestCount: 9,
-    payout: 1200.00
-  },
-   {
-    id: 'r11',
-    propertyCode: '1820SD WIR',
-    reservationCode: '',
-    startDate: '2025-12-29',
-    endDate: '2026-01-02',
-    source: 'Airbnb',
-    guestName: 'Veronica',
-    nights: 4,
-    status: 'Confirmed',
-    guestCount: 14,
-    payout: 1450.00
-  },
-  {
-    id: 'r12',
-    propertyCode: '1820SD WIR',
-    reservationCode: '',
-    startDate: '2025-12-29',
-    endDate: '2026-01-03',
-    source: 'Airbnb',
-    guestName: 'Annalisa',
-    nights: 5,
-    status: 'Confirmed',
-    guestCount: 4,
-    payout: 900.00
-  },
-  {
-    id: 'r13',
-    propertyCode: '2936PS SL',
-    reservationCode: 'HMQ8X2D9EF',
-    startDate: '2026-01-01',
-    endDate: '2026-01-11',
-    source: 'Airbnb',
-    guestName: 'Cristian Leandro Mantelli',
-    nights: 10,
-    status: 'Confirmed',
-    guestCount: 14,
-    payout: 3100.00
+    id: genId('209'),
+    pmsTaskId: 'T-1009',
+    title: 'Previous Inspection',
+    description: 'Morning check',
+    status: 'completed',
+    taskTypeCode: 'inspection',
+    priority: 'medium',
+    assigneeId: genId('102'), // Frank Fu
+    assignee: { id: genId('102'), fullName: 'Frank Fu', avatarUrl: null },
+    listingId: 'L-005',
+    listing: { id: 'L-005', title: 'Clubhouse', nickname: 'Clubhouse' },
+    plannedStartAt: getTodayAt(9, 0),
+    plannedDurationSec: 7200, // 2h
+    actualStart: getTodayAt(9, 0),
+    actualDurationSec: 7200, // 2h (Actual)
+    dueAt: getTodayAt(11, 0),
   }
 ];
 
-export const MOCK_ATTENDANCE: AttendanceRecord[] = [
+// --- MOCK RESERVATIONS (API Output) ---
+export const MOCK_API_RESERVATIONS: ApiReservationOutput[] = [
   {
-    id: 'a1',
-    userId: 'u1',
-    user: {
-      id: 'u1',
-      fullName: 'Luis Manuel',
-      avatarColor: 'bg-indigo-600',
-      initials: 'LU',
-      department: 'Orlando Operation Team',
-      position: 'Maintenance'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Working',
-    firstClockInAt: '2025-11-19T16:47:00',
-    finalClockOutAt: '2025-11-19T20:52:00',
-    clockInCount: 3,
-    clockOutCount: 3,
-    totalWorkingDurationSec: 30480 // 8h 28m
+    id: genId('301'),
+    guestFullName: 'Jose Nava',
+    reservationCode: 'HMQN9PFC8Q',
+    reservationStatusCode: 'Confirmed',
+    checkIn: '2025-12-29T15:00:00',
+    checkOut: '2026-01-02T11:00:00',
+    listing: { id: '1820SD', title: '1820SD WIR', nickname: '1820SD WIR' },
+    guestscount: 10,
+    nightsCount: 4,
+    otaTypeCode: 'Airbnb',
+    netIncome: '890.00',
+    totalFees: '150.00'
   },
   {
-    id: 'a2',
-    userId: 'u2',
-    user: {
-      id: 'u2',
-      fullName: 'Carolina',
-      avatarColor: 'bg-orange-500',
-      initials: 'CS',
-      department: 'Orlando Operation Team',
-      position: 'Cleaner'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Shift End',
-    firstClockInAt: '2025-11-19T15:42:00',
-    finalClockOutAt: '2025-11-19T18:57:00',
-    clockInCount: 3,
-    clockOutCount: 3,
-    totalWorkingDurationSec: 30600 // 8h 30m
+    id: genId('302'),
+    guestFullName: 'Alice Johnson',
+    reservationCode: 'HA-zYkvt',
+    reservationStatusCode: 'Checked In',
+    checkIn: '2025-11-18T15:00:00',
+    checkOut: '2025-11-25T11:00:00',
+    listing: { id: '231BD', title: '231BD BV', nickname: '231BD BV' },
+    guestscount: 4,
+    nightsCount: 7,
+    otaTypeCode: 'VRBO',
+    netIncome: '1250.00',
+    totalFees: '200.00'
   },
   {
-    id: 'a3',
-    userId: 'u3',
-    user: {
-      id: 'u3',
-      fullName: 'Nestor Daniel',
-      avatarColor: 'bg-teal-400',
-      initials: 'NB',
-      department: 'Orlando Operation Team',
-      position: 'Maintenance'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Working',
-    firstClockInAt: '2025-11-19T09:51:00',
-    finalClockOutAt: '2025-11-19T18:21:00',
-    totalWorkingDurationSec: 30600
+    id: genId('303'),
+    guestFullName: 'Michael Brown',
+    reservationCode: 'HMQN9PFC8Q',
+    reservationStatusCode: 'Pending',
+    checkIn: '2025-12-01T15:00:00',
+    checkOut: '2025-12-05T11:00:00',
+    listing: { id: '8817RS', title: '8817RS WAW', nickname: '8817RS WAW' },
+    guestscount: 2,
+    nightsCount: 4,
+    otaTypeCode: 'Booking',
+    netIncome: '600.00',
+    totalFees: '80.00'
   },
+];
+
+// --- MOCK ATTENDANCE (API Output) ---
+export const MOCK_API_ATTENDANCE: ApiAttendanceOutput[] = [
   {
-    id: 'a4',
-    userId: 'u4',
-    user: {
-      id: 'u4',
-      fullName: 'Diego',
-      avatarColor: 'bg-slate-800',
-      initials: 'D',
-      department: 'Toronto Office',
-      position: 'Inspector'
-    },
+    id: genId('401'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarUrl: null, department: 'Orlando Operation Team', position: 'Technician' },
     attendanceDate: '2025-11-19',
-    status: 'In break',
-    firstClockInAt: '2025-11-19T09:38:00',
-    finalClockOutAt: '2025-11-19T14:26:00',
-    totalWorkingDurationSec: 17280 // 4h 48m
-  },
-  {
-    id: 'a5',
-    userId: 'u5',
-    user: {
-      id: 'u5',
-      fullName: 'Pito',
-      avatarColor: 'bg-yellow-300',
-      initials: 'PM',
-      department: 'Orlando Operation Team',
-      position: 'Cleaner'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Working',
-    firstClockInAt: '2025-11-19T09:32:00',
-    finalClockOutAt: '2025-11-19T18:02:00',
-    totalWorkingDurationSec: 30600
-  },
-  {
-    id: 'a6',
-    userId: 'u6',
-    user: {
-      id: 'u6',
-      fullName: 'Fabricio',
-      avatarColor: 'bg-green-600',
-      initials: 'FP',
-      department: 'Orlando Operation Team',
-      position: 'Maintenance'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Shift End',
-    firstClockInAt: '2025-11-19T09:31:00',
-    finalClockOutAt: '2025-11-19T18:01:00',
-    totalWorkingDurationSec: 30600
-  },
-  {
-    id: 'a7',
-    userId: 'u7',
-    user: {
-      id: 'u7',
-      fullName: 'Hugo',
-      avatarColor: 'bg-slate-400',
-      initials: 'HM',
-      department: 'Orlando Operation Team',
-      position: 'Maintenance'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Working',
-    firstClockInAt: '2025-11-19T09:20:00',
-    finalClockOutAt: '2025-11-19T16:58:00',
-    totalWorkingDurationSec: 27480
-  },
-  {
-    id: 'a8',
-    userId: 'u8',
-    user: {
-      id: 'u8',
-      fullName: 'Sebastian',
-      avatarColor: 'bg-slate-500',
-      initials: 'S',
-      department: 'Orlando Operation Team',
-      position: 'Maintenance'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Shift End',
-    firstClockInAt: '2025-11-19T08:54:00',
-    finalClockOutAt: '2025-11-19T17:13:00',
-    totalWorkingDurationSec: 29940
-  },
-  {
-    id: 'a9',
-    userId: 'u9',
-    user: {
-      id: 'u9',
-      fullName: 'Eric',
-      avatarColor: 'bg-indigo-900',
-      initials: 'E',
-      department: 'Development Team',
-      position: 'Office Admin'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Off duty',
-    totalWorkingDurationSec: 0
-  },
-  {
-    id: 'a10',
-    userId: 'u10',
-    user: {
-      id: 'u10',
-      fullName: 'Madeline',
-      avatarColor: 'bg-slate-700',
-      initials: 'M',
-      department: 'Offshore CS Team',
-      position: 'Guest Service'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Off duty',
-    totalWorkingDurationSec: 0
-  },
-  {
-    id: 'a11',
-    userId: 'u11',
-    user: {
-      id: 'u11',
-      fullName: 'Alex',
-      avatarColor: 'bg-pink-600',
-      initials: 'AL',
-      department: 'Toronto Office',
-      position: 'Accountant'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'Working',
+    attendanceStatus: 'working',
     firstClockInAt: '2025-11-19T09:00:00',
-    finalClockOutAt: '2025-11-19T17:00:00',
+    finalClockOutAt: null,
+    totalWorkingDurationSec: 16200, // 4.5h
+    clockInCount: 1,
+    clockOutCount: 0
+  },
+  {
+    id: genId('402'),
+    userId: genId('103'),
+    user: { id: genId('103'), fullName: 'Team Housekeeper', avatarUrl: null, department: 'Toronto Office', position: 'Housekeeper' },
+    attendanceDate: '2025-11-19',
+    attendanceStatus: 'in_break',
+    firstClockInAt: '2025-11-19T10:00:00',
+    finalClockOutAt: null,
+    totalWorkingDurationSec: 10800, // 3h
+    clockInCount: 1,
+    clockOutCount: 0
+  },
+  {
+    id: genId('403'),
+    userId: genId('105'),
+    user: { id: genId('105'), fullName: 'John Smith', avatarUrl: null, department: 'Offshore CS Team', position: 'Maintenance' },
+    attendanceDate: '2025-11-19',
+    attendanceStatus: 'working',
+    firstClockInAt: '2025-11-19T12:00:00',
+    finalClockOutAt: null,
+    totalWorkingDurationSec: 7200, // 2h
+    clockInCount: 1,
+    clockOutCount: 0
+  },
+  {
+    id: genId('404'),
+    userId: genId('101'),
+    user: { id: genId('101'), fullName: 'Example Housekeeper', avatarUrl: null, department: 'Toronto Office', position: 'Housekeeper' },
+    attendanceDate: '2025-11-19',
+    attendanceStatus: 'off_duty',
+    firstClockInAt: null,
+    finalClockOutAt: null,
+    totalWorkingDurationSec: 0,
+    clockInCount: 0,
+    clockOutCount: 0
+  },
+];
+
+// --- MOCK USER DASHBOARD (StaffDetail) ---
+export const MOCK_USER_DASHBOARD: ApiUserDashboardResponse = {
+  performanceScore: {
+    score: 92.5,
+    letterGrade: 'A+',
+    kpis: {
+      avgDelay: -12, // 12 mins early
+      completionRate: 87,
+      efficiency: 94
+    }
+  },
+  taskStats: {
+    notStarted: 15,
+    inProgress: 5,
+    completed: 12,
+    pending: 3,
+    totalTaskActual: '100h 30m',
+    totalTaskEstimated: '107h 15m',
+    totalOtherWork: '15h 20m'
+  },
+  reviewStats: {
+    overallRate: 4.8,
+    totalReviewCount: 20,
+    "5stars": 12,
+    "4stars": 4,
+    "3stars": 2,
+    "2stars": 0,
+    "1stars": 2
+  },
+  clockIns: [
+    { in: '9:00 AM', out: '5:24 PM' },
+    { in: '7:00 PM', out: '9:00 PM' }
+  ],
+  statsBreakdown: [
+    { label: 'Assigned', time: '5:30', pct: '65%', color: 'bg-purple-50 text-purple-700' },
+    { label: 'Other', time: '2:00', pct: '24%', color: 'bg-slate-50 text-slate-600' },
+    { label: 'Travel', time: '0:09', pct: '2%', color: 'bg-amber-50 text-amber-700' },
+    { label: 'Break', time: '0:45', pct: '9%', color: 'bg-rose-50 text-rose-700' },
+  ],
+  timelineEvents: [
+    {
+      type: 'TASK',
+      title: 'Property Inspection - Unit 305',
+      time: '9:00 AM - 11:15 AM',
+      duration: '2:15',
+      iconType: 'task',
+      color: 'text-indigo-600'
+    },
+    {
+      type: 'MEETING',
+      title: 'Team Standup Meeting',
+      time: '11:30 AM - 12:15 PM',
+      duration: '0:45',
+      iconType: 'meeting',
+      color: 'text-purple-600'
+    },
+    {
+      type: 'BREAK',
+      title: 'Lunch Break',
+      time: '12:15 PM - 1:00 PM',
+      duration: '0:45',
+      iconType: 'break',
+      color: 'text-orange-600'
+    },
+    {
+      type: 'TASK',
+      title: 'HVAC Maintenance - Building A',
+      time: '1:00 PM - 2:30 PM',
+      duration: '1:30',
+      iconType: 'task',
+      color: 'text-indigo-600'
+    }
+  ]
+};
+
+// --- MOCK TIMESHEET LOGS ---
+export const MOCK_TIMESHEET_LOGS: AttendanceRecord[] = [
+  {
+    id: genId('501'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarColor: '', initials: 'FF', department: '--', position: '--' },
+    attendanceDate: '2025-11-20',
+    status: 'Working',
+    regularHours: '8:00',
+    overtimeHours: '0:45',
+    totalHours: '8:45',
+    payableHours: '8:45',
+    hasWarning: false,
+    totalWorkingDurationSec: 31500
+  },
+  {
+    id: genId('502'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarColor: '', initials: 'FF', department: '--', position: '--' },
+    attendanceDate: '2025-11-19',
+    status: 'Shift End',
+    regularHours: '8:00',
+    overtimeHours: '--',
+    totalHours: '8:00',
+    payableHours: '8:00',
+    hasWarning: false,
     totalWorkingDurationSec: 28800
   },
   {
-    id: 'a12',
-    userId: 'u12',
-    user: {
-      id: 'u12',
-      fullName: 'Sarah',
-      avatarColor: 'bg-purple-600',
-      initials: 'SA',
-      department: 'Orlando Operation Team',
-      position: 'Dispatcher'
-    },
-    attendanceDate: '2025-11-19',
-    status: 'In break',
-    firstClockInAt: '2025-11-19T08:30:00',
-    finalClockOutAt: '2025-11-19T16:30:00',
-    totalWorkingDurationSec: 28800
+    id: genId('503'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarColor: '', initials: 'FF', department: '--', position: '--' },
+    attendanceDate: '2025-11-18',
+    status: 'Shift End',
+    regularHours: '7:30',
+    overtimeHours: '--',
+    totalHours: '7:30',
+    payableHours: '7:30',
+    hasWarning: true,
+    totalWorkingDurationSec: 27000
+  },
+  {
+    id: genId('504'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarColor: '', initials: 'FF', department: '--', position: '--' },
+    attendanceDate: '2025-11-17',
+    status: 'Off duty',
+    regularHours: '--',
+    overtimeHours: '--',
+    totalHours: '--',
+    payableHours: '--',
+    hasWarning: false,
+    isOff: true,
+    totalWorkingDurationSec: 0
+  },
+  {
+    id: genId('505'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarColor: '', initials: 'FF', department: '--', position: '--' },
+    attendanceDate: '2025-11-16',
+    status: 'Off duty',
+    regularHours: '--',
+    overtimeHours: '--',
+    totalHours: '--',
+    payableHours: '--',
+    hasWarning: false,
+    isOff: true,
+    totalWorkingDurationSec: 0
+  },
+  {
+    id: genId('506'),
+    userId: genId('102'),
+    user: { id: genId('102'), fullName: 'Frank Fu', avatarColor: '', initials: 'FF', department: '--', position: '--' },
+    attendanceDate: '2025-11-15',
+    status: 'Shift End',
+    regularHours: '8:00',
+    overtimeHours: '1:00',
+    totalHours: '9:00',
+    payableHours: '9:00',
+    hasWarning: false,
+    totalWorkingDurationSec: 32400
   }
 ];

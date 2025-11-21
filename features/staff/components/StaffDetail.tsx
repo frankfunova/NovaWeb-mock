@@ -62,28 +62,15 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
     }
   ];
 
-  // Calculate Status Breakdown from actual Tasks for the Segmented Bar
-  const calculateStatusStats = () => {
-    const stats = {
-        completed: 0,
-        'in-progress': 0,
-        pending: 0,
-        delayed: 0
-    };
-    let total = 0;
-
-    tasks.forEach(t => {
-        const dur = t.duration;
-        if (stats[t.status as keyof typeof stats] !== undefined) {
-            stats[t.status as keyof typeof stats] += dur;
-            total += dur;
-        }
-    });
-    
-    return { stats, total };
+  // Mock Status Distribution Data (Hardcoded for UI Demo)
+  const stats: Record<string, number> = {
+      completed: 2.5,
+      'in-progress': 1.5,
+      pending: 1.0,
+      delayed: 0.5,
+      new: 0.5
   };
-
-  const { stats, total } = calculateStatusStats();
+  const total = 6.0;
 
   const getStatusColor = (status: string) => {
       switch(status) {
@@ -91,6 +78,8 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
           case 'in-progress': return 'bg-amber-400';
           case 'pending': return 'bg-sky-400';
           case 'delayed': return 'bg-red-500';
+          case 'new': return 'bg-purple-400';
+          case 'cancelled': return 'bg-slate-400';
           default: return 'bg-slate-300';
       }
   };
@@ -209,9 +198,9 @@ export const StaffDetail: React.FC<StaffDetailProps> = ({ staff, tasks }) => {
                             <div key={status} className="flex items-center justify-between text-xs">
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full ${getStatusColor(status)}`}></div>
-                                    <span className="text-slate-600 capitalize">{status}</span>
+                                    <span className="text-slate-600 capitalize">{status === 'new' ? 'Open' : status}</span>
                                 </div>
-                                <span className="text-slate-400 font-medium">{duration}h ({Math.round(pct)}%)</span>
+                                <span className="text-slate-400 font-medium">{duration.toFixed(1)}h ({Math.round(pct)}%)</span>
                             </div>
                         );
                     })}
