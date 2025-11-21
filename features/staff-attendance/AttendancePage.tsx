@@ -41,28 +41,6 @@ const getMonthRange = (d: Date) => {
     return { start, end };
 };
 
-const isSameDate = (d1: Date, d2: Date) => {
-    return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
-};
-
-// Helper: Get dynamic label for daily view
-const getDateLabel = (date: Date) => {
-    const today = new Date();
-    // Normalize to midnight for comparison
-    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
-    const diffTime = d.getTime() - t.getTime();
-    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === -1) return 'Yesterday';
-    if (diffDays === 1) return 'Tomorrow';
-    return 'Custom';
-};
-
 // Helper Component for Filters
 interface FilterDropdownProps {
     label: string;
@@ -171,13 +149,6 @@ export const AttendancePage: React.FC = () => {
   const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
   
-  // Dropdown States
-  const [isPresetDropdownOpen, setIsPresetDropdownOpen] = useState(false);
-  const presetDropdownRef = useRef<HTMLDivElement>(null);
-  
-  const [isDailyDropdownOpen, setIsDailyDropdownOpen] = useState(false);
-  const dailyDropdownRef = useRef<HTMLDivElement>(null);
-
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   // Filter States
@@ -213,6 +184,11 @@ export const AttendancePage: React.FC = () => {
   // Handlers
   const handleDateChange = (date: Date) => {
     setCurrentDate(date);
+    // If in timesheet mode, selecting a specific date updates the range to that month
+    if (viewMode === 'timesheet') {
+        const { start, end } = getMonthRange(date);
+        setDateRange({ start, end });
+    }
   };
 
   const shiftDate = (direction: number) => {
@@ -221,12 +197,14 @@ export const AttendancePage: React.FC = () => {
         newDate.setDate(newDate.getDate() + direction);
         setCurrentDate(newDate);
     } else {
-        // Shift range by month for timesheet (since default is month)
+        // Shift range by month for timesheet
         const newStart = new Date(dateRange.start);
         newStart.setMonth(newStart.getMonth() + direction);
         // Recalculate end of month
         const newEnd = new Date(newStart.getFullYear(), newStart.getMonth() + 1, 0);
         setDateRange({ start: newStart, end: newEnd });
+        // Also update current date anchor to start of new month
+        setCurrentDate(newStart);
     }
   };
 
@@ -242,7 +220,9 @@ export const AttendancePage: React.FC = () => {
 
   const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
+        // Treat input as local date
         const [year, month, day] = e.target.value.split('-').map(Number);
+        // Note: Month is 1-indexed in split string, but 0-indexed in Date constructor
         handleDateChange(new Date(year, month - 1, day));
     }
   };
@@ -270,35 +250,6 @@ export const AttendancePage: React.FC = () => {
           const { start, end } = getMonthRange(currentDate);
           setDateRange({ start, end });
       }
-  };
-
-  const handlePresetSelect = (preset: string) => {
-      const today = new Date(2025, 10, 19); // Mock current date base
-      if (preset === 'This Month') {
-          const { start, end } = getMonthRange(today);
-          setDateRange({ start, end });
-      } else if (preset === 'Last Month') {
-          const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-          const { start, end } = getMonthRange(lastMonth);
-          setDateRange({ start, end });
-      }
-      setIsPresetDropdownOpen(false);
-  };
-
-  const handleDailyPreset = (preset: string) => {
-      const today = new Date(2025, 10, 19); // Mock current date
-      if (preset === 'Today') {
-          handleDateChange(today);
-      } else if (preset === 'Yesterday') {
-          const yesterday = new Date(today);
-          yesterday.setDate(today.getDate() - 1);
-          handleDateChange(yesterday);
-      } else if (preset === 'Tomorrow') {
-          const tomorrow = new Date(today);
-          tomorrow.setDate(today.getDate() + 1);
-          handleDateChange(tomorrow);
-      }
-      setIsDailyDropdownOpen(false);
   };
 
   // Filter Logic
@@ -418,36 +369,7 @@ export const AttendancePage: React.FC = () => {
       };
   }, [filteredRecords]);
 
-  // Identify active preset for Timesheet
-  const activePreset = useMemo(() => {
-      if (viewMode === 'daily') return 'Today';
-      const today = new Date(2025, 10, 19); // Mock today
-      const { start: thisStart, end: thisEnd } = getMonthRange(today);
-      const { start: lastStart, end: lastEnd } = getMonthRange(new Date(today.getFullYear(), today.getMonth() - 1, 1));
-
-      if (isSameDate(dateRange.start, thisStart) && isSameDate(dateRange.end, thisEnd)) return 'This Month';
-      if (isSameDate(dateRange.start, lastStart) && isSameDate(dateRange.end, lastEnd)) return 'Last Month';
-      return 'Custom';
-  }, [dateRange, viewMode]);
-  
-  // Identify label for Daily dropdown
-  const dailyLabel = useMemo(() => getDateLabel(currentDate), [currentDate]);
-
   const inputValue = currentDate.toISOString().split('T')[0];
-
-  // Click outside handler for preset dropdowns
-  useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-          if (presetDropdownRef.current && !presetDropdownRef.current.contains(event.target as Node)) {
-              setIsPresetDropdownOpen(false);
-          }
-          if (dailyDropdownRef.current && !dailyDropdownRef.current.contains(event.target as Node)) {
-              setIsDailyDropdownOpen(false);
-          }
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
@@ -467,7 +389,7 @@ export const AttendancePage: React.FC = () => {
                         <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                     </div>
 
-                     {/* View Mode Toggle (Moved Here) */}
+                     {/* View Mode Toggle */}
                      <div className="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
                         <button 
                             onClick={() => handleViewModeChange('daily')}
@@ -553,6 +475,50 @@ export const AttendancePage: React.FC = () => {
         {/* Filter Bar (Row 2) */}
         <div className="px-6 py-3 border-b border-slate-200 bg-slate-50/50 flex items-center gap-2 min-h-[56px]">
             
+            {/* Date Selection - Left Side */}
+            <div className="flex items-center gap-3 mr-4">
+                 <span className="text-sm font-bold text-slate-500 uppercase tracking-wide">
+                     {viewMode === 'daily' ? 'Report date' : 'Report period'}:
+                 </span>
+                 <div className="flex items-center bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
+                     <button onClick={() => shiftDate(-1)} className="p-1.5 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-colors border-r border-slate-100">
+                        <Icons.ChevronLeft />
+                     </button>
+                     
+                     <div className="relative group">
+                        <button 
+                            onClick={openDatePicker}
+                            className="text-sm font-semibold text-slate-800 px-3 py-1 hover:text-indigo-600 hover:bg-slate-50 cursor-pointer flex items-center justify-center gap-2 min-w-[140px]"
+                        >
+                            <span>
+                                {viewMode === 'daily' 
+                                    ? displayDate 
+                                    : `${dateRange.start.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - ${dateRange.end.toLocaleDateString('en-US', {month:'short', day:'numeric'})}`
+                                }
+                            </span>
+                            {viewMode === 'daily' && (
+                                <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            )}
+                        </button>
+                        {/* Hidden Date Picker input always available for easy navigation via Calendar */}
+                        <input 
+                            type="date" 
+                            ref={dateInputRef}
+                            value={inputValue}
+                            onChange={handleDateInputChange}
+                            className="absolute top-full left-0 opacity-0 w-0 h-0 pointer-events-none" 
+                        />
+                    </div>
+
+                     <button onClick={() => shiftDate(1)} className="p-1.5 text-slate-400 hover:bg-slate-50 hover:text-indigo-600 transition-colors border-l border-slate-100">
+                        <Icons.ChevronRight />
+                     </button>
+                 </div>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-slate-200 mx-2"></div>
+
             {/* Filters */}
             <FilterDropdown 
                 label="Department" 
@@ -574,94 +540,6 @@ export const AttendancePage: React.FC = () => {
                     onChange={setSelectedStatuses} 
                 />
             )}
-
-            {/* Date Picker */}
-            <div className="flex items-center gap-0 bg-white border border-slate-200 rounded-md shadow-sm ml-2">
-                {viewMode === 'daily' ? (
-                    // Daily Dropdown Preset
-                    <div className="relative border-r border-slate-200" ref={dailyDropdownRef}>
-                         <button 
-                            onClick={() => setIsDailyDropdownOpen(!isDailyDropdownOpen)}
-                            className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-2 min-w-[100px] justify-between"
-                         >
-                            <span>{dailyLabel}</span>
-                            <svg className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isDailyDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                         </button>
-                         {isDailyDropdownOpen && (
-                             <div className="absolute top-full left-0 mt-1 w-32 bg-white shadow-lg rounded-md border border-slate-100 z-50 py-1 text-sm">
-                                 {['Today', 'Yesterday', 'Tomorrow'].map(opt => (
-                                     <button
-                                        key={opt}
-                                        className="block w-full text-left px-3 py-1.5 hover:bg-slate-50 text-slate-700 font-medium"
-                                        onClick={() => handleDailyPreset(opt)}
-                                     >
-                                        {opt}
-                                     </button>
-                                 ))}
-                             </div>
-                         )}
-                    </div>
-                ) : (
-                    // Dropdown for Timesheet Presets
-                    <div className="relative border-r border-slate-200" ref={presetDropdownRef}>
-                         <button 
-                            onClick={() => setIsPresetDropdownOpen(!isPresetDropdownOpen)}
-                            className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-2 min-w-[110px] justify-between"
-                         >
-                            <span>{activePreset}</span>
-                            <svg className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${isPresetDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                         </button>
-                         {isPresetDropdownOpen && (
-                             <div className="absolute top-full left-0 mt-1 w-32 bg-white shadow-lg rounded-md border border-slate-100 z-50 py-1 text-sm">
-                                 {['This Month', 'Last Month', 'Custom'].map(opt => (
-                                     <button
-                                        key={opt}
-                                        className="block w-full text-left px-3 py-1.5 hover:bg-slate-50 text-slate-700 font-medium"
-                                        onClick={() => handlePresetSelect(opt)}
-                                     >
-                                        {opt}
-                                     </button>
-                                 ))}
-                             </div>
-                         )}
-                    </div>
-                )}
-
-                <div className="flex items-center px-1">
-                     <button onClick={() => shiftDate(-1)} className="p-1 text-slate-400 hover:bg-slate-50 rounded-md hover:text-indigo-600 transition-colors">
-                        <Icons.ChevronLeft />
-                     </button>
-                     
-                     {viewMode === 'daily' ? (
-                        // Daily Single Date Picker
-                        <div className="relative group mx-1">
-                            <button 
-                                onClick={openDatePicker}
-                                className="text-sm font-semibold text-slate-800 px-2 py-1 hover:text-indigo-600 hover:bg-slate-50 rounded cursor-pointer flex items-center justify-center gap-1 min-w-[110px]"
-                            >
-                                <span>{displayDate}</span>
-                                <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                            </button>
-                            <input 
-                                type="date" 
-                                ref={dateInputRef}
-                                value={inputValue}
-                                onChange={handleDateInputChange}
-                                className="absolute top-full left-0 opacity-0 w-0 h-0 pointer-events-none" 
-                            />
-                        </div>
-                     ) : (
-                         // Timesheet Range Display
-                        <div className="text-sm font-semibold text-slate-800 px-3 py-1 min-w-[160px] text-center cursor-default">
-                            {dateRange.start.toLocaleDateString('en-US', {month:'short', day:'numeric'})} - {dateRange.end.toLocaleDateString('en-US', {month:'short', day:'numeric'})}
-                        </div>
-                     )}
-
-                     <button onClick={() => shiftDate(1)} className="p-1 text-slate-400 hover:bg-slate-50 rounded-md hover:text-indigo-600 transition-colors">
-                        <Icons.ChevronRight />
-                     </button>
-                </div>
-            </div>
 
             <div className="flex-1"></div>
 
