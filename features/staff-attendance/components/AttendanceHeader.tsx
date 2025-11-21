@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react';
-import { Icons } from '../../schedule/constants';
+import { Icons } from '../../../constants';
 
 interface AttendanceHeaderProps {
   currentDate: Date;

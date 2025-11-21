@@ -7,9 +7,10 @@ interface FlyoutProps {
   title: React.ReactNode;
   children: React.ReactNode;
   side?: 'left' | 'right';
+  actions?: React.ReactNode; // Added actions prop
 }
 
-export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children, side = 'right' }) => {
+export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children, side = 'right', actions }) => {
   // Close on escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -40,27 +41,31 @@ export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children
 
       <div className={`absolute flex max-w-full pointer-events-none ${positionClass}`}>
         <div 
-          className={`pointer-events-auto w-screen max-w-md transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
+          className={`pointer-events-auto w-screen max-w-md sm:max-w-lg transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-            <div className="text-lg font-bold text-slate-800" id="slide-over-title">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white min-h-[72px]">
+            <div className="flex-1 flex items-center gap-3 overflow-hidden" id="slide-over-title">
               {title}
             </div>
-            <button
-              type="button"
-              className="rounded-md text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 p-1"
-              onClick={onClose}
-            >
-              <span className="sr-only">Close panel</span>
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-3 pl-4">
+                {actions}
+                <div className="h-6 w-px bg-slate-200"></div>
+                <button
+                type="button"
+                className="rounded-md text-slate-400 hover:text-slate-600 focus:outline-none p-1 hover:bg-slate-100 transition-colors"
+                onClick={onClose}
+                >
+                <span className="sr-only">Close panel</span>
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                </button>
+            </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto bg-white custom-scrollbar">
             {children}
           </div>
         </div>

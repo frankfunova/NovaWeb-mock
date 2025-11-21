@@ -1,7 +1,10 @@
 
 export type TaskType = 'cleaning' | 'maintenance' | 'inspection' | 'delivery';
 
-export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'delayed';
+// Added 'new' to TaskStatus
+export type TaskStatus = 'new' | 'pending' | 'in-progress' | 'completed' | 'delayed';
+
+export type TaskPriority = 'low' | 'medium' | 'high';
 
 export interface FilterState {
   searchQuery: string;
@@ -35,6 +38,14 @@ export interface Task {
   plannedDuration: number;
   status: TaskStatus;
   notes?: string;
+
+  // Extended fields for List View
+  priority?: TaskPriority;
+  propertyName?: string;
+  description?: string; // Secondary text in list view
+  scheduledAt?: string; // ISO Date string for list view display
+  assigneeName?: string; // Optional override for display
+  isVendor?: boolean; // To show vendor badge/icon
 }
 
 export interface TimeSlot {

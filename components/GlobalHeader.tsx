@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Icons } from '../features/schedule/constants';
+import { Icons } from '../constants';
 
 interface GlobalHeaderProps {
     title: string;

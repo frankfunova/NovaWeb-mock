@@ -6,7 +6,7 @@ import { AttendanceTable, SortConfig } from './components/AttendanceTable';
 import { Flyout } from '../../components/Flyout';
 import { StaffDetail } from '../../features/staff/components/StaffDetail';
 import { TimesheetDetail } from './components/TimesheetDetail';
-import { Icons } from '../../features/schedule/constants';
+import { Icons } from '../../constants';
 
 // Filter Options
 const DEPARTMENTS: Department[] = [

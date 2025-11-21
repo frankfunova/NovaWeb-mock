@@ -1,6 +1,6 @@
 
 import { Task, Staff, Reservation, AttendanceRecord } from '../types';
-import { MOCK_STAFF, INITIAL_TASKS, MOCK_RESERVATIONS, MOCK_ATTENDANCE } from './mockData';
+import { MOCK_STAFF, INITIAL_TASKS, MOCK_TASKS_LIST, MOCK_RESERVATIONS, MOCK_ATTENDANCE } from './mockData';
 
 // Simulate network delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -16,6 +16,11 @@ export const api = {
     // In a real app, we would filter by date here. 
     // For mock, we just return all tasks.
     return [...INITIAL_TASKS];
+  },
+  
+  fetchTasksList: async (): Promise<Task[]> => {
+    await delay(400);
+    return [...MOCK_TASKS_LIST];
   },
 
   createTask: async (task: Task): Promise<Task> => {

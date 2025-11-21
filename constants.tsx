@@ -21,6 +21,7 @@ export const TYPE_ICON_COLORS: Record<TaskType, string> = {
 };
 
 export const STATUS_STYLES: Record<string, string> = {
+  new: 'bg-purple-50 border-purple-200 text-purple-900',
   completed: 'bg-emerald-50 border-emerald-200 text-emerald-900',
   'in-progress': 'bg-amber-50 border-amber-200 text-amber-900',
   pending: 'bg-sky-50 border-sky-200 text-sky-900',

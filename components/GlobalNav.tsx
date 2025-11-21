@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Icons } from '../features/schedule/constants'; // Pointing to shared icons, or move icons to shared. For now using schedule constants for speed.
+import { Icons } from '../constants';
 
 interface MenuItem {
   label: string;

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Staff } from '../../../types';
-import { Icons } from '../../schedule/constants';
+import { Icons } from '../../../constants';
 
 interface TimesheetDetailProps {
   staff: Staff;
