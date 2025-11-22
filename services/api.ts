@@ -1,8 +1,9 @@
 
 import { 
-  Task, Staff, Reservation, AttendanceRecord, 
+  Task, Staff, Reservation, AttendanceRecord, Review,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
-  TaskType, TaskStatus, ReservationSource, AttendanceStatus
+  TaskType, TaskStatus, ReservationSource, AttendanceStatus,
+  InboxThread, InboxMessage, MapProperty, MapStaff
 } from '../types';
 import { 
   MOCK_STAFF, 
@@ -10,7 +11,12 @@ import {
   MOCK_API_RESERVATIONS, 
   MOCK_API_ATTENDANCE,
   MOCK_USER_DASHBOARD,
-  MOCK_TIMESHEET_LOGS
+  MOCK_TIMESHEET_LOGS,
+  MOCK_REVIEWS,
+  MOCK_INBOX_THREADS,
+  MOCK_INBOX_MESSAGES,
+  MOCK_MAP_PROPERTIES,
+  MOCK_MAP_STAFF
 } from './mockData';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -156,6 +162,11 @@ export const api = {
     return MOCK_API_RESERVATIONS.map(mapApiReservationToUiReservation);
   },
 
+  fetchReviews: async (): Promise<Review[]> => {
+    await delay(400);
+    return [...MOCK_REVIEWS];
+  },
+
   fetchAttendance: async (date: Date): Promise<AttendanceRecord[]> => {
     await delay(500);
     return MOCK_API_ATTENDANCE.map(mapApiAttendanceToUiRecord);
@@ -186,5 +197,27 @@ export const api = {
         userId: userId, // override mock to match requested user
         user: { ...log.user, id: userId }
     }));
+  },
+
+  // --- Inbox ---
+  fetchInboxThreads: async (): Promise<InboxThread[]> => {
+    await delay(500);
+    return [...MOCK_INBOX_THREADS];
+  },
+
+  fetchInboxMessages: async (threadId: string): Promise<InboxMessage[]> => {
+    await delay(400);
+    return [...MOCK_INBOX_MESSAGES];
+  },
+
+  // --- Resource Map ---
+  fetchMapProperties: async (): Promise<MapProperty[]> => {
+      await delay(600);
+      return [...MOCK_MAP_PROPERTIES];
+  },
+
+  fetchMapStaff: async (): Promise<MapStaff[]> => {
+      await delay(500);
+      return [...MOCK_MAP_STAFF];
   }
 };

@@ -4,6 +4,7 @@ import { api } from '../../services/api';
 import { Reservation } from '../../types';
 import { ReservationTable } from './components/ReservationTable';
 import { ReservationDetail } from './components/ReservationDetail';
+import { ReservationHeader } from './components/ReservationHeader';
 import { Flyout } from '../../components/Flyout';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -19,7 +20,6 @@ export const ReservationsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
-  const [isGuestProfileOpen, setIsGuestProfileOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -36,11 +36,6 @@ export const ReservationsPage: React.FC = () => {
     loadData();
   }, []);
 
-  // Reset guest profile state when flyout closes or reservation changes
-  useEffect(() => {
-      if (!isFlyoutOpen) setIsGuestProfileOpen(false);
-  }, [isFlyoutOpen, selectedReservation]);
-
   const handleSelectReservation = (res: Reservation) => {
     setSelectedReservation(res);
     setIsFlyoutOpen(true);
@@ -49,128 +44,6 @@ export const ReservationsPage: React.FC = () => {
   const StatsPill = ({ label, value, color }: { label: string, value: string | number, color: string }) => (
       <span className={`text-xs font-bold ${color} px-1`}>{value}</span>
   );
-
-  const renderFlyoutHeader = () => {
-    if (!selectedReservation) return 'Reservation Details';
-    const res = selectedReservation;
-    
-    return (
-        <div className="w-full pt-1 pb-1 pr-6">
-            {/* Top Row: Property & Status */}
-            <div className="flex items-start justify-between mb-2">
-                 <div 
-                    className="flex items-center gap-2 group cursor-pointer" 
-                    onClick={() => window.open('#', '_blank')}
-                    title="Open property details"
-                >
-                    <div className="text-xl font-bold text-slate-900 leading-tight group-hover:text-indigo-600 group-hover:underline decoration-2 underline-offset-2 transition-colors">
-                        {res.propertyCode}
-                    </div>
-                    <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        strokeWidth={2} 
-                        stroke="currentColor" 
-                        className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                    </svg>
-                </div>
-
-                {/* Status Badge */}
-                 <div className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase tracking-wider ${STATUS_STYLES[res.status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
-                    {res.status}
-                 </div>
-            </div>
-
-            {/* Bottom Row: Guest & Res# */}
-            <div className="flex items-center gap-2 text-sm relative">
-                <div className="flex items-center gap-1">
-                    <span className="text-slate-400">Guest:</span>
-                    <span className="text-slate-700 font-medium truncate max-w-[100px]" title={res.guestName}>
-                        {res.guestName}
-                    </span>
-                    <button 
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsGuestProfileOpen(!isGuestProfileOpen);
-                        }}
-                        className={`p-0.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors ${isGuestProfileOpen ? 'bg-slate-100 text-slate-600' : ''}`}
-                    >
-                        <svg className={`w-4 h-4 transition-transform duration-200 ${isGuestProfileOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                </div>
-
-                <span className="text-slate-300">|</span>
-
-                <div className="flex items-center gap-1">
-                    <span className="text-slate-400">Res#:</span>
-                    <span className="text-slate-700 font-medium font-mono text-xs">{res.reservationCode}</span>
-                </div>
-
-                {/* Guest Info Card Popover */}
-                {isGuestProfileOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-[300px] bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-5 animate-in fade-in zoom-in-95 duration-200 text-left">
-                        <div className="flex items-center gap-2 mb-4 text-slate-800 font-bold border-b border-slate-100 pb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
-                            </svg>
-                            <span>Guest Information</span>
-                        </div>
-                        
-                        <div className="space-y-4">
-                            <div>
-                                <div className="text-xs text-slate-500 mb-0.5">Full Name</div>
-                                <div className="text-sm font-medium text-slate-800">{res.guestName}</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-0.5">Email Address</div>
-                                <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                                    <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
-                                    {res.email || 'speciallkay0802@gmail.com'}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-0.5">Phone Number</div>
-                                <div className="text-sm font-medium text-slate-800 flex items-center gap-2">
-                                    <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z" /></svg>
-                                    {res.phone || '18505869699'}
-                                </div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-0.5">Returned Guest</div>
-                                <div className="text-sm font-medium text-slate-800">No</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-0.5">Preferred Language</div>
-                                <div className="text-sm font-medium text-slate-800">N/A</div>
-                            </div>
-                            <div>
-                                <div className="text-xs text-slate-500 mb-0.5">OTA Profile Link</div>
-                                <a href="#" className="text-sm font-medium text-indigo-600 hover:underline flex items-center gap-2 truncate" onClick={(e) => e.stopPropagation()}>
-                                    <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-                                    https://www.airbnb.com/users/show/284190938
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-  };
-
-  if (isLoading) {
-      return (
-          <div className="flex-1 flex items-center justify-center h-full bg-white">
-              <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mr-3"></div>
-              <span className="text-slate-500 font-medium">Loading reservations...</span>
-          </div>
-      );
-  }
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
@@ -273,7 +146,7 @@ export const ReservationsPage: React.FC = () => {
         <Flyout 
             isOpen={isFlyoutOpen} 
             onClose={() => setIsFlyoutOpen(false)} 
-            title={renderFlyoutHeader()}
+            title={selectedReservation ? <ReservationHeader reservation={selectedReservation} /> : 'Details'}
             side="right"
             size="md"
         >

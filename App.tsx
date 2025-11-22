@@ -6,6 +6,9 @@ import { SchedulePage } from './features/schedule/SchedulePage';
 import { TasksPage } from './features/tasks/TasksPage';
 import { ReservationsPage } from './features/reservations/ReservationsPage';
 import { AttendancePage } from './features/staff-attendance/AttendancePage';
+import { ReviewsPage } from './features/reviews/ReviewsPage';
+import { InboxPage } from './features/inbox/InboxPage';
+import { ResourceMapPage } from './features/resource-map/ResourceMapPage';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<string>('schedule');
@@ -20,6 +23,12 @@ const App: React.FC = () => {
         return <ReservationsPage />;
       case 'staff-attendance':
         return <AttendancePage />;
+      case 'reviews':
+        return <ReviewsPage />;
+      case 'inbox':
+        return <InboxPage />;
+      case 'map':
+        return <ResourceMapPage />;
       default:
         return (
           <div className="flex items-center justify-center h-full text-slate-400">
@@ -33,8 +42,10 @@ const App: React.FC = () => {
       switch(activePage) {
           case 'schedule': return 'Schedule';
           case 'tasks': return 'Tasks List';
-          case 'map': return 'Resource Map';
+          case 'map': return 'Resource Map View';
           case 'reservations': return 'Reservations';
+          case 'reviews': return 'Reviews';
+          case 'inbox': return 'Inbox';
           case 'staff-attendance': return 'Staff Attendance';
           default: return activePage.replace('-', ' ');
       }

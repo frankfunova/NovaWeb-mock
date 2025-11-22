@@ -72,6 +72,17 @@ export interface Reservation {
   phone?: string;
 }
 
+export interface Review {
+  id: string;
+  listingName: string;
+  reservationCode: string;
+  publicReview: string;
+  rating: number; // 1-5
+  reviewDate: string; // ISO string
+  ota: ReservationSource;
+  status: 'new' | 'replied';
+}
+
 // --- Attendance Types ---
 
 export type AttendanceStatus = 'Off duty' | 'Shift End' | 'Working' | 'In break' | '--';
@@ -108,6 +119,64 @@ export interface AttendanceRecord {
   payableHours?: string;
   hasWarning?: boolean;
   isOff?: boolean;
+}
+
+// --- Inbox Types ---
+
+export interface InboxThread {
+  id: string;
+  guestName: string;
+  reservationCode: string;
+  listingName: string; // Used for property code in UI
+  startDate: string;
+  endDate: string;
+  status: ReservationStatus;
+  tags: string[]; // e.g., "1 unresolved"
+  unreadCount: number;
+  lastMessageTime: string;
+  avatarColor: string;
+  sentiment: 'Satisfied' | 'Neutral' | 'Frustrated';
+  reservationId: string; // Link to full reservation details
+}
+
+export interface InboxMessage {
+  id: string;
+  threadId: string;
+  sender: 'host' | 'guest' | 'system';
+  senderName?: string; // e.g., "CS - Mary Mae Tano"
+  avatarUrl?: string; 
+  content: string;
+  timestamp: string;
+  type: 'text' | 'event' | 'note' | 'special'; // special for yellow box/code
+  metadata?: any; // for resolve/follow-up buttons
+}
+
+// --- Map Types ---
+
+export interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
+export interface MapProperty {
+  id: string;
+  title: string;
+  address: string;
+  coordinates: Coordinates;
+  status: 'occupied' | 'vacant';
+  nextEvent: string;
+  tasks: {
+    completed: number;
+    total: number;
+  };
+  pendingTasksCount: number;
+}
+
+export interface MapStaff extends Staff {
+  coordinates: Coordinates;
+  tasksDone: number;
+  tasksTotal: number;
+  completionPercent: number;
 }
 
 // --- Dashboard & Stats Types ---

@@ -1,5 +1,5 @@
 
-import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord } from '../types';
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff } from '../types';
 
 // Helper to create today's date with specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
@@ -122,6 +122,90 @@ export const MOCK_STAFF: Staff[] = [
     shiftEnd: 20,
   },
 ];
+
+// --- MOCK MAP PROPERTIES ---
+// Simulated Lat/Lng around Disney/Kissimmee area: 28.30, -81.55
+export const MOCK_MAP_PROPERTIES: MapProperty[] = [
+    {
+        id: 'p1',
+        title: '8808BC WAW',
+        address: '8808 Bella Citta Blvd',
+        coordinates: { lat: 28.304, lng: -81.551 },
+        status: 'occupied',
+        nextEvent: 'guest check out 11/21/2025 10AM',
+        tasks: { completed: 1, total: 3 },
+        pendingTasksCount: 2,
+        completionPercent: 33
+    },
+    {
+        id: 'p2',
+        title: '8819IC CG',
+        address: '8819 Indian Creek',
+        coordinates: { lat: 28.310, lng: -81.560 },
+        status: 'occupied',
+        nextEvent: 'guest check out 11/21/2025 10AM',
+        tasks: { completed: 0, total: 3 },
+        pendingTasksCount: 3,
+        completionPercent: 0
+    },
+    {
+        id: 'p3',
+        title: '3237LW WIR',
+        address: '3237 Lake Wilson Rd',
+        coordinates: { lat: 28.295, lng: -81.545 },
+        status: 'occupied',
+        nextEvent: 'guest check out 11/21/2025 10AM',
+        tasks: { completed: 1, total: 3 },
+        pendingTasksCount: 2,
+        completionPercent: 33
+    },
+    {
+        id: 'p4',
+        title: '4041SB Sonoma',
+        address: '4041 Sonoma Blvd',
+        coordinates: { lat: 28.320, lng: -81.530 },
+        status: 'occupied',
+        nextEvent: 'guest check out 11/21/2025 10AM',
+        tasks: { completed: 0, total: 1 },
+        pendingTasksCount: 1,
+        completionPercent: 0
+    },
+    {
+        id: 'p5',
+        title: '8942CBD Solara',
+        address: '8942 Solara Resort',
+        coordinates: { lat: 28.300, lng: -81.570 },
+        status: 'vacant',
+        nextEvent: 'guest check in 11/22/2025 4PM',
+        tasks: { completed: 3, total: 3 },
+        pendingTasksCount: 0,
+        completionPercent: 100
+    },
+    {
+        id: 'p6',
+        title: '1522MV CG',
+        address: '1522 Montego View',
+        coordinates: { lat: 28.290, lng: -81.540 },
+        status: 'occupied',
+        nextEvent: 'guest check out 11/23/2025 10AM',
+        tasks: { completed: 2, total: 5 },
+        pendingTasksCount: 3,
+        completionPercent: 40
+    },
+];
+
+// --- MOCK MAP STAFF ---
+export const MOCK_MAP_STAFF: MapStaff[] = MOCK_STAFF.slice(0, 6).map((s, idx) => ({
+    ...s,
+    coordinates: {
+        lat: 28.30 + (Math.random() * 0.04 - 0.02), // Random spread around center
+        lng: -81.55 + (Math.random() * 0.04 - 0.02)
+    },
+    tasksDone: Math.floor(Math.random() * 3),
+    tasksTotal: Math.floor(Math.random() * 5) + 3,
+    completionPercent: Math.floor(Math.random() * 100)
+}));
+
 
 // --- MOCK TASKS (API Output Format) ---
 export const MOCK_API_TASKS: ApiTaskOutput[] = [
@@ -547,5 +631,268 @@ export const MOCK_TIMESHEET_LOGS: AttendanceRecord[] = [
     payableHours: '9:00',
     hasWarning: false,
     totalWorkingDurationSec: 32400
+  }
+];
+
+// --- MOCK REVIEWS ---
+export const MOCK_REVIEWS: Review[] = [
+  {
+    id: genId('601'),
+    listingName: '2609DS WH',
+    reservationCode: 'Res#HMJEMQ3KMB',
+    publicReview: 'Very nice would stay here again',
+    rating: 5,
+    reviewDate: '2025-11-17',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('602'),
+    listingName: '15972SCD WCR',
+    reservationCode: 'Res#HMPJ3MDNHA',
+    publicReview: 'Great house no problems from my group',
+    rating: 5,
+    reviewDate: '2025-11-16',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('603'),
+    listingName: '2903FS SL',
+    reservationCode: 'Res#HM2ZXD3S2K',
+    publicReview: 'We absolutely loved the place! While yes it could use some upkeep with painting and a few tweaks for it to be SPOTLESS. But overall it was a great stay.',
+    rating: 5,
+    reviewDate: '2025-11-16',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('604'),
+    listingName: '2791PP SL',
+    reservationCode: 'Res#HMRPTHK8Y5',
+    publicReview: 'Great place',
+    rating: 5,
+    reviewDate: '2025-11-16',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('605'),
+    listingName: '8801CD WAW',
+    reservationCode: 'Res#HMXJYKEW8R',
+    publicReview: 'Arrived and given incorrect access code but dealt with quickly. The house was clean bar the skirting boards, but qui...',
+    rating: 3,
+    reviewDate: '2025-11-15',
+    ota: 'Airbnb',
+    status: 'replied'
+  },
+  {
+    id: genId('606'),
+    listingName: '2528SD VP',
+    reservationCode: 'Res#HMXNXZSYW5',
+    publicReview: 'Great place to stay and communication was great',
+    rating: 5,
+    reviewDate: '2025-11-15',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('607'),
+    listingName: '2060LC WIR',
+    reservationCode: 'Res#HMEJS852YM',
+    publicReview: 'Great house, plenty of space. Great communication. Great location. Thank you',
+    rating: 5,
+    reviewDate: '2025-11-15',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('608'),
+    listingName: '1060LS CG',
+    reservationCode: 'Res#HMXTDSZCP8',
+    publicReview: 'Beautiful Home to stay with everything you may ever need in the house or in the community. Loved it',
+    rating: 5,
+    reviewDate: '2025-11-14',
+    ota: 'Airbnb',
+    status: 'new'
+  },
+  {
+    id: genId('609'),
+    listingName: '1571MCW Solara',
+    reservationCode: 'Res#HA-aqZTLzp',
+    publicReview: 'We had a great stay overall. I wish we had more information regarding the resort amenities. It was difficult to get in conta...',
+    rating: 4,
+    reviewDate: '2025-11-14',
+    ota: 'VRBO',
+    status: 'new'
+  }
+];
+
+// --- MOCK INBOX THREADS ---
+
+export const MOCK_INBOX_THREADS: InboxThread[] = [
+  {
+    id: 'th_1',
+    guestName: 'Antionette Squaire',
+    reservationCode: 'HMDRAYR3PC',
+    listingName: '2433DS WAW',
+    startDate: '2025-11-21',
+    endDate: '2025-11-24',
+    status: 'Confirmed',
+    tags: ['1 unresolved'],
+    unreadCount: 1,
+    lastMessageTime: '24m ago',
+    avatarColor: 'bg-emerald-500',
+    sentiment: 'Satisfied',
+    reservationId: genId('301') // Linking to mock reservation
+  },
+  {
+    id: 'th_2',
+    guestName: 'Roldan Millan',
+    reservationCode: 'HMJ234KS9',
+    listingName: '1820SD WIR',
+    startDate: '2025-11-21',
+    endDate: '2025-11-24',
+    status: 'Confirmed',
+    tags: ['1 unresolved'],
+    unreadCount: 1,
+    lastMessageTime: '5m ago',
+    avatarColor: 'bg-blue-500',
+    sentiment: 'Neutral',
+    reservationId: genId('302')
+  },
+  {
+    id: 'th_3',
+    guestName: 'Phillip Bradwell',
+    reservationCode: 'HMP938JK2',
+    listingName: '231BD BV',
+    startDate: '2025-11-21',
+    endDate: '2025-11-23',
+    status: 'Confirmed',
+    tags: ['1 unresolved'],
+    unreadCount: 1,
+    lastMessageTime: '5m ago',
+    avatarColor: 'bg-purple-500',
+    sentiment: 'Satisfied',
+    reservationId: genId('303')
+  },
+  {
+    id: 'th_4',
+    guestName: 'Jose Marinho',
+    reservationCode: 'HMK8293JS',
+    listingName: '8817RS WAW',
+    startDate: '2025-12-05',
+    endDate: '2025-12-16',
+    status: 'Confirmed',
+    tags: [],
+    unreadCount: 0,
+    lastMessageTime: '7m ago',
+    avatarColor: 'bg-orange-500',
+    sentiment: 'Satisfied',
+    reservationId: genId('301')
+  },
+  {
+    id: 'th_5',
+    guestName: 'Shayla Wilson',
+    reservationCode: 'HM9283KS',
+    listingName: '1234 Main St',
+    startDate: '2025-11-21',
+    endDate: '2025-11-23',
+    status: 'Confirmed',
+    tags: ['1 unresolved'],
+    unreadCount: 1,
+    lastMessageTime: '11m ago',
+    avatarColor: 'bg-pink-500',
+    sentiment: 'Frustrated',
+    reservationId: genId('302')
+  },
+  {
+    id: 'th_6',
+    guestName: 'LORENZO GRAINGER',
+    reservationCode: 'HM19283JS',
+    listingName: '9921 Ave',
+    startDate: '2025-11-19',
+    endDate: '2025-11-23',
+    status: 'Confirmed',
+    tags: ['2 unresolved'],
+    unreadCount: 2,
+    lastMessageTime: '30m ago',
+    avatarColor: 'bg-indigo-500',
+    sentiment: 'Neutral',
+    reservationId: genId('303')
+  },
+  {
+    id: 'th_7',
+    guestName: 'Percy Scruggins',
+    reservationCode: 'HM91283JS',
+    listingName: '555 Ocean Dr',
+    startDate: '2025-11-21',
+    endDate: '2025-11-24',
+    status: 'Confirmed',
+    tags: ['1 unresolved'],
+    unreadCount: 1,
+    lastMessageTime: '31m ago',
+    avatarColor: 'bg-teal-500',
+    sentiment: 'Satisfied',
+    reservationId: genId('301')
+  }
+];
+
+// --- MOCK INBOX MESSAGES ---
+
+export const MOCK_INBOX_MESSAGES: InboxMessage[] = [
+  {
+    id: 'msg_1',
+    threadId: 'th_1',
+    sender: 'system',
+    content: 'Follow up Resolve',
+    timestamp: 'Nov 21, 7:55 PM',
+    type: 'event',
+    metadata: { type: 'SR' }
+  },
+  {
+    id: 'msg_2',
+    threadId: 'th_1',
+    sender: 'host',
+    senderName: 'Mary Mae Tano',
+    avatarUrl: 'https://i.pravatar.cc/150?u=mary',
+    content: "Hi Antionette! Sorry for the trouble. Please use this code 411556 (√ or *) after 5 minutes. At this time, I understand your guests are already inside the house after we remotely unlocked the door for you. Let us know if the new code works or not, so we'll know if we need to send a technician.",
+    timestamp: 'Nov 21, 8:11 PM',
+    type: 'text'
+  },
+  {
+    id: 'msg_3',
+    threadId: 'th_1',
+    sender: 'host',
+    senderName: 'Mary Mae Tano',
+    avatarUrl: 'https://i.pravatar.cc/150?u=mary',
+    content: "IB (904) 554-6383\n\nHMDRAYR3PC | 2433DS WAW\nDoor code not working. Remotely unlocked door so the guests can get in. Generated backup door code for the guest.",
+    timestamp: 'Nov 21, 8:29 PM',
+    type: 'special'
+  },
+  {
+    id: 'msg_4',
+    threadId: 'th_1',
+    sender: 'guest',
+    content: "Ok thx Frank now the ac not getting cold",
+    timestamp: 'Nov 21, 8:29 PM',
+    type: 'text'
+  },
+  {
+    id: 'msg_5',
+    threadId: 'th_1',
+    sender: 'system',
+    content: 'Follow up Resolve',
+    timestamp: 'Nov 21, 8:29 PM',
+    type: 'event',
+    metadata: { type: 'SR' }
+  },
+  {
+    id: 'msg_6',
+    threadId: 'th_1',
+    sender: 'guest',
+    content: "We are calling Mary whom I spoke with about the lock",
+    timestamp: 'Nov 21, 8:30 PM',
+    type: 'text'
   }
 ];
