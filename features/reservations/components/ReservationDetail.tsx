@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Reservation, Task } from '../../../types';
 import { Icons } from '../../../constants';
 import { api } from '../../../services/api';
+import { ReservationHeader } from './ReservationHeader';
 
 interface ReservationDetailProps {
   reservation: Reservation;
@@ -321,165 +321,175 @@ export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservatio
   );
 
   return (
-    <div className="flex flex-col h-full gap-6 p-6 overflow-y-auto custom-scrollbar">
-        {/* 1. Unified Info Card (Dates & Financials) */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex-shrink-0">
+    <div className="flex flex-col h-full bg-white overflow-hidden">
+        
+        {/* Sticky Header Section */}
+        <div className="px-6 py-5 border-b border-slate-200 bg-white flex-shrink-0 shadow-sm z-10">
+             <ReservationHeader reservation={reservation} />
+        </div>
+
+        {/* Scrollable Main Section */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-6">
             
-            {/* Timeline Section */}
-            <div className="p-5 pb-6">
-                <div className="flex items-center justify-between relative">
-                    {/* Check In */}
-                    <div className="text-left z-10 bg-white pr-2">
-                        <div className="text-xs text-slate-400 font-bold uppercase mb-1">Check In</div>
-                        <div className="text-base font-bold text-slate-800 leading-none mb-1">{formatDate(checkIn)}</div>
-                        <div className="text-xs text-slate-500 font-medium">{formatTime(checkIn)}</div>
-                    </div>
-
-                    {/* Connecting Line & Status */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative px-2">
-                         <div className="w-full h-px bg-slate-200 absolute top-1/2 -translate-y-1/2"></div>
-                         
-                         {/* Journey Status */}
-                         {journey.label && (
-                            <div className={`relative z-10 mb-2 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border shadow-sm ${journey.color}`}>
-                                {journey.label}
-                            </div>
-                         )}
-
-                         {/* Nights Pill */}
-                         <div className="bg-white text-slate-500 text-[10px] font-medium px-2 py-0.5 rounded-full relative z-10 border border-slate-200 shadow-sm flex items-center gap-1">
-                            <span>{reservation.nights} Nights</span>
-                            <svg className="w-3 h-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
-                         </div>
-                    </div>
-
-                    {/* Check Out */}
-                    <div className="text-right z-10 bg-white pl-2">
-                        <div className="text-xs text-slate-400 font-bold uppercase mb-1">Check Out</div>
-                        <div className="text-base font-bold text-slate-800 leading-none mb-1">{formatDate(checkOut)}</div>
-                        <div className="text-xs text-slate-500 font-medium">{formatTime(checkOut)}</div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Divider */}
-            <div className="h-px bg-slate-100 mx-5"></div>
-
-            {/* Financials & Guest Count Row */}
-            <div className="p-4 flex items-center justify-between bg-slate-50/50">
+            {/* 1. Unified Info Card (Dates & Financials) */}
+            <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex-shrink-0 mb-6">
                 
-                {/* Guest Count (Left Side) */}
-                 <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                    <span className="font-medium">{reservation.guestCount} Guests</span>
+                {/* Timeline Section */}
+                <div className="p-5 pb-6">
+                    <div className="flex items-center justify-between relative">
+                        {/* Check In */}
+                        <div className="text-left z-10 bg-white pr-2">
+                            <div className="text-xs text-slate-400 font-bold uppercase mb-1">Check In</div>
+                            <div className="text-base font-bold text-slate-800 leading-none mb-1">{formatDate(checkIn)}</div>
+                            <div className="text-xs text-slate-500 font-medium">{formatTime(checkIn)}</div>
+                        </div>
+
+                        {/* Connecting Line & Status */}
+                        <div className="flex-1 flex flex-col items-center justify-center relative px-2">
+                             <div className="w-full h-px bg-slate-200 absolute top-1/2 -translate-y-1/2"></div>
+                             
+                             {/* Journey Status */}
+                             {journey.label && (
+                                <div className={`relative z-10 mb-2 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border shadow-sm ${journey.color}`}>
+                                    {journey.label}
+                                </div>
+                             )}
+
+                             {/* Nights Pill */}
+                             <div className="bg-white text-slate-500 text-[10px] font-medium px-2 py-0.5 rounded-full relative z-10 border border-slate-200 shadow-sm flex items-center gap-1">
+                                <span>{reservation.nights} Nights</span>
+                                <svg className="w-3 h-3 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                             </div>
+                        </div>
+
+                        {/* Check Out */}
+                        <div className="text-right z-10 bg-white pl-2">
+                            <div className="text-xs text-slate-400 font-bold uppercase mb-1">Check Out</div>
+                            <div className="text-base font-bold text-slate-800 leading-none mb-1">{formatDate(checkOut)}</div>
+                            <div className="text-xs text-slate-500 font-medium">{formatTime(checkOut)}</div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Payout (Right Side) */}
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400 font-bold uppercase">Payout</span>
-                    <span className="text-base font-bold text-indigo-600">${reservation.payout.toFixed(2)}</span>
-                    <button 
-                        onClick={() => setIsFinancialsExpanded(!isFinancialsExpanded)}
-                        className={`p-1 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-all ${isFinancialsExpanded ? 'bg-slate-200 text-slate-600 rotate-180' : ''}`}
-                    >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
+                {/* Divider */}
+                <div className="h-px bg-slate-100 mx-5"></div>
+
+                {/* Financials & Guest Count Row */}
+                <div className="p-4 flex items-center justify-between bg-slate-50/50">
+                    
+                    {/* Guest Count (Left Side) */}
+                     <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <span className="font-medium">{reservation.guestCount} Guests</span>
+                    </div>
+
+                    {/* Payout (Right Side) */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400 font-bold uppercase">Payout</span>
+                        <span className="text-base font-bold text-indigo-600">${reservation.payout.toFixed(2)}</span>
+                        <button 
+                            onClick={() => setIsFinancialsExpanded(!isFinancialsExpanded)}
+                            className={`p-1 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition-all ${isFinancialsExpanded ? 'bg-slate-200 text-slate-600 rotate-180' : ''}`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+
+                 {/* Expanded Financial Details */}
+                 {isFinancialsExpanded && (
+                    <div className="px-5 pb-5 pt-2 bg-slate-50/50 border-t border-slate-100 animate-in slide-in-from-top-2">
+                         <div className="space-y-2">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500">Accommodation Fare</span>
+                                <span className="font-medium text-slate-700">${(reservation.payout * 0.85).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500">Cleaning Fee</span>
+                                <span className="font-medium text-slate-700">$150.00</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-slate-500">Service Fee</span>
+                                <span className="font-medium text-slate-700">${(reservation.payout * 0.10).toFixed(2)}</span>
+                            </div>
+                        </div>
+                    </div>
+                 )}
             </div>
 
-             {/* Expanded Financial Details */}
-             {isFinancialsExpanded && (
-                <div className="px-5 pb-5 pt-2 bg-slate-50/50 border-t border-slate-100 animate-in slide-in-from-top-2">
-                     <div className="space-y-2">
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-slate-500">Accommodation Fare</span>
-                            <span className="font-medium text-slate-700">${(reservation.payout * 0.85).toFixed(2)}</span>
+            {/* 2. Team Assignments Row */}
+            <div className="flex-shrink-0 mb-6">
+                 <div className="flex items-center gap-2 mb-2">
+                    <Icons.Users />
+                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Assigned Team</h3>
+                 </div>
+                 <div className="grid grid-cols-4 gap-3">
+                     <TeamSlot role="Custom Service" user={MOCK_TEAM.cs} />
+                     <TeamSlot role="Cleaner" user={MOCK_TEAM.cleaner} />
+                     <TeamSlot role="Inspector" user={MOCK_TEAM.inspector} />
+                     <TeamSlot role="Watcher" user={MOCK_TEAM.watcher} />
+                 </div>
+            </div>
+
+            {/* 3. Departmental Sections - Collapsible */}
+            <div className="flex-1 flex flex-col gap-4 mb-6">
+                
+                {/* Customer Service Section */}
+                <CollapsibleCard 
+                    title="Guest Experience" 
+                    icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z" clipRule="evenodd" /></svg>}
+                    summary={
+                        <div className="flex gap-3 text-[10px] font-medium text-slate-500">
+                            <span>12 Msgs</span>
+                            <span className="text-slate-300">|</span>
+                            <span>8m Avg Reply</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-slate-500">Cleaning Fee</span>
-                            <span className="font-medium text-slate-700">$150.00</span>
-                        </div>
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-slate-500">Service Fee</span>
-                            <span className="font-medium text-slate-700">${(reservation.payout * 0.10).toFixed(2)}</span>
-                        </div>
+                    }
+                    defaultOpen={true}
+                    colorTheme="indigo"
+                >
+                    <GuestExperienceContent />
+                </CollapsibleCard>
+
+                {/* Operations Section */}
+                <CollapsibleCard
+                    title="Operations"
+                    icon={<Icons.ClipboardCheck />}
+                    summary={
+                         <div className="text-[10px] font-medium text-slate-400">
+                            2/4 Tasks Done
+                         </div>
+                    }
+                    defaultOpen={false}
+                    colorTheme="slate"
+                >
+                    <OperationsContent />
+                </CollapsibleCard>
+            </div>
+
+             {/* Contact Info Footer */}
+             {(reservation.email || reservation.phone) && (
+                 <div className="flex flex-col gap-2 text-sm text-slate-500 px-1 border-t border-slate-100 pt-4 pb-4">
+                    <div className="text-xs font-bold text-slate-400 uppercase">Guest Contact</div>
+                    <div className="flex flex-wrap gap-4">
+                        {reservation.email && (
+                            <div className="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer">
+                                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
+                                {reservation.email}
+                            </div>
+                        )}
+                        {reservation.phone && (
+                            <div className="flex items-center gap-2">
+                                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z" /></svg>
+                                {reservation.phone}
+                            </div>
+                        )}
                     </div>
-                </div>
-             )}
+                 </div>
+            )}
         </div>
-
-        {/* 2. Team Assignments Row */}
-        <div className="flex-shrink-0">
-             <div className="flex items-center gap-2 mb-2">
-                <Icons.Users />
-                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Assigned Team</h3>
-             </div>
-             <div className="grid grid-cols-4 gap-3">
-                 <TeamSlot role="Custom Service" user={MOCK_TEAM.cs} />
-                 <TeamSlot role="Cleaner" user={MOCK_TEAM.cleaner} />
-                 <TeamSlot role="Inspector" user={MOCK_TEAM.inspector} />
-                 <TeamSlot role="Watcher" user={MOCK_TEAM.watcher} />
-             </div>
-        </div>
-
-        {/* 3. Departmental Sections - Collapsible */}
-        <div className="flex-1 flex flex-col gap-4">
-            
-            {/* Customer Service Section */}
-            <CollapsibleCard 
-                title="Guest Experience" 
-                icon={<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4"><path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.678 3.348-3.97Z" clipRule="evenodd" /></svg>}
-                summary={
-                    <div className="flex gap-3 text-[10px] font-medium text-slate-500">
-                        <span>12 Msgs</span>
-                        <span className="text-slate-300">|</span>
-                        <span>8m Avg Reply</span>
-                    </div>
-                }
-                defaultOpen={true}
-                colorTheme="indigo"
-            >
-                <GuestExperienceContent />
-            </CollapsibleCard>
-
-            {/* Operations Section */}
-            <CollapsibleCard
-                title="Operations"
-                icon={<Icons.ClipboardCheck />}
-                summary={
-                     <div className="text-[10px] font-medium text-slate-400">
-                        2/4 Tasks Done
-                     </div>
-                }
-                defaultOpen={false}
-                colorTheme="slate"
-            >
-                <OperationsContent />
-            </CollapsibleCard>
-        </div>
-
-         {/* Contact Info Footer */}
-         {(reservation.email || reservation.phone) && (
-             <div className="flex flex-col gap-2 text-sm text-slate-500 px-1 border-t border-slate-100 pt-4">
-                <div className="text-xs font-bold text-slate-400 uppercase">Guest Contact</div>
-                <div className="flex flex-wrap gap-4">
-                    {reservation.email && (
-                        <div className="flex items-center gap-2 hover:text-indigo-600 transition-colors cursor-pointer">
-                            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" /></svg>
-                            {reservation.email}
-                        </div>
-                    )}
-                    {reservation.phone && (
-                        <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25z" /></svg>
-                            {reservation.phone}
-                        </div>
-                    )}
-                </div>
-             </div>
-        )}
     </div>
   );
 };

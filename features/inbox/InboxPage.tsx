@@ -5,7 +5,7 @@ import { MessageBoard } from './components/MessageBoard';
 import { api } from '../../services/api';
 import { InboxThread, InboxMessage, Reservation } from '../../types';
 import { ReservationDetail } from '../../features/reservations/components/ReservationDetail';
-import { ReservationHeader } from '../../features/reservations/components/ReservationHeader';
+import { Icons } from '../../constants';
 
 export const InboxPage: React.FC = () => {
   const [threads, setThreads] = useState<InboxThread[]>([]);
@@ -86,23 +86,40 @@ export const InboxPage: React.FC = () => {
         {/* Right Panel: Reservation Info (Persistent) */}
         {isInfoPanelOpen && (
             <div className="w-[400px] border-l border-slate-200 bg-white h-full overflow-hidden flex flex-col transition-all duration-300 ease-in-out flex-shrink-0 shadow-xl z-20">
-                {/* Header for Right Panel (matches style) */}
-                <div className="border-b border-slate-100 bg-white p-5 relative flex-shrink-0 min-h-[88px]">
-                    {/* Close Button */}
-                    <button onClick={toggleInfoPanel} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors z-10">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
+                
+                {/* Global Header - Standardized Layout */}
+                <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 bg-white min-h-[56px] flex-shrink-0 z-20">
+                    <div className="flex-1 flex items-center gap-3 min-w-0">
+                        <h2 className="text-base font-bold text-slate-800 truncate">Reservation Details</h2>
+                    </div>
+                    
+                    <div className="flex items-center gap-1 pl-4">
+                        {/* Standard Share Button */}
+                        <button className="p-2 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors" title="Share">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                        </button>
 
-                    {reservationDetail ? (
-                        <ReservationHeader reservation={reservationDetail} />
-                    ) : (
-                        <div className="flex items-center justify-between h-full pr-8">
-                            <h3 className="font-bold text-slate-800 text-sm uppercase tracking-wide">Details</h3>
-                        </div>
-                    )}
+                        {/* Standard Open New Tab Button */}
+                        <button className="p-2 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors" title="Open in new tab">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        </button>
+
+                        <div className="h-5 w-px bg-slate-200 mx-1"></div>
+                        
+                        {/* Close Button */}
+                        <button
+                            type="button"
+                            className="p-2 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                            onClick={toggleInfoPanel}
+                            title="Close"
+                        >
+                            <Icons.X />
+                        </button>
+                    </div>
                 </div>
                 
-                <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50/30">
+                {/* Content Area */}
+                <div className="flex-1 flex flex-col overflow-hidden bg-white">
                     {reservationDetail ? (
                         <ReservationDetail reservation={reservationDetail} />
                     ) : (

@@ -317,59 +317,6 @@ export const SchedulePage: React.FC = () => {
     </div>
   ) : null;
 
-  // --- Header & Actions Renderers for Task Detail Flyout ---
-  
-  const renderFlyoutHeader = () => {
-      if (isNewTask) return 'New Task';
-      
-      const task = selectedTask;
-      if (!task) return 'Task Details';
-
-      return (
-        <div className="flex items-center gap-3">
-            <button className="p-1.5 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" onClick={() => setIsFlyoutOpen(false)}>
-                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            
-            <button className={`flex items-center gap-2 px-2.5 py-1.5 rounded text-xs font-bold border transition-colors ${task.priority === 'high' ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-white text-blue-600 border-blue-200'}`}>
-                <span className={`w-2 h-2 rounded-full ${task.priority === 'high' ? 'bg-orange-500' : 'bg-blue-500'}`}></span>
-                {task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Low'}
-                <svg className="w-3 h-3 ml-1 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </button>
-
-            <button className={`flex items-center gap-2 px-2.5 py-1.5 rounded text-xs font-bold transition-colors shadow-sm uppercase ${
-                task.status === 'completed' ? 'bg-emerald-500 text-white' : 
-                task.status === 'in-progress' ? 'bg-amber-400 text-white' : 
-                'bg-slate-100 text-slate-600 border border-slate-200'
-            }`}>
-                {task.status}
-                <svg className="w-3 h-3 ml-1 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </button>
-        </div>
-      );
-  };
-
-  const renderFlyoutActions = () => {
-      if (isNewTask) return null;
-      return (
-          <div className="flex items-center gap-1">
-              <button className="p-2 rounded text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Comments">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-              </button>
-              <button className="p-2 rounded text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors" title="Open in new tab">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-              </button>
-              <button 
-                className="p-2 rounded text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors" 
-                title="Delete"
-                onClick={() => selectedTask?.id && handleDeleteTask(selectedTask.id)}
-              >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              </button>
-          </div>
-      );
-  };
-
   const getDisplayTask = () => {
       if (!selectedTask) return null;
       return {
@@ -554,9 +501,9 @@ export const SchedulePage: React.FC = () => {
         <Flyout
             isOpen={isFlyoutOpen}
             onClose={() => setIsFlyoutOpen(false)}
-            title={renderFlyoutHeader()}
-            actions={renderFlyoutActions()}
+            title={isNewTask ? "New Task" : "Task Details"}
             side="right"
+            noPadding={!isNewTask}
         >
             {isNewTask ? (
                 <TaskForm 

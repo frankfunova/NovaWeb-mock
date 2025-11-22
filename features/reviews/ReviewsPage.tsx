@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { Review } from '../../types';
@@ -6,7 +5,6 @@ import { ReviewsTable } from './components/ReviewsTable';
 import { ReviewsToolbar } from './components/ReviewsToolbar';
 import { Flyout } from '../../components/Flyout';
 import { ReviewDetail } from './components/ReviewDetail';
-import { ReviewHeader } from './components/ReviewHeader';
 
 export const ReviewsPage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -63,9 +61,10 @@ export const ReviewsPage: React.FC = () => {
         <Flyout
             isOpen={isFlyoutOpen}
             onClose={() => setIsFlyoutOpen(false)}
-            title={selectedReview ? <ReviewHeader review={selectedReview} /> : 'Review Details'}
+            title="Review Details"
             side="right"
             size="xl"
+            noPadding={true}
         >
             {selectedReview && <ReviewDetail review={selectedReview} />}
         </Flyout>

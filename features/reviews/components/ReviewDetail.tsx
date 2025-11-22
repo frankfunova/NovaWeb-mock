@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Review, ReviewInsight } from '../../../types';
 import { Icons } from '../../../constants';
 import { api } from '../../../services/api';
 import { DisputeModal } from './DisputeModal';
+import { ReviewHeader } from './ReviewHeader';
 
 interface ReviewDetailProps {
   review: Review;
@@ -337,10 +337,15 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
   return (
     <div className="flex flex-col h-full bg-white overflow-hidden">
         
+        {/* Sticky Header Section (Previously ReviewHeader) */}
+        <div className="px-6 py-5 border-b border-slate-200 bg-white flex-shrink-0 shadow-sm z-10">
+             <ReviewHeader review={review} />
+        </div>
+
         {/* Main Content - Scrollable Area */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar px-6 pt-0 pb-6">
+        <div className="flex-1 overflow-y-auto custom-scrollbar px-6 pt-6 pb-6">
             
-            {/* 1. Interactive Rating Summary & Details - REDUCED SPACING HERE */}
+            {/* 1. Interactive Rating Summary & Details */}
             <div 
                 className="mb-2 mt-0 rounded-xl p-4 transition-all hover:bg-slate-50/50 hover:shadow-sm border border-transparent hover:border-slate-100 cursor-default group -mx-4"
                 onMouseEnter={() => setShowRatingDetails(true)}
@@ -464,74 +469,67 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
                     )}
                 </div>
 
-                {/* Reply Section (Drafting) */}
-                {isReplying && (
+                {/* Reply Section */}
+                {(isReplying || hasReply) && (
                     <div className="pl-8 relative animate-in fade-in slide-in-from-top-2 duration-200 mt-4">
                         {/* Connecting Line */}
                         <div className="absolute top-[-16px] left-4 w-0.5 h-6 bg-slate-200"></div>
                         <div className="absolute top-[8px] left-4 w-4 h-0.5 bg-slate-200"></div>
 
-                        <div className="bg-white rounded-lg border border-indigo-200 shadow-md p-4">
-                            <div className="flex justify-between items-center mb-3">
-                                <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-wide">Drafting Response</h4>
-                                <button 
-                                    onClick={handleGenerateReply}
-                                    disabled={isGeneratingReply}
-                                    className="flex items-center gap-1.5 text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-1 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors"
-                                >
-                                    {isGeneratingReply ? <div className="w-2 h-2 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></div> : <Icons.Star />}
-                                    AI Assistant
-                                </button>
-                            </div>
-                            
-                            <textarea 
-                                rows={4}
-                                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"
-                                placeholder="Write your response here..."
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                            />
-                            
-                            <div className="flex justify-end gap-2 mt-3">
-                                <button 
-                                    onClick={() => setIsReplying(false)}
-                                    className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded border border-transparent hover:border-slate-200"
-                                >
-                                    Cancel
-                                </button>
-                                <button 
-                                    onClick={handlePostReply}
-                                    className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded shadow-sm transition-colors"
-                                >
-                                    Post Response
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Posted Reply */}
-                {hasReply && (
-                     <div className="pl-8 relative animate-in fade-in slide-in-from-top-2 duration-300 mt-4">
-                        {/* Connecting Line */}
-                        <div className="absolute top-[-16px] left-4 w-0.5 h-8 bg-slate-200"></div>
-                        <div className="absolute top-[16px] left-4 w-4 h-0.5 bg-slate-200"></div>
-
-                        <div className="bg-white rounded-xl border border-slate-200 p-4 text-sm text-slate-600 leading-relaxed italic shadow-sm">
-                            <div className="flex items-center gap-2 mb-2 not-italic">
-                                <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-white text-[10px] font-bold">
-                                    H
+                        {isReplying ? (
+                            <div className="bg-white rounded-lg border border-indigo-200 shadow-md p-4">
+                                <div className="flex justify-between items-center mb-3">
+                                    <h4 className="text-xs font-bold text-indigo-800 uppercase tracking-wide">Drafting Response</h4>
+                                    <button 
+                                        onClick={handleGenerateReply}
+                                        disabled={isGeneratingReply}
+                                        className="flex items-center gap-1.5 text-[10px] font-bold bg-indigo-50 text-indigo-600 px-2 py-1 rounded border border-indigo-100 hover:bg-indigo-100 transition-colors"
+                                    >
+                                        {isGeneratingReply ? <div className="w-2 h-2 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></div> : <Icons.Star />}
+                                        AI Assistant
+                                    </button>
                                 </div>
-                                <span className="text-xs font-bold text-slate-900">Host Response</span>
-                                <span className="text-[10px] text-slate-400 ml-auto">{new Date(replyDate).toLocaleDateString()}</span>
+                                
+                                <textarea 
+                                    rows={4}
+                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"
+                                    placeholder="Write your response here..."
+                                    value={replyText}
+                                    onChange={(e) => setReplyText(e.target.value)}
+                                />
+                                
+                                <div className="flex justify-end gap-2 mt-3">
+                                    <button 
+                                        onClick={() => setIsReplying(false)}
+                                        className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-50 rounded border border-transparent hover:border-slate-200"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        onClick={handlePostReply}
+                                        className="px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded shadow-sm transition-colors"
+                                    >
+                                        Post Response
+                                    </button>
+                                </div>
                             </div>
-                            <p>{existingReplyText}</p>
-                        </div>
-                     </div>
+                        ) : (
+                            <div className="bg-white rounded-xl border border-slate-200 p-4 text-sm text-slate-600 leading-relaxed italic shadow-sm">
+                                <div className="flex items-center gap-2 mb-2 not-italic">
+                                    <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-white text-[10px] font-bold">
+                                        H
+                                    </div>
+                                    <span className="text-xs font-bold text-slate-900">Host Response</span>
+                                    <span className="text-[10px] text-slate-400 ml-auto">{new Date(replyDate).toLocaleDateString()}</span>
+                                </div>
+                                <p>{existingReplyText}</p>
+                            </div>
+                        )}
+                    </div>
                 )}
             </div>
 
-            {/* 3. Previous Reviews Section (Moved to here) */}
+            {/* 3. Previous Reviews Section */}
             <div className="mb-8">
                 <button 
                     onClick={handleTogglePrevReviews}
@@ -547,7 +545,6 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
 
                 {isPrevReviewsOpen && (
                     <div className="mt-2 space-y-4 animate-in slide-in-from-top-2 duration-300">
-                        
                         {/* Historic Summary */}
                         {historicSummary && (
                             <div className="flex items-center gap-3 bg-slate-50 px-3 py-2 rounded-lg border border-slate-100 mb-4">
@@ -605,7 +602,7 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
                 )}
             </div>
 
-            {/* 4. Related Staff Section (Renamed from Assigned Team) */}
+            {/* 4. Related Staff Section */}
             <div className="mb-8">
                 <div className="flex items-center gap-2 mb-3">
                     <Icons.Users className="w-4 h-4 text-slate-400" />
@@ -624,7 +621,7 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
                 </div>
             </div>
 
-            {/* 5. AI Insight (Moved after Related Staff) */}
+            {/* 5. AI Insight */}
             <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 border border-indigo-100 rounded-xl p-5 shadow-sm relative overflow-hidden mb-8">
                 <div className="absolute top-0 right-0 p-2 opacity-10">
                     <svg className="w-24 h-24 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.8L19.2 19H4.8L12 5.8z"/></svg>

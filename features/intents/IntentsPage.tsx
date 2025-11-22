@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { IntentsSidebar } from './components/IntentsSidebar';
 import { IntentsToolbar } from './components/IntentsToolbar';
@@ -106,6 +105,7 @@ export const IntentsPage: React.FC = () => {
             title="Intent Details"
             side="right"
             size="xl"
+            noPadding={true}
         >
             {isLoadingDetail ? (
                 <div className="flex h-full items-center justify-center">
