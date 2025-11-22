@@ -1,4 +1,5 @@
 
+
 import { 
   Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
@@ -142,6 +143,30 @@ export const api = {
     await delay(400);
     return MOCK_API_TASKS.map(mapApiTaskToUiTask);
   },
+  
+  fetchTask: async (taskId: string): Promise<Task | undefined> => {
+      await delay(300);
+      const task = MOCK_API_TASKS.find(t => t.id === taskId);
+      if (task) return mapApiTaskToUiTask(task);
+      
+      // Fallback mock if ID doesn't match predefined list
+      return {
+          id: taskId,
+          staffId: '102',
+          title: 'Task Detail View',
+          location: '1234 Ocean Dr',
+          type: 'maintenance',
+          startTime: 14,
+          duration: 1.5,
+          plannedStartTime: 14,
+          plannedDuration: 1,
+          status: 'in-progress',
+          assigneeName: 'Frank Fu',
+          priority: 'medium',
+          notes: 'This is a mock task detail returned for ID ' + taskId,
+          scheduledAt: new Date().toISOString()
+      } as Task;
+  },
 
   createTask: async (task: Task): Promise<Task> => {
     await delay(300);
@@ -255,5 +280,90 @@ export const api = {
   fetchIntents: async (): Promise<Intent[]> => {
       await delay(500);
       return [...MOCK_INTENTS];
+  },
+
+  fetchIntent: async (intentId: string): Promise<Intent | undefined> => {
+      await delay(600);
+      const baseIntent = MOCK_INTENTS.find(i => i.id === intentId);
+      if (!baseIntent) return undefined;
+
+      // Enrich with mock detail data
+      return {
+          ...baseIntent,
+          listing: { id: baseIntent.listingId || 'L-101', nickname: baseIntent.listingId || '1234 Property', address: '1234 Ocean Drive, Orlando, FL' },
+          reservation: { id: 'RES-123', guestName: 'Jessica Williams', reservationCode: 'HMQ823JKS', status: 'Checked In' },
+          category: { name: 'Maintenance', code: 'MAINT' },
+          attachments: [
+             { 
+                 id: 'att-1', 
+                 type: 'image', 
+                 url: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80',
+                 name: 'faucet_leak.jpg',
+                 uploadedAt: '2025-11-22T10:30:00Z' 
+             },
+             { 
+                 id: 'att-2', 
+                 type: 'image', 
+                 url: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80', 
+                 name: 'bathroom_overview.jpg',
+                 uploadedAt: '2025-11-22T10:31:00Z'
+             }
+          ],
+          linkedTasks: [
+              { 
+                  id: 't1', 
+                  title: 'Fix bathroom faucet leak', 
+                  status: 'in-progress', 
+                  assigneeName: 'Frank Fu', 
+                  priority: 'medium',
+                  assignedAt: '2025-11-22T10:22:00Z'
+              },
+              { 
+                  id: 't2', 
+                  title: 'Inspect water damage', 
+                  status: 'completed', 
+                  assigneeName: 'Alice Doe', 
+                  priority: 'high',
+                  assignedAt: '2025-11-21T15:00:00Z' 
+              }
+          ],
+          timeline: [
+              { 
+                  id: 'evt-1', 
+                  type: 'creation', 
+                  title: 'Intent Created', 
+                  timestamp: baseIntent.createdAt, 
+                  actorName: 'Airbnb System', 
+                  description: 'Imported from guest message'
+              },
+              { 
+                  id: 'evt-2', 
+                  type: 'status_change', 
+                  title: 'Status changed to In Progress', 
+                  timestamp: 'Nov 22, 10:15 AM', 
+                  actorName: 'Sarah Lee',
+                  actorInitials: 'SL',
+                  actorColor: 'bg-pink-500'
+              },
+              { 
+                  id: 'evt-3', 
+                  type: 'comment', 
+                  title: 'Internal Note', 
+                  timestamp: 'Nov 22, 10:20 AM', 
+                  actorName: 'Sarah Lee',
+                  actorInitials: 'SL',
+                  actorColor: 'bg-pink-500',
+                  description: 'Frank is nearby, assigning him to check this today.'
+              },
+              { 
+                  id: 'evt-4', 
+                  type: 'task_linked', 
+                  title: 'Task Created', 
+                  timestamp: 'Nov 22, 10:22 AM', 
+                  actorName: 'System',
+                  description: 'Task #T-1001 linked to this intent'
+              }
+          ]
+      };
   }
 };

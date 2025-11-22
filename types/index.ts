@@ -191,6 +191,36 @@ export interface InboxMessage {
 
 // --- Intent Types ---
 
+export interface IntentAttachment {
+    id: string;
+    type: 'image' | 'video' | 'document';
+    url: string;
+    thumbnailUrl?: string;
+    name: string;
+    uploadedAt: string;
+}
+
+export interface IntentTask {
+    id: string;
+    title: string;
+    status: TaskStatus;
+    assigneeName?: string;
+    priority?: TaskPriority;
+    assignedAt?: string;
+}
+
+export interface IntentTimelineEvent {
+    id: string;
+    type: 'creation' | 'status_change' | 'comment' | 'task_linked' | 'resolution' | 'reopen';
+    title: string;
+    description?: string;
+    timestamp: string;
+    actorName: string;
+    actorAvatar?: string;
+    actorInitials?: string;
+    actorColor?: string;
+}
+
 export interface Intent {
   id: string;
   description: string;
@@ -203,6 +233,16 @@ export interface Intent {
   createdAt: string;
   resolvedAt?: string;
   resolvedNote?: string;
+  resolvedBy?: string;
+  
+  // Detailed fields
+  listing?: { id: string; nickname: string; address?: string };
+  reservation?: { id: string; guestName: string; reservationCode: string; status: string };
+  category?: { name: string; code: string };
+  subcategory?: { name: string; code: string };
+  attachments?: IntentAttachment[];
+  linkedTasks?: IntentTask[];
+  timeline?: IntentTimelineEvent[];
 }
 
 // --- Map Types ---

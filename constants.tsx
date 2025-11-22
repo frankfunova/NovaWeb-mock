@@ -35,218 +35,6 @@ export const TASK_LABELS: Record<TaskType, string> = {
   delivery: 'Delivery',
 };
 
-export const MOCK_STAFF: Staff[] = [
-  {
-    id: 'eh',
-    name: 'Example Housekeeper',
-    initials: 'EH',
-    role: 'Housekeeper',
-    avatarColor: 'bg-orange-400',
-    totalHours: 8,
-    workedHours: 0,
-    isWorking: false,
-    shiftStart: 9,
-    shiftEnd: 17,
-  },
-  {
-    id: 'ff',
-    name: 'Frank Fu',
-    initials: 'FF',
-    role: 'Technician',
-    avatarColor: 'bg-blue-500',
-    totalHours: 8,
-    workedHours: 4.5,
-    isWorking: true,
-    shiftStart: 9,
-    shiftEnd: 17,
-  },
-  {
-    id: 'th',
-    name: 'Team Housekeeper',
-    initials: 'TH',
-    role: 'Housekeeper',
-    avatarColor: 'bg-green-500',
-    totalHours: 8,
-    workedHours: 3,
-    isWorking: true,
-    shiftStart: 10,
-    shiftEnd: 18,
-  },
-  {
-    id: 'to',
-    name: 'Test OP',
-    initials: 'TO',
-    role: 'Operator',
-    avatarColor: 'bg-teal-600',
-    totalHours: 8,
-    workedHours: 1,
-    isWorking: false,
-    shiftStart: 9,
-    shiftEnd: 17,
-  },
-  {
-    id: 'js',
-    name: 'John Smith',
-    initials: 'JS',
-    role: 'Maintenance',
-    avatarColor: 'bg-purple-500',
-    totalHours: 8,
-    workedHours: 2,
-    isWorking: true,
-    shiftStart: 12,
-    shiftEnd: 20,
-  },
-  {
-    id: 'ad',
-    name: 'Alice Doe',
-    initials: 'AD',
-    role: 'Inspector',
-    avatarColor: 'bg-red-500',
-    totalHours: 7,
-    workedHours: 5,
-    isWorking: false,
-    shiftStart: 9,
-    shiftEnd: 16,
-  },
-  {
-    id: 'mk',
-    name: 'Mike K.',
-    initials: 'MK',
-    role: 'Delivery',
-    avatarColor: 'bg-indigo-500',
-    totalHours: 6,
-    workedHours: 1,
-    isWorking: true,
-    shiftStart: 9,
-    shiftEnd: 15,
-  },
-  {
-    id: 'sl',
-    name: 'Sarah Lee',
-    initials: 'SL',
-    role: 'Housekeeper',
-    avatarColor: 'bg-pink-500',
-    totalHours: 8,
-    workedHours: 6,
-    isWorking: true,
-    shiftStart: 10,
-    shiftEnd: 18,
-  },
-  {
-    id: 'br',
-    name: 'Ben Ross',
-    initials: 'BR',
-    role: 'Technician',
-    avatarColor: 'bg-cyan-600',
-    totalHours: 9,
-    workedHours: 3.5,
-    isWorking: false,
-    shiftStart: 11,
-    shiftEnd: 20,
-  },
-];
-
-export const INITIAL_TASKS: Task[] = [
-  {
-    id: 't1',
-    staffId: 'ff',
-    title: 'Fix lamp',
-    location: '2607 Guest Room',
-    type: 'maintenance',
-    startTime: 11.25, // 11:15 AM Actual
-    duration: 1.25,
-    plannedStartTime: 11, // Planned 11:00
-    plannedDuration: 1, // Planned 1h
-    status: 'delayed',
-    notes: '+15m late start',
-  },
-  {
-    id: 't2',
-    staffId: 'ff',
-    title: 'Check HVAC',
-    location: 'Beach House',
-    type: 'inspection',
-    startTime: 13, // 1:00 PM
-    duration: 2,
-    plannedStartTime: 13,
-    plannedDuration: 2,
-    status: 'pending',
-  },
-  {
-    id: 't3',
-    staffId: 'th',
-    title: 'Deep cleaning',
-    location: 'Ocean View Villa',
-    type: 'cleaning',
-    startTime: 10, // 10:00 AM
-    duration: 4.5, // Running long
-    plannedStartTime: 10,
-    plannedDuration: 4, // Planned 4h
-    status: 'in-progress',
-    notes: 'Running overtime',
-  },
-  {
-    id: 't4',
-    staffId: 'unassigned',
-    title: 'Towel Delivery',
-    location: 'Pool Area',
-    type: 'delivery',
-    startTime: 9.5,
-    duration: 0.5,
-    plannedStartTime: 9.5,
-    plannedDuration: 0.5,
-    status: 'pending',
-  },
-  {
-    id: 't5',
-    staffId: 'js',
-    title: 'Pool Filter',
-    location: 'Main Pool',
-    type: 'maintenance',
-    startTime: 13,
-    duration: 2,
-    plannedStartTime: 13,
-    plannedDuration: 2,
-    status: 'completed',
-  },
-  {
-    id: 't6',
-    staffId: 'ad',
-    title: 'Safety Check',
-    location: 'Lobby',
-    type: 'inspection',
-    startTime: 14.5,
-    duration: 1,
-    plannedStartTime: 14.5,
-    plannedDuration: 1,
-    status: 'pending',
-  },
-  {
-    id: 't7',
-    staffId: 'unassigned',
-    title: 'Room 204 Clean',
-    location: 'Room 204',
-    type: 'cleaning',
-    startTime: 0,
-    duration: 1,
-    plannedStartTime: 0,
-    plannedDuration: 1,
-    status: 'pending',
-  },
-  {
-    id: 't8',
-    staffId: 'unassigned',
-    title: 'Lobby Light',
-    location: 'Lobby',
-    type: 'maintenance',
-    startTime: 0,
-    duration: 0.5,
-    plannedStartTime: 0,
-    plannedDuration: 0.5,
-    status: 'pending',
-  },
-];
-
 // Icons
 export const Icons = {
   Search: () => (
@@ -272,6 +60,11 @@ export const Icons = {
   ChevronRight: () => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
       <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+    </svg>
+  ),
+  ChevronDown: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
     </svg>
   ),
   Maintenance: () => (
@@ -396,4 +189,29 @@ export const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
     </svg>
   ),
+  Link: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+    </svg>
+  ),
+  PaperClip: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+    </svg>
+  ),
+  Edit: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+    </svg>
+  ),
+  Check: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  ),
+  X: () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+  )
 };

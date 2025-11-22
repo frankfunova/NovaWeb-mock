@@ -5,6 +5,7 @@ import { Icons } from '../../../constants';
 
 interface IntentsTableProps {
   intents: Intent[];
+  onIntentClick?: (intent: Intent) => void;
 }
 
 const PRIORITY_STYLES: Record<string, string> = {
@@ -38,7 +39,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
     );
 };
 
-export const IntentsTable: React.FC<IntentsTableProps> = ({ intents }) => {
+export const IntentsTable: React.FC<IntentsTableProps> = ({ intents, onIntentClick }) => {
   return (
     <div className="min-w-full inline-block align-middle">
       <div className="overflow-hidden">
@@ -88,6 +89,7 @@ export const IntentsTable: React.FC<IntentsTableProps> = ({ intents }) => {
               <tr 
                 key={intent.id} 
                 className="hover:bg-slate-50 transition-colors group cursor-pointer"
+                onClick={() => onIntentClick && onIntentClick(intent)}
               >
                 <td className="px-6 py-4 w-10" onClick={(e) => e.stopPropagation()}>
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
