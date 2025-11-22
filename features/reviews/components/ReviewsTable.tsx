@@ -5,6 +5,7 @@ import { Icons } from '../../../constants';
 
 interface ReviewsTableProps {
   reviews: Review[];
+  onReviewClick?: (review: Review) => void;
 }
 
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
@@ -39,7 +40,7 @@ const OtaBadge: React.FC<{ ota: string }> = ({ ota }) => {
     );
 };
 
-export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews }) => {
+export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewClick }) => {
   
   const formatDate = (dateStr: string) => {
       return new Date(dateStr).toLocaleDateString('en-US', {
@@ -92,8 +93,12 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews }) => {
           </thead>
           <tbody className="bg-white divide-y divide-slate-50">
             {reviews.map((review) => (
-              <tr key={review.id} className="hover:bg-slate-50 transition-colors group">
-                <td className="px-6 py-4 w-10">
+              <tr 
+                key={review.id} 
+                className="hover:bg-slate-50 transition-colors group cursor-pointer"
+                onClick={() => onReviewClick && onReviewClick(review)}
+              >
+                <td className="px-6 py-4 w-10" onClick={(e) => e.stopPropagation()}>
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                 </td>
                 
@@ -116,7 +121,7 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews }) => {
                         {review.publicReview.length > 100 ? (
                             <>
                                 {review.publicReview.substring(0, 100)}... 
-                                <button className="text-indigo-600 hover:underline ml-1 font-medium">More...</button>
+                                <span className="text-indigo-600 ml-1 font-medium">More</span>
                             </>
                         ) : review.publicReview}
                     </p>
@@ -139,7 +144,7 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews }) => {
 
                 {/* Status */}
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                    {review.status}
+                    <span className={`capitalize ${review.status === 'new' ? 'text-indigo-600 font-bold' : ''}`}>{review.status}</span>
                 </td>
               </tr>
             ))}

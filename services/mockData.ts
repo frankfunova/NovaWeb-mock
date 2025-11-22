@@ -639,92 +639,218 @@ export const MOCK_REVIEWS: Review[] = [
   {
     id: genId('601'),
     listingName: '2609DS WH',
-    reservationCode: 'Res#HMJEMQ3KMB',
-    publicReview: 'Very nice would stay here again',
+    reservationCode: 'HMJEMQ3KMB',
+    publicReview: 'Very nice would stay here again. The location was perfect for our family trip to Disney.',
+    privateReview: 'The master bathroom sink drains a bit slowly.',
     rating: 5,
+    cleanlinessRating: 5,
+    accuracyRating: 5,
+    communicationRating: 5,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-17',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'John Doe',
+    guestLocation: 'New York, US',
+    checkIn: '2025-11-13',
+    checkOut: '2025-11-17',
+    relatedStaff: [
+        { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' },
+        { name: 'Alice Doe', role: 'Inspector', rating: 4.8, avatarColor: 'bg-red-500', initials: 'AD' },
+        { name: 'Support Team', role: 'Custom Service', rating: 5.0, avatarColor: 'bg-purple-500', initials: 'ST' },
+        { name: 'Mike K.', role: 'Watcher', rating: 4.7, avatarColor: 'bg-indigo-500', initials: 'MK' }
+    ]
   },
   {
     id: genId('602'),
     listingName: '15972SCD WCR',
-    reservationCode: 'Res#HMPJ3MDNHA',
-    publicReview: 'Great house no problems from my group',
+    reservationCode: 'HMPJ3MDNHA',
+    publicReview: 'Great house no problems from my group. Plenty of space and the pool was amazing.',
     rating: 5,
+    cleanlinessRating: 5,
+    accuracyRating: 5,
+    communicationRating: 4,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-16',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'Sarah Smith',
+    guestLocation: 'London, UK',
+    checkIn: '2025-11-10',
+    checkOut: '2025-11-16',
+    relatedStaff: [
+        { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' },
+        { name: 'Frank Fu', role: 'Inspector', rating: 4.9, avatarColor: 'bg-blue-500', initials: 'FF' }
+    ]
   },
   {
     id: genId('603'),
     listingName: '2903FS SL',
-    reservationCode: 'Res#HM2ZXD3S2K',
+    reservationCode: 'HM2ZXD3S2K',
     publicReview: 'We absolutely loved the place! While yes it could use some upkeep with painting and a few tweaks for it to be SPOTLESS. But overall it was a great stay.',
     rating: 5,
+    cleanlinessRating: 4,
+    accuracyRating: 5,
+    communicationRating: 5,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-16',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'Mike Johnson',
+    guestLocation: 'Toronto, CA',
+    checkIn: '2025-11-12',
+    checkOut: '2025-11-16',
+    relatedStaff: [
+        { name: 'Example Housekeeper', role: 'Cleaner', rating: 4.5, avatarColor: 'bg-orange-400', initials: 'EH' },
+        { name: 'John Smith', role: 'Maintenance', rating: 4.8, avatarColor: 'bg-purple-500', initials: 'JS' }
+    ]
   },
   {
     id: genId('604'),
     listingName: '2791PP SL',
-    reservationCode: 'Res#HMRPTHK8Y5',
-    publicReview: 'Great place',
+    reservationCode: 'HMRPTHK8Y5',
+    publicReview: 'Great place. Close to everything.',
     rating: 5,
+    cleanlinessRating: 5,
+    accuracyRating: 5,
+    communicationRating: 5,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-16',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'Emily Davis',
+    guestLocation: 'Chicago, US',
+    checkIn: '2025-11-14',
+    checkOut: '2025-11-16',
+    relatedStaff: [
+         { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' }
+    ]
   },
   {
     id: genId('605'),
     listingName: '8801CD WAW',
-    reservationCode: 'Res#HMXJYKEW8R',
-    publicReview: 'Arrived and given incorrect access code but dealt with quickly. The house was clean bar the skirting boards, but qui...',
+    reservationCode: 'HMXJYKEW8R',
+    publicReview: 'Arrived and given incorrect access code but dealt with quickly. The house was clean bar the skirting boards, but quite noisy due to construction nearby.',
+    privateReview: 'Please update the code in the automated message.',
     rating: 3,
+    cleanlinessRating: 4,
+    accuracyRating: 2,
+    communicationRating: 5,
+    locationRating: 3,
+    checkinRating: 2,
+    valueRating: 3,
     reviewDate: '2025-11-15',
     ota: 'Airbnb',
-    status: 'replied'
+    status: 'replied',
+    guestName: 'Robert Brown',
+    guestLocation: 'Manchester, UK',
+    checkIn: '2025-11-10',
+    checkOut: '2025-11-15',
+    relatedStaff: [
+        { name: 'Sarah Lee', role: 'Cleaner', rating: 4.6, avatarColor: 'bg-pink-500', initials: 'SL' },
+        { name: 'Support Team', role: 'Custom Service', rating: 5.0, avatarColor: 'bg-purple-500', initials: 'ST' }
+    ]
   },
   {
     id: genId('606'),
     listingName: '2528SD VP',
-    reservationCode: 'Res#HMXNXZSYW5',
+    reservationCode: 'HMXNXZSYW5',
     publicReview: 'Great place to stay and communication was great',
     rating: 5,
+    cleanlinessRating: 5,
+    accuracyRating: 5,
+    communicationRating: 5,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-15',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'Linda Wilson',
+    guestLocation: 'Sydney, AU',
+    checkIn: '2025-11-08',
+    checkOut: '2025-11-15',
+    relatedStaff: [
+        { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' }
+    ]
   },
   {
     id: genId('607'),
     listingName: '2060LC WIR',
-    reservationCode: 'Res#HMEJS852YM',
+    reservationCode: 'HMEJS852YM',
     publicReview: 'Great house, plenty of space. Great communication. Great location. Thank you',
     rating: 5,
+    cleanlinessRating: 5,
+    accuracyRating: 5,
+    communicationRating: 5,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-15',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'David Lee',
+    guestLocation: 'Seoul, KR',
+    checkIn: '2025-11-11',
+    checkOut: '2025-11-15',
+    relatedStaff: [
+        { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' }
+    ]
   },
   {
     id: genId('608'),
     listingName: '1060LS CG',
-    reservationCode: 'Res#HMXTDSZCP8',
+    reservationCode: 'HMXTDSZCP8',
     publicReview: 'Beautiful Home to stay with everything you may ever need in the house or in the community. Loved it',
     rating: 5,
+    cleanlinessRating: 5,
+    accuracyRating: 5,
+    communicationRating: 5,
+    locationRating: 5,
+    checkinRating: 5,
+    valueRating: 5,
     reviewDate: '2025-11-14',
     ota: 'Airbnb',
-    status: 'new'
+    status: 'new',
+    guestName: 'Jennifer Garcia',
+    guestLocation: 'Madrid, ES',
+    checkIn: '2025-11-09',
+    checkOut: '2025-11-14',
+    relatedStaff: [
+        { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' }
+    ]
   },
   {
     id: genId('609'),
     listingName: '1571MCW Solara',
-    reservationCode: 'Res#HA-aqZTLzp',
-    publicReview: 'We had a great stay overall. I wish we had more information regarding the resort amenities. It was difficult to get in conta...',
+    reservationCode: 'HA-aqZTLzp',
+    publicReview: 'We had a great stay overall. I wish we had more information regarding the resort amenities. It was difficult to get in contact with the host at times.',
     rating: 4,
+    cleanlinessRating: 5,
+    accuracyRating: 4,
+    communicationRating: 3,
+    locationRating: 5,
+    checkinRating: 4,
+    valueRating: 4,
     reviewDate: '2025-11-14',
     ota: 'VRBO',
-    status: 'new'
+    status: 'new',
+    guestName: 'James Martinez',
+    guestLocation: 'Miami, US',
+    checkIn: '2025-11-10',
+    checkOut: '2025-11-14',
+    relatedStaff: [
+        { name: 'Team HK', role: 'Cleaner', rating: 4.9, avatarColor: 'bg-green-500', initials: 'TH' },
+        { name: 'Support Team', role: 'Custom Service', rating: 5.0, avatarColor: 'bg-purple-500', initials: 'ST' }
+    ]
   }
 ];
 

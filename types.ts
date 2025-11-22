@@ -72,15 +72,49 @@ export interface Reservation {
   phone?: string;
 }
 
+export interface ReviewInsight {
+  sentiment: 'positive' | 'negative' | 'neutral' | 'mixed';
+  topics: string[];
+  summary: string; // The main issues or praise summary
+  generatedAt: string;
+}
+
+export interface ReviewStaff {
+  name: string;
+  role: string;
+  rating: number; // Performance score (e.g. 4.8)
+  avatarColor: string;
+  initials: string;
+}
+
 export interface Review {
   id: string;
   listingName: string;
   reservationCode: string;
   publicReview: string;
+  privateReview?: string;
   rating: number; // 1-5
+  // Breakdown ratings
+  accuracyRating?: number;
+  checkinRating?: number;
+  cleanlinessRating?: number;
+  communicationRating?: number;
+  locationRating?: number;
+  valueRating?: number;
+  
   reviewDate: string; // ISO string
   ota: ReservationSource;
-  status: 'new' | 'replied';
+  status: 'new' | 'replied' | 'ignored';
+  
+  guestName?: string;
+  guestAvatar?: string;
+  guestLocation?: string;
+  
+  checkIn?: string;
+  checkOut?: string;
+  relatedStaff?: ReviewStaff[];
+
+  insight?: ReviewInsight | null; 
 }
 
 // --- Attendance Types ---
@@ -170,6 +204,7 @@ export interface MapProperty {
     total: number;
   };
   pendingTasksCount: number;
+  completionPercent: number;
 }
 
 export interface MapStaff extends Staff {

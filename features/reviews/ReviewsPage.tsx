@@ -4,10 +4,15 @@ import { api } from '../../services/api';
 import { Review } from '../../types';
 import { ReviewsTable } from './components/ReviewsTable';
 import { ReviewsToolbar } from './components/ReviewsToolbar';
+import { Flyout } from '../../components/Flyout';
+import { ReviewDetail } from './components/ReviewDetail';
+import { ReviewHeader } from './components/ReviewHeader';
 
 export const ReviewsPage: React.FC = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
+  const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -24,6 +29,11 @@ export const ReviewsPage: React.FC = () => {
     loadData();
   }, []);
 
+  const handleReviewClick = (review: Review) => {
+      setSelectedReview(review);
+      setIsFlyoutOpen(true);
+  };
+
   if (isLoading) {
       return (
           <div className="flex-1 flex items-center justify-center h-full bg-white">
@@ -38,7 +48,7 @@ export const ReviewsPage: React.FC = () => {
         <ReviewsToolbar />
         
         <div className="flex-1 overflow-auto bg-white custom-scrollbar">
-            <ReviewsTable reviews={reviews} />
+            <ReviewsTable reviews={reviews} onReviewClick={handleReviewClick} />
             
             {/* Pagination Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm bg-slate-50/50">
@@ -49,6 +59,16 @@ export const ReviewsPage: React.FC = () => {
                 <button className="text-purple-600 hover:text-purple-800 font-medium hover:underline">Load more reviews...</button>
             </div>
         </div>
+
+        <Flyout
+            isOpen={isFlyoutOpen}
+            onClose={() => setIsFlyoutOpen(false)}
+            title={selectedReview ? <ReviewHeader review={selectedReview} /> : 'Review Details'}
+            side="right"
+            size="xl"
+        >
+            {selectedReview && <ReviewDetail review={selectedReview} />}
+        </Flyout>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 
 import { 
-  Task, Staff, Reservation, AttendanceRecord, Review,
+  Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
   TaskType, TaskStatus, ReservationSource, AttendanceStatus,
   InboxThread, InboxMessage, MapProperty, MapStaff
@@ -165,6 +165,35 @@ export const api = {
   fetchReviews: async (): Promise<Review[]> => {
     await delay(400);
     return [...MOCK_REVIEWS];
+  },
+  
+  generateReviewInsight: async (reviewId: string): Promise<ReviewInsight> => {
+      await delay(1200); // Simulate AI processing time
+      const review = MOCK_REVIEWS.find(r => r.id === reviewId);
+      
+      // Determine simple mock logic based on rating or content keywords
+      if (review && review.rating <= 3) {
+          return {
+              sentiment: 'negative',
+              topics: ['Maintenance', 'Cleanliness', 'Access'],
+              summary: 'Guest reported issues with access code and general cleanliness. Construction noise was also a factor.',
+              generatedAt: new Date().toISOString()
+          };
+      } else if (review && review.rating === 4) {
+           return {
+              sentiment: 'mixed',
+              topics: ['Amenities', 'Communication'],
+              summary: 'Overall good stay but communication could be improved. Guest wanted more info on resort amenities.',
+              generatedAt: new Date().toISOString()
+          };
+      } else {
+          return {
+              sentiment: 'positive',
+              topics: ['Location', 'Comfort', 'Value'],
+              summary: 'Guest had an excellent experience, highlighting the location and property condition.',
+              generatedAt: new Date().toISOString()
+          };
+      }
   },
 
   fetchAttendance: async (date: Date): Promise<AttendanceRecord[]> => {
