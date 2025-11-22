@@ -1,5 +1,5 @@
 
-import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff } from '../types';
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent } from '../types';
 
 // Helper to create today's date with specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
@@ -1034,4 +1034,119 @@ export const MOCK_INBOX_MESSAGES: InboxMessage[] = [
     timestamp: 'Nov 21, 8:30 PM',
     type: 'text'
   }
+];
+
+// --- MOCK INTENTS ---
+
+export const MOCK_INTENTS: Intent[] = [
+    {
+        id: 'i1',
+        description: 'Hello Jessica and Paul, we are traveling with 2 families t...',
+        status: 'new',
+        priority: 'low',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '-',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i2',
+        description: 'Good Afternoon! Wow our people are trinkling in, I am s...',
+        status: 'new',
+        priority: 'low',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '1563PW CG',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i3',
+        description: 'Thank you for opening the door. We were able to get ins...',
+        status: 'new',
+        priority: 'high',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '2311LC WIR',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i4',
+        description: 'Reservation HMWFYMEDQM status changed to confirm...',
+        status: 'new',
+        priority: 'low',
+        source: 'System',
+        intentTypeCode: 'SR',
+        listingId: '2231LC WIR',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i5',
+        description: 'Hello, currently people are still in the house. The repair...',
+        status: 'new',
+        priority: 'low',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '8819IC CG',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i6',
+        description: 'Messages not syncing - 2025-11-22T17:41:42.729202+...',
+        status: 'new',
+        priority: 'medium',
+        source: 'System',
+        intentTypeCode: 'SR',
+        listingId: '8819IC CG',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i7',
+        description: 'System Notes: 8819IC CG / HMR8F5MXC2 / CS - Claire ...',
+        status: 'new',
+        priority: 'high',
+        source: 'System',
+        intentTypeCode: 'SR',
+        listingId: '8819IC CG',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i8',
+        description: 'WO ID:6744e2d0d2a2e00012b903d6-251 WO NAME: st...',
+        status: 'new',
+        priority: 'low',
+        source: 'Vendor',
+        intentTypeCode: 'SR',
+        listingId: '8819IC CG',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i9',
+        description: 'Good afternoon i wanted to make sure it is established ...',
+        status: 'new',
+        priority: 'low',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '1155DL CG',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i10',
+        description: 'PH Invoice: https://www.airbnb.com/resolutions/CLA-F...',
+        status: 'new',
+        priority: 'medium',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '547MB BV',
+        createdAt: 'Nov 22',
+    },
+    {
+        id: 'i11',
+        description: 'Good afternoon I was wondering if you could have som...',
+        status: 'new',
+        priority: 'medium',
+        source: 'Airbnb',
+        intentTypeCode: 'SR',
+        listingId: '751PBD CG',
+        createdAt: 'Nov 22',
+    },
 ];

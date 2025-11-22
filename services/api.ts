@@ -3,7 +3,7 @@ import {
   Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
   TaskType, TaskStatus, ReservationSource, AttendanceStatus,
-  InboxThread, InboxMessage, MapProperty, MapStaff
+  InboxThread, InboxMessage, MapProperty, MapStaff, Intent
 } from '../types';
 import { 
   MOCK_STAFF, 
@@ -16,7 +16,8 @@ import {
   MOCK_INBOX_THREADS,
   MOCK_INBOX_MESSAGES,
   MOCK_MAP_PROPERTIES,
-  MOCK_MAP_STAFF
+  MOCK_MAP_STAFF,
+  MOCK_INTENTS
 } from './mockData';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -248,5 +249,11 @@ export const api = {
   fetchMapStaff: async (): Promise<MapStaff[]> => {
       await delay(500);
       return [...MOCK_MAP_STAFF];
+  },
+
+  // --- Intents ---
+  fetchIntents: async (): Promise<Intent[]> => {
+      await delay(500);
+      return [...MOCK_INTENTS];
   }
 };

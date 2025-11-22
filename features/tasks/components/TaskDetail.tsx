@@ -31,9 +31,30 @@ const Accordion: React.FC<{ title: string; children: React.ReactNode; defaultOpe
 };
 
 export const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
-  // Mock formatted dates
-  const dateStr = task.scheduledAt ? new Date(task.scheduledAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Nov 20, 2025';
-  const timeStr = '12:00AM';
+  // Dates & Time Formatting
+  const dateObj = task.scheduledAt ? new Date(task.scheduledAt) : new Date();
+  const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  
+  // Use startTime if available for time display, otherwise default
+  let timeStr = '--:--';
+  if (task.startTime) {
+      const h = Math.floor(task.startTime);
+      const m = Math.round((task.startTime - h) * 60);
+      const date = new Date();
+      date.setHours(h, m);
+      timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  } else if (task.scheduledAt) {
+      timeStr = new Date(task.scheduledAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  const formatDuration = (hours?: number) => {
+      if (!hours) return '--';
+      const h = Math.floor(hours);
+      const m = Math.round((hours - h) * 60);
+      if (h === 0) return `${m}m`;
+      if (m === 0) return `${h}h`;
+      return `${h}h ${m}m`;
+  };
   
   return (
     <div className="flex flex-col h-full">
@@ -41,7 +62,9 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
       {/* Row 2: Task ID & Assignee Bar (Below Header) */}
       <div className="px-6 py-4 flex items-center justify-between bg-white">
          <div className="flex items-center gap-3">
-             <h2 className="text-xl font-bold text-slate-900">{task.propertyName || task.id.substring(0, 6).toUpperCase()}</h2>
+             <h2 className="text-xl font-bold text-slate-900 truncate max-w-[250px]" title={task.propertyName || task.location}>
+                 {task.propertyName || task.location || task.id.substring(0, 6).toUpperCase()}
+             </h2>
              
              {/* Assignee Pill */}
              <div className="flex items-center gap-2 bg-slate-50 pl-1 pr-3 py-1 rounded-full border border-slate-200 cursor-pointer hover:border-indigo-300 transition-colors">
@@ -70,16 +93,20 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
           </div>
            <div className="flex items-center gap-2 text-slate-500 justify-end">
               <span className="text-slate-400">Est. Duration:</span>
-              <span className="font-bold text-slate-700 font-mono">{task.plannedDuration ? `${task.plannedDuration}:00:00 h` : '00:15:00 h'}</span>
+              <span className="font-bold text-slate-700 font-mono">{formatDuration(task.plannedDuration)}</span>
           </div>
           <div className="flex items-center gap-2 text-slate-500 col-span-2">
               <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
               <span className="text-slate-400">Started:</span>
-              <span className="font-medium text-slate-600">nov 19, 2025 6:45pm</span>
+              <span className="font-medium text-slate-600">
+                  {task.status === 'new' || task.status === 'pending' ? '--' : `${dateStr} ${timeStr}`}
+              </span>
           </div>
           <div className="flex items-center gap-2 text-slate-500 justify-end">
               <span className="text-slate-400">Actual Duration:</span>
-              <span className="font-bold text-red-600 font-mono">00:10:13</span>
+              <span className={`font-bold font-mono ${task.duration > (task.plannedDuration || 0) ? 'text-orange-600' : 'text-slate-700'}`}>
+                  {formatDuration(task.duration)}
+              </span>
           </div>
       </div>
 
@@ -100,7 +127,8 @@ export const TaskDetail: React.FC<TaskDetailProps> = ({ task }) => {
                   <label className="block text-xs font-bold text-slate-500 mb-1">Task description <span className="text-red-500">*</span></label>
                   <textarea 
                     rows={3}
-                    defaultValue={task.description} 
+                    // Map notes to description if description is empty, ensuring field reuse
+                    defaultValue={task.description || task.notes} 
                     className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white resize-none"
                   />
               </div>

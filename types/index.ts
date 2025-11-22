@@ -189,6 +189,22 @@ export interface InboxMessage {
   metadata?: any; // for resolve/follow-up buttons
 }
 
+// --- Intent Types ---
+
+export interface Intent {
+  id: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'resolved' | 'closed' | 'new';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  source: string;
+  intentTypeCode: string;
+  listingId?: string;
+  reservationId?: string;
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedNote?: string;
+}
+
 // --- Map Types ---
 
 export interface Coordinates {
