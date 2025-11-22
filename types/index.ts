@@ -1,4 +1,5 @@
 
+
 // --- UI Domain Types (Used by React Components) ---
 
 export type TaskType = 'cleaning' | 'maintenance' | 'inspection' | 'delivery';
@@ -103,11 +104,13 @@ export interface Review {
   
   reviewDate: string; // ISO string
   ota: ReservationSource;
-  status: 'new' | 'replied' | 'ignored';
+  status: 'new' | 'replied' | 'ignored' | 'disputing';
   
   guestName?: string;
   guestAvatar?: string;
   guestLocation?: string;
+  guestEmail?: string;
+  guestPhone?: string;
   
   // New fields for Flyout Header/Detail
   checkIn?: string;
@@ -115,6 +118,10 @@ export interface Review {
   relatedStaff?: ReviewStaff[];
 
   insight?: ReviewInsight | null; 
+  
+  // Translation fields
+  originalLanguage?: string;
+  originalContent?: string;
 }
 
 export type AttendanceStatus = 'Off duty' | 'Shift End' | 'Working' | 'In break' | '--';

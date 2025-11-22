@@ -654,6 +654,8 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'John Doe',
     guestLocation: 'New York, US',
+    guestEmail: 'john.doe@example.com',
+    guestPhone: '+1 555-0101',
     checkIn: '2025-11-13',
     checkOut: '2025-11-17',
     relatedStaff: [
@@ -668,18 +670,19 @@ export const MOCK_REVIEWS: Review[] = [
     listingName: '15972SCD WCR',
     reservationCode: 'HMPJ3MDNHA',
     publicReview: 'Great house no problems from my group. Plenty of space and the pool was amazing.',
-    rating: 5,
+    rating: 3,
     cleanlinessRating: 5,
     accuracyRating: 5,
     communicationRating: 4,
-    locationRating: 5,
+    locationRating: 3,
     checkinRating: 5,
     valueRating: 5,
     reviewDate: '2025-11-16',
     ota: 'Airbnb',
-    status: 'new',
+    status: 'disputing',
     guestName: 'Sarah Smith',
     guestLocation: 'London, UK',
+    guestEmail: 'sarah.smith@example.co.uk',
     checkIn: '2025-11-10',
     checkOut: '2025-11-16',
     relatedStaff: [
@@ -704,6 +707,8 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'Mike Johnson',
     guestLocation: 'Toronto, CA',
+    guestEmail: 'mike.j@example.ca',
+    guestPhone: '+1 416-555-0123',
     checkIn: '2025-11-12',
     checkOut: '2025-11-16',
     relatedStaff: [
@@ -728,6 +733,7 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'Emily Davis',
     guestLocation: 'Chicago, US',
+    guestEmail: 'emily.davis@example.com',
     checkIn: '2025-11-14',
     checkOut: '2025-11-16',
     relatedStaff: [
@@ -752,6 +758,7 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'replied',
     guestName: 'Robert Brown',
     guestLocation: 'Manchester, UK',
+    guestEmail: 'robert.brown@example.co.uk',
     checkIn: '2025-11-10',
     checkOut: '2025-11-15',
     relatedStaff: [
@@ -776,6 +783,7 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'Linda Wilson',
     guestLocation: 'Sydney, AU',
+    guestEmail: 'linda.wilson@example.com.au',
     checkIn: '2025-11-08',
     checkOut: '2025-11-15',
     relatedStaff: [
@@ -799,6 +807,7 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'David Lee',
     guestLocation: 'Seoul, KR',
+    guestEmail: 'david.lee@example.kr',
     checkIn: '2025-11-11',
     checkOut: '2025-11-15',
     relatedStaff: [
@@ -810,6 +819,8 @@ export const MOCK_REVIEWS: Review[] = [
     listingName: '1060LS CG',
     reservationCode: 'HMXTDSZCP8',
     publicReview: 'Beautiful Home to stay with everything you may ever need in the house or in the community. Loved it',
+    originalContent: 'Hermosa casa para alojarse con todo lo que pueda necesitar en la casa o en la comunidad. Me encantó.',
+    originalLanguage: 'es',
     rating: 5,
     cleanlinessRating: 5,
     accuracyRating: 5,
@@ -822,6 +833,7 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'Jennifer Garcia',
     guestLocation: 'Madrid, ES',
+    guestEmail: 'jennifer.garcia@example.es',
     checkIn: '2025-11-09',
     checkOut: '2025-11-14',
     relatedStaff: [
@@ -845,6 +857,7 @@ export const MOCK_REVIEWS: Review[] = [
     status: 'new',
     guestName: 'James Martinez',
     guestLocation: 'Miami, US',
+    guestEmail: 'james.martinez@example.com',
     checkIn: '2025-11-10',
     checkOut: '2025-11-14',
     relatedStaff: [

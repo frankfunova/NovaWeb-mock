@@ -28,14 +28,31 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 const OtaBadge: React.FC<{ ota: string }> = ({ ota }) => {
-    let styles = 'bg-slate-100 text-slate-600';
-    if (ota === 'Airbnb') styles = 'bg-rose-50 text-rose-600 border border-rose-100';
-    if (ota === 'VRBO') styles = 'bg-blue-50 text-blue-600 border border-blue-100';
-    if (ota === 'Booking') styles = 'bg-indigo-50 text-indigo-600 border border-indigo-100';
+    let styles = 'bg-slate-100 text-slate-600 border-slate-200';
+    if (ota === 'Airbnb') styles = 'bg-rose-50 text-rose-600 border-rose-100';
+    if (ota === 'VRBO') styles = 'bg-blue-50 text-blue-600 border-blue-100';
+    if (ota === 'Booking') styles = 'bg-indigo-50 text-indigo-600 border-indigo-100';
 
     return (
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${styles}`}>
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${styles}`}>
             {ota}
+        </span>
+    );
+};
+
+const REVIEW_STATUS_STYLES: Record<string, string> = {
+    new: 'bg-purple-50 text-purple-700 border-purple-200',
+    replied: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    disputing: 'bg-red-50 text-red-700 border-red-200',
+    removed: 'bg-slate-50 text-slate-600 border-slate-200',
+    ignored: 'bg-gray-50 text-gray-600 border-gray-200',
+};
+
+const ReviewStatusBadge: React.FC<{ status: string }> = ({ status }) => {
+    const styles = REVIEW_STATUS_STYLES[status.toLowerCase()] || 'bg-slate-50 text-slate-600 border-slate-200';
+    return (
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border capitalize ${styles}`}>
+            {status}
         </span>
     );
 };
@@ -102,16 +119,11 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewCli
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                 </td>
                 
-                {/* Listing */}
+                {/* Listing - Removed Icon */}
                 <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded border border-slate-200 bg-white flex items-center justify-center">
-                            <svg className="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                        </div>
-                        <div>
-                            <div className="text-sm font-bold text-slate-900">{review.listingName}</div>
-                            <div className="text-xs text-slate-400 font-mono">{review.reservationCode}</div>
-                        </div>
+                    <div>
+                        <div className="text-sm font-bold text-slate-900">{review.listingName}</div>
+                        <div className="text-xs text-slate-400 font-mono">{review.reservationCode}</div>
                     </div>
                 </td>
 
@@ -142,9 +154,9 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewCli
                     <OtaBadge ota={review.ota} />
                 </td>
 
-                {/* Status */}
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                    <span className={`capitalize ${review.status === 'new' ? 'text-indigo-600 font-bold' : ''}`}>{review.status}</span>
+                {/* Status - Updated to Badge */}
+                <td className="px-6 py-4 whitespace-nowrap">
+                    <ReviewStatusBadge status={review.status} />
                 </td>
               </tr>
             ))}

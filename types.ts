@@ -1,4 +1,5 @@
 
+
 export type TaskType = 'cleaning' | 'maintenance' | 'inspection' | 'delivery';
 
 // Added 'new' to TaskStatus, and backend statuses
@@ -104,17 +105,23 @@ export interface Review {
   
   reviewDate: string; // ISO string
   ota: ReservationSource;
-  status: 'new' | 'replied' | 'ignored';
+  status: 'new' | 'replied' | 'ignored' | 'disputing';
   
   guestName?: string;
   guestAvatar?: string;
   guestLocation?: string;
+  guestEmail?: string;
+  guestPhone?: string;
   
   checkIn?: string;
   checkOut?: string;
   relatedStaff?: ReviewStaff[];
 
   insight?: ReviewInsight | null; 
+
+  // Translation fields
+  originalLanguage?: string;
+  originalContent?: string;
 }
 
 // --- Attendance Types ---
