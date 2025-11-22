@@ -7,10 +7,19 @@ interface FlyoutProps {
   title: React.ReactNode;
   children: React.ReactNode;
   side?: 'left' | 'right';
-  actions?: React.ReactNode; // Added actions prop
+  actions?: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | 'full';
 }
 
-export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children, side = 'right', actions }) => {
+export const Flyout: React.FC<FlyoutProps> = ({ 
+  isOpen, 
+  onClose, 
+  title, 
+  children, 
+  side = 'right', 
+  actions,
+  size = 'xl' 
+}) => {
   // Close on escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -19,6 +28,19 @@ export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children
     if (isOpen) window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
+
+  const sizeClasses = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    full: 'max-w-full'
+  };
+
+  const maxWidthClass = sizeClasses[size] || sizeClasses.xl;
 
   const translateClass = side === 'right' 
     ? (isOpen ? 'translate-x-0' : 'translate-x-full')
@@ -41,11 +63,11 @@ export const Flyout: React.FC<FlyoutProps> = ({ isOpen, onClose, title, children
 
       <div className={`absolute flex max-w-full pointer-events-none ${positionClass}`}>
         <div 
-          className={`pointer-events-auto w-screen max-w-md sm:max-w-xl transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
+          className={`pointer-events-auto w-screen ${maxWidthClass} transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white min-h-[72px]">
-            <div className="flex-1 flex items-center gap-3 overflow-hidden" id="slide-over-title">
+            <div className="flex-1 flex items-center gap-3 min-w-0" id="slide-over-title">
               {title}
             </div>
             <div className="flex items-center gap-3 pl-4">
