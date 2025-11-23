@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icons } from '../constants';
 
 interface FlyoutProps {
@@ -11,6 +11,7 @@ interface FlyoutProps {
   actions?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | 'full';
   noPadding?: boolean;
+  onShare?: () => void; // Callback to get URL
 }
 
 export const Flyout: React.FC<FlyoutProps> = ({ 
@@ -21,8 +22,11 @@ export const Flyout: React.FC<FlyoutProps> = ({
   side = 'right', 
   actions,
   size = 'xl',
-  noPadding = false
+  noPadding = false,
+  onShare
 }) => {
+  const [showCopyFeedback, setShowCopyFeedback] = useState(false);
+
   // Close on escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -31,6 +35,22 @@ export const Flyout: React.FC<FlyoutProps> = ({
     if (isOpen) window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
+
+  const handleShareClick = async () => {
+    if (onShare) {
+        // If parent provides custom share logic
+        onShare();
+    } else {
+        // Default behavior: Copy current URL
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            setShowCopyFeedback(true);
+            setTimeout(() => setShowCopyFeedback(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy!', err);
+        }
+    }
+  };
 
   const sizeClasses = {
     sm: 'max-w-sm',
@@ -80,12 +100,31 @@ export const Flyout: React.FC<FlyoutProps> = ({
                 {actions}
                 
                 {/* Standard Share Button */}
-                <button className="p-2 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors" title="Share">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                </button>
+                <div className="relative">
+                    <button 
+                        onClick={handleShareClick}
+                        className={`p-2 rounded-md transition-colors ${showCopyFeedback ? 'text-green-600 bg-green-50' : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100'}`} 
+                        title="Copy Link to Clipboard"
+                    >
+                        {showCopyFeedback ? (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                        ) : (
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                        )}
+                    </button>
+                    {showCopyFeedback && (
+                        <div className="absolute top-full right-0 mt-2 px-2 py-1 bg-slate-800 text-white text-[10px] font-bold rounded shadow-lg whitespace-nowrap z-50 animate-in fade-in zoom-in-95">
+                            Link Copied!
+                        </div>
+                    )}
+                </div>
 
                 {/* Standard Open New Tab Button */}
-                <button className="p-2 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors" title="Open in new tab">
+                <button 
+                    className="p-2 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors" 
+                    title="Open in new tab"
+                    onClick={() => window.open(window.location.href, '_blank')}
+                >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </button>
 

@@ -5,9 +5,10 @@ import { IntentsToolbar } from './components/IntentsToolbar';
 import { IntentsTable } from './components/IntentsTable';
 import { IntentDetail } from './components/IntentDetail';
 import { TaskDetail } from '../../features/tasks/components/TaskDetail';
+import { ReservationDetail } from '../../features/reservations/components/ReservationDetail';
 import { Flyout } from '../../components/Flyout';
 import { api } from '../../services/api';
-import { Intent, Task } from '../../types';
+import { Intent, Task, Reservation } from '../../types';
 
 export const IntentsPage: React.FC = () => {
   const [intents, setIntents] = useState<Intent[]>([]);
@@ -22,6 +23,11 @@ export const IntentsPage: React.FC = () => {
   const [isTaskFlyoutOpen, setIsTaskFlyoutOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isLoadingTask, setIsLoadingTask] = useState(false);
+
+  // Reservation Flyout State
+  const [isResFlyoutOpen, setIsResFlyoutOpen] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [isLoadingRes, setIsLoadingRes] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -66,6 +72,35 @@ export const IntentsPage: React.FC = () => {
       }
   };
 
+  const handleOpenReservation = async (resId: string) => {
+      setIsResFlyoutOpen(true);
+      setIsLoadingRes(true);
+      try {
+          const res = await api.fetchReservation(resId);
+          setSelectedReservation(res || null);
+      } catch (e) {
+          console.error("Failed to load reservation details", e);
+      } finally {
+          setIsLoadingRes(false);
+      }
+  };
+
+  // Helper to map intent codes to display names for the header
+  const getIntentTitle = (intent: Intent | null) => {
+      if (!intent) return 'Intent Details';
+      
+      let titleText = 'Intent Details';
+      if (intent.intentTypeCode === 'SR') titleText = 'Service Request';
+      else if (intent.intentTypeCode) titleText = intent.intentTypeCode;
+
+      return (
+        <div className="flex flex-col whitespace-normal">
+            <span className="leading-none">{titleText}</span>
+            <span className="text-[10px] font-normal text-slate-400 font-mono leading-none mt-0.5">ID {intent.id}</span>
+        </div>
+      );
+  };
+
   if (isLoading) {
       return (
           <div className="flex-1 flex items-center justify-center h-full bg-white">
@@ -102,7 +137,7 @@ export const IntentsPage: React.FC = () => {
         <Flyout
             isOpen={isFlyoutOpen}
             onClose={() => setIsFlyoutOpen(false)}
-            title="Intent Details"
+            title={getIntentTitle(selectedIntent)}
             side="right"
             size="xl"
             noPadding={true}
@@ -112,7 +147,7 @@ export const IntentsPage: React.FC = () => {
                      <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (
-                selectedIntent && <IntentDetail intent={selectedIntent} onOpenTask={handleOpenTask} />
+                selectedIntent && <IntentDetail intent={selectedIntent} onOpenTask={handleOpenTask} onOpenReservation={handleOpenReservation} />
             )}
         </Flyout>
 
@@ -130,6 +165,24 @@ export const IntentsPage: React.FC = () => {
                </div>
             ) : (
                 selectedTask && <TaskDetail task={selectedTask} />
+            )}
+        </Flyout>
+
+        {/* Reservation Detail Flyout (Secondary) */}
+        <Flyout
+            isOpen={isResFlyoutOpen}
+            onClose={() => setIsResFlyoutOpen(false)}
+            title="Reservation Details"
+            side="right"
+            size="lg"
+            noPadding={true}
+        >
+            {isLoadingRes ? (
+                 <div className="flex h-full items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+               </div>
+            ) : (
+                selectedReservation && <ReservationDetail reservation={selectedReservation} />
             )}
         </Flyout>
     </div>

@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Task } from '../../types';
+import { Task, TaskType } from '../../types';
 import { TasksTable } from './components/TasksTable';
 import { TasksToolbar } from './components/TasksToolbar';
 import { Flyout } from '../../components/Flyout';
 import { TaskDetail } from './components/TaskDetail';
-import { Icons } from '../../constants';
+import { Icons, TASK_LABELS } from '../../constants';
 
 export const TasksPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -31,6 +32,25 @@ export const TasksPage: React.FC = () => {
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setIsFlyoutOpen(true);
+  };
+
+  const getTaskTitle = (task: Task | null) => {
+    if (!task) return 'Task Details';
+    const type = task.type || 'maintenance';
+    const Icon = type === 'maintenance' ? Icons.Maintenance :
+                 type === 'cleaning' ? Icons.Cleaning :
+                 type === 'inspection' ? Icons.Inspection :
+                 type === 'delivery' ? Icons.Delivery : Icons.ClipboardCheck;
+                 
+    return (
+        <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+                <div className="text-slate-400"><Icon /></div>
+                <span className="capitalize font-semibold text-slate-800 leading-none">{TASK_LABELS[type]}</span>
+            </div>
+            <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">ID {task.id}</span>
+        </div>
+    );
   };
 
   if (isLoading) {
@@ -63,7 +83,7 @@ export const TasksPage: React.FC = () => {
         <Flyout
             isOpen={isFlyoutOpen}
             onClose={() => setIsFlyoutOpen(false)}
-            title="Task Details"
+            title={getTaskTitle(selectedTask)}
             side="right"
             noPadding={true}
         >

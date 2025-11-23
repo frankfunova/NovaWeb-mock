@@ -28,6 +28,16 @@ export interface Staff {
   shiftEnd: number;
 }
 
+export interface JobResult {
+  resultType?: 'Fixed' | 'Not Fixed' | 'Partial Fixed';
+  staffNotes?: string;
+  followUpRequired?: boolean;
+  managerFeedback?: {
+    rating?: number;
+    note?: string;
+  };
+}
+
 export interface Task {
   id: string;
   staffId: string | null;
@@ -46,6 +56,7 @@ export interface Task {
   scheduledAt?: string; // ISO string
   assigneeName?: string;
   isVendor?: boolean;
+  jobResult?: JobResult;
 }
 
 export interface TimeSlot {

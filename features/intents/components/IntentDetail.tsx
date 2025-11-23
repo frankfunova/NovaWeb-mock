@@ -6,6 +6,7 @@ import { Icons } from '../../../constants';
 interface IntentDetailProps {
   intent: Intent;
   onOpenTask?: (taskId: string) => void;
+  onOpenReservation?: (resId: string) => void;
 }
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
@@ -19,6 +20,38 @@ const MOCK_CATEGORIES: Record<string, { name: string; subcategories: string[] }>
 };
 
 // --- Helper Components ---
+
+const CollapsibleSection: React.FC<{ 
+    title: string; 
+    icon?: React.ReactNode; 
+    children: React.ReactNode; 
+    defaultOpen?: boolean;
+    action?: React.ReactNode;
+}> = ({ title, icon, children, defaultOpen = true, action }) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    return (
+        <div className="px-6 py-4 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-3">
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider hover:text-slate-700 transition-colors group"
+                >
+                    <div className={`transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}>
+                        <Icons.ChevronRight />
+                    </div>
+                    {icon && <span className="text-slate-400 group-hover:text-slate-600">{icon}</span>}
+                    {title}
+                </button>
+                {action}
+            </div>
+            {isOpen && (
+                <div className="animate-in slide-in-from-top-1 duration-200 fade-in">
+                    {children}
+                </div>
+            )}
+        </div>
+    );
+};
 
 const ResolveModal: React.FC<{ isOpen: boolean; onClose: () => void; onResolve: (note: string) => void }> = ({ isOpen, onClose, onResolve }) => {
     const [note, setNote] = useState('');
@@ -133,29 +166,27 @@ const CascadingCategorySelector: React.FC<{
     };
 
     return (
-        <div className="relative" ref={containerRef}>
+        <div className="relative w-full" ref={containerRef}>
             <button 
                 onClick={() => { setIsOpen(!isOpen); if (!isOpen) resetState(); }}
-                className={`flex items-center gap-1.5 px-2 py-1 rounded bg-slate-100 text-xs font-medium border transition-all shadow-sm group ${categoryCode ? 'text-indigo-700 border-indigo-200' : 'text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'}`}
+                className={`flex items-center justify-between w-full gap-1.5 px-3 py-2 rounded bg-slate-50 text-sm font-medium border transition-all shadow-sm group ${categoryCode ? 'text-indigo-700 border-indigo-200' : 'text-slate-500 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'}`}
             >
-                <div className={`w-3.5 h-3.5 flex items-center justify-center rounded-full ${categoryCode ? 'bg-indigo-200 text-indigo-700' : 'bg-white text-slate-400'}`}>
-                     <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
+                <div className="flex items-center gap-2">
+                    {categoryCode && subcategoryName ? (
+                        <span className="flex items-center gap-1 truncate">
+                            <span className="font-bold">{currentCategoryName}</span>
+                            <span className="text-indigo-400">/</span>
+                            <span>{subcategoryName}</span>
+                        </span>
+                    ) : (
+                        <span>Assign Category</span>
+                    )}
                 </div>
-                
-                {categoryCode && subcategoryName ? (
-                    <span className="flex items-center gap-1 truncate max-w-[150px]">
-                        <span className="font-bold">{currentCategoryName}</span>
-                        <span className="text-indigo-400">/</span>
-                        <span>{subcategoryName}</span>
-                    </span>
-                ) : (
-                    <span>Assign Category</span>
-                )}
-                <div className={`w-3 h-3 transition-transform duration-200 opacity-50 ${isOpen ? 'rotate-180' : ''}`}><Icons.ChevronDown /></div>
+                <div className={`w-4 h-4 transition-transform duration-200 opacity-50 ${isOpen ? 'rotate-180' : ''}`}><Icons.ChevronDown /></div>
             </button>
 
             {isOpen && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[320px]">
+                <div className="absolute top-full left-0 mt-1 w-full min-w-[240px] bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 flex flex-col max-h-[320px]">
                     <div className="p-2 border-b border-slate-100">
                         <div className="relative">
                             <input 
@@ -395,11 +426,34 @@ const StatusSelector: React.FC<{ status: string; onChange: (val: string) => void
     );
 };
 
-export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialIntent, onOpenTask }) => {
+const ListingStatusBadge: React.FC = () => {
+    // Mock status
+    const statuses = ['Dirty', 'Occupied', 'Cleaned', 'Ready to Check in'];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    
+    let colorClass = 'bg-slate-100 text-slate-600 border-slate-200';
+    if (status === 'Dirty') colorClass = 'bg-rose-50 text-rose-700 border-rose-200';
+    if (status === 'Occupied') colorClass = 'bg-amber-50 text-amber-700 border-amber-200';
+    if (status === 'Cleaned') colorClass = 'bg-sky-50 text-sky-700 border-sky-200';
+    if (status === 'Ready to Check in') colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+
+    return (
+        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border tracking-wider ${colorClass}`}>
+            {status}
+        </span>
+    );
+};
+
+export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialIntent, onOpenTask, onOpenReservation }) => {
   const [intent, setIntent] = useState<Intent>(initialIntent);
   const [commentInput, setCommentInput] = useState('');
   const [timeline, setTimeline] = useState<IntentTimelineEvent[]>(intent.timeline || []);
   const [isResolveModalOpen, setIsResolveModalOpen] = useState(false);
+  
+  // Linking Reservation State
+  const [isLinkingRes, setIsLinkingRes] = useState(false);
+  const [resSearchQuery, setResSearchQuery] = useState('');
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -482,28 +536,106 @@ export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialInten
       setIsResolveModalOpen(false);
   };
 
+  const handleSaveReservationLink = () => {
+      if (!resSearchQuery.trim()) return;
+      // Mock linking a reservation
+      const mockRes = {
+          id: 'mock-res-id',
+          guestName: 'Found Guest',
+          reservationCode: resSearchQuery.toUpperCase(),
+          status: 'Confirmed'
+      };
+      setIntent(prev => ({ ...prev, reservation: mockRes }));
+      setIsLinkingRes(false);
+      setResSearchQuery('');
+  };
+
+  // Helper to determine reporter info
+  const getReporterInfo = () => {
+    const source = intent.source || 'System';
+    const date = intent.createdAt;
+    
+    // Check if createdAt is just "Nov 22" or ISO
+    let displayTime = date;
+    if (date && !date.includes(',')) { 
+       try {
+           const d = new Date(date.length < 10 ? `${date}, 2025` : date);
+           if (!isNaN(d.getTime())) {
+               displayTime = d.toLocaleString('en-US', { 
+                   month: 'short', 
+                   day: 'numeric', 
+                   hour: 'numeric', 
+                   minute: '2-digit' 
+               });
+           }
+       } catch (e) {
+           // keep original
+       }
+    }
+    
+    if (['Airbnb', 'VRBO', 'Booking', 'Direct'].includes(source)) {
+        return {
+            name: intent.reservation?.guestName || 'Guest',
+            type: source,
+            avatar: null,
+            time: displayTime,
+            icon: <Icons.User />,
+            isGuest: true
+        };
+    }
+    
+    return {
+        name: source === 'System' ? 'System' : 'Staff Member',
+        type: source,
+        avatar: null,
+        time: displayTime,
+        icon: source === 'System' ? <Icons.Settings /> : <Icons.User />,
+        isGuest: false
+    };
+  };
+
+  const reporter = getReporterInfo();
+
   return (
     <div className="flex flex-col h-full bg-white overflow-hidden">
        
        {/* Sticky Feature Header Section */}
        <div className="px-6 py-5 border-b border-slate-200 bg-white flex-shrink-0 shadow-sm z-10">
-            <div className="flex justify-between items-start mb-3">
-                <div>
-                    <div className="flex items-center gap-3 mb-1">
-                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                           {intent.intentTypeCode} #{intent.id.substring(0, 6)}
-                        </h2>
+            <div className="flex justify-between items-start">
+                <div className="flex-1 min-w-0">
+                    {/* Row 1: Title + Listing Status */}
+                    <div className="flex items-center gap-3 mb-2">
+                        {/* Property Name as Header */}
+                        {intent.listing ? (
+                            <div 
+                                className="group flex items-center gap-2 cursor-pointer"
+                                onClick={() => window.open('#', '_blank')} // Mock link
+                                title="Open property page"
+                            >
+                                <h2 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors decoration-2 underline-offset-2 group-hover:underline">
+                                    {intent.listing.nickname}
+                                </h2>
+                                <svg className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            </div>
+                        ) : (
+                             <h2 className="text-xl font-bold text-slate-900">
+                                General Intent
+                            </h2>
+                        )}
+                        
+                        {/* Listing Status Badge */}
+                        <ListingStatusBadge />
+                    </div>
+
+                    {/* Row 2: Status + Priority */}
+                    <div className="flex items-center gap-2">
                         <StatusSelector status={intent.status} onChange={(val) => handleUpdateIntent('status', val)} />
                         <PrioritySelector priority={intent.priority} onChange={(val) => handleUpdateIntent('priority', val)} />
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <span>Created {intent.createdAt}</span>
-                        <span>•</span>
-                        <span className="capitalize">{intent.source} Source</span>
-                    </div>
                 </div>
                 
-                <div className="flex gap-2">
+                {/* Actions */}
+                <div className="flex gap-2 ml-4">
                     <button className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors flex items-center gap-1.5">
                         <Icons.Plus /> Create Task
                     </button>
@@ -514,49 +646,69 @@ export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialInten
                     )}
                 </div>
             </div>
-
-            {/* Context Pills Row */}
-            <div className="flex flex-wrap gap-2 mt-2">
-                 {intent.listing && (
-                     <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-700 border border-slate-200">
-                         <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                         {intent.listing.nickname}
-                     </div>
-                 )}
-                 {intent.reservation && (
-                     <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-700 border border-slate-200">
-                         <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                         {intent.reservation.guestName} ({intent.reservation.reservationCode})
-                     </div>
-                 )}
-                 <CascadingCategorySelector categoryCode={intent.category?.code} subcategoryName={intent.subcategory?.name} onChange={(catCode, subName) => {
-                      setIntent(prev => ({ ...prev, category: { name: MOCK_CATEGORIES[catCode].name, code: catCode }, subcategory: { name: subName, code: subName.toUpperCase() } }));
-                 }} />
-            </div>
        </div>
 
        {/* Scrollable Main Section */}
        <div className="flex-1 overflow-y-auto custom-scrollbar">
            
+           {/* Context & Info Section */}
+           <div className="p-6 pb-2 grid grid-cols-2 gap-x-6 gap-y-4">
+                {/* Category */}
+                <div className="col-span-1">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Category</div>
+                    <CascadingCategorySelector 
+                        categoryCode={intent.category?.code} 
+                        subcategoryName={intent.subcategory?.name} 
+                        onChange={(catCode, subName) => {
+                            setIntent(prev => ({ ...prev, category: { name: MOCK_CATEGORIES[catCode].name, code: catCode }, subcategory: { name: subName, code: subName.toUpperCase() } }));
+                        }} 
+                    />
+                </div>
+
+                {/* Reported By (Merged Source + Time) */}
+                <div className="col-span-1">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Reported By</div>
+                    <div className="flex items-center gap-2">
+                        {/* Avatar / Icon */}
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center border border-slate-200 shadow-sm flex-shrink-0 ${reporter.isGuest ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>
+                            {reporter.isGuest ? <Icons.User className="w-4 h-4"/> : <Icons.Dashboard className="w-4 h-4"/>}
+                        </div>
+                        
+                        {/* Text Info */}
+                        <div className="flex flex-col justify-center overflow-hidden">
+                            <div className="text-sm font-bold text-slate-800 leading-tight truncate w-full">
+                                {reporter.name}
+                                {reporter.isGuest && <span className="font-normal text-slate-500 text-xs ml-1">via {reporter.type}</span>}
+                            </div>
+                            <div className="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">
+                                {reporter.time}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+           </div>
+
            {/* Description */}
-           <div className="p-6 pb-4">
-               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Description</h3>
+           <div className="px-6 pb-6">
+               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Description</div>
                <InlineDescriptionEditor value={intent.description} onSave={(val) => handleUpdateIntent('description', val)} />
            </div>
 
-           {/* Attachments */}
-           <div className="px-6 py-4">
-               <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                       <Icons.PaperClip /> Attachments ({intent.attachments?.length || 0})
-                   </h3>
-                   <button onClick={() => fileInputRef.current?.click()} className="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-2 py-1 rounded transition-colors flex items-center gap-1">
-                       <Icons.Plus /> Add File
-                   </button>
-                   <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileUpload} accept="image/*,video/*,application/pdf" />
-               </div>
+           {/* Attachments Section */}
+           <CollapsibleSection 
+               title={`Attachments (${intent.attachments?.length || 0})`} 
+               icon={<Icons.PaperClip className="w-3.5 h-3.5 text-slate-400"/>}
+               action={
+                   <>
+                       <button onClick={() => fileInputRef.current?.click()} className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 px-2 py-1 rounded transition-colors flex items-center gap-1">
+                           <Icons.Plus /> Add File
+                       </button>
+                       <input type="file" ref={fileInputRef} className="hidden" multiple onChange={handleFileUpload} accept="image/*,video/*,application/pdf" />
+                   </>
+               }
+           >
                {intent.attachments && intent.attachments.length > 0 ? (
-                   <div className="grid grid-cols-4 gap-3">
+                   <div className="grid grid-cols-4 gap-3 pt-1">
                        {intent.attachments.map(att => (
                            <div key={att.id} className="group relative aspect-square bg-slate-100 rounded-lg border border-slate-200 overflow-hidden cursor-pointer hover:shadow-md transition-all">
                                {att.type === 'image' ? <img src={att.thumbnailUrl || att.url} alt={att.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-400"><span className="text-[9px]">{att.name}</span></div>}
@@ -564,21 +716,100 @@ export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialInten
                        ))}
                    </div>
                ) : (
-                   <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-300 hover:bg-indigo-50/30 hover:text-indigo-500 transition-all cursor-pointer">
+                   <div onClick={() => fileInputRef.current?.click()} className="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-indigo-300 hover:bg-indigo-50/30 hover:text-indigo-500 transition-all cursor-pointer mt-1">
                        <Icons.PaperClip /><span className="text-xs font-medium mt-2">No attachments yet. Click to upload.</span>
                    </div>
                )}
-           </div>
+           </CollapsibleSection>
 
-           {/* Linked Tasks */}
-           <div className="px-6 py-4 border-t border-slate-100 mt-2">
-               <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                       <Icons.ClipboardCheck /> Linked Tasks
-                   </h3>
-               </div>
+           {/* Linked Reservation Section */}
+           <CollapsibleSection 
+               title="Linked Reservation" 
+               icon={<Icons.Calendar className="w-3.5 h-3.5 text-slate-400"/>}
+               action={
+                   !isLinkingRes && (
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setIsLinkingRes(true); }}
+                            className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded transition-colors"
+                        >
+                            {intent.reservation ? 'Change' : 'Link Reservation'}
+                        </button>
+                   )
+               }
+           >
+               {isLinkingRes ? (
+                   <div className="flex gap-2 items-center animate-in fade-in zoom-in-95 duration-200 pt-1">
+                       <input 
+                            type="text" 
+                            autoFocus
+                            placeholder="Enter Reservation ID or Confirmation Code..." 
+                            className="flex-1 text-sm border border-slate-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                            value={resSearchQuery}
+                            onChange={(e) => setResSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSaveReservationLink()}
+                       />
+                       <button 
+                            onClick={handleSaveReservationLink}
+                            disabled={!resSearchQuery.trim()}
+                            className="px-3 py-2 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                       >
+                           Save
+                       </button>
+                       <button 
+                            onClick={() => { setIsLinkingRes(false); setResSearchQuery(''); }}
+                            className="px-3 py-2 bg-white border border-slate-300 text-slate-600 text-sm font-bold rounded-lg hover:bg-slate-50"
+                       >
+                           Cancel
+                       </button>
+                   </div>
+               ) : intent.reservation ? (
+                   <div 
+                        className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer group mt-1"
+                        onClick={() => onOpenReservation && onOpenReservation(intent.reservation!.id)}
+                   >
+                       <div className="flex items-center gap-3">
+                           <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                               <Icons.User />
+                           </div>
+                           <div>
+                               <div className="text-sm font-medium text-slate-800 group-hover:text-indigo-600 transition-colors">
+                                   {intent.reservation.guestName}
+                                   <span className="text-slate-400 font-normal ml-1 text-xs">#{intent.reservation.reservationCode}</span>
+                               </div>
+                               <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                                   <span>Nov 19 - Nov 24, 2025</span>
+                               </div>
+                           </div>
+                       </div>
+                       <div className="flex items-center gap-3">
+                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize bg-slate-50 text-slate-600 border-slate-200`}>
+                               {intent.reservation.status}
+                           </span>
+                           <div className="text-slate-400 group-hover:text-indigo-500 transition-colors"><Icons.ChevronRight /></div>
+                       </div>
+                   </div>
+               ) : (
+                   <div className="text-sm text-slate-400 italic py-2 text-center border border-dashed border-slate-200 rounded-lg mt-1">
+                       No linked reservation.
+                   </div>
+               )}
+           </CollapsibleSection>
+
+           {/* Linked Tasks Section */}
+           <CollapsibleSection 
+               title="Linked Tasks" 
+               icon={<Icons.ClipboardCheck className="w-3.5 h-3.5 text-slate-400"/>}
+               action={
+                   <button 
+                        onClick={(e) => { e.stopPropagation(); console.log("Create Task Clicked"); }} 
+                        className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-1 rounded transition-colors flex items-center gap-1"
+                   >
+                       <Icons.Plus /> Create Task
+                   </button>
+               }
+           >
                {sortedTasks && sortedTasks.length > 0 ? (
-                   <div className="space-y-2">
+                   <div className="space-y-2 pt-1">
                        {sortedTasks.map(task => (
                            <div key={task.id} className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-300 hover:shadow-sm transition-all cursor-pointer group" onClick={() => onOpenTask && onOpenTask(task.id)}>
                                <div className="flex items-center gap-3">
@@ -598,13 +829,12 @@ export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialInten
                            </div>
                        ))}
                    </div>
-               ) : <div className="text-sm text-slate-400 italic py-2 text-center border border-dashed border-slate-200 rounded-lg">No linked tasks yet.</div>}
-           </div>
+               ) : <div className="text-sm text-slate-400 italic py-2 text-center border border-dashed border-slate-200 rounded-lg mt-1">No linked tasks yet.</div>}
+           </CollapsibleSection>
 
-           {/* Activity Timeline */}
-           <div className="px-6 py-6 border-t border-slate-100 bg-slate-50/30 min-h-[300px]">
-               <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-6">Activity Timeline</h3>
-               <div className="relative pl-4 space-y-6">
+           {/* Activity Timeline Section */}
+           <CollapsibleSection title="Activity Timeline" icon={<Icons.Clock className="w-3.5 h-3.5 text-slate-400"/>}>
+               <div className="relative pl-4 space-y-6 pt-2">
                    <div className="absolute left-[21px] top-2 bottom-2 w-px bg-slate-200"></div>
                    {timeline.map((event, idx) => (
                        <div key={event.id} className="relative flex gap-4 group">
@@ -623,7 +853,7 @@ export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialInten
                        </div>
                    ))}
                </div>
-           </div>
+           </CollapsibleSection>
        </div>
 
        {/* Sticky Bottom Section: Comment Footer */}

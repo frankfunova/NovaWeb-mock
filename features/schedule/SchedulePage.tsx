@@ -10,9 +10,10 @@ import { TaskForm } from '../../features/tasks/components/TaskForm';
 import { TaskDetail } from '../../features/tasks/components/TaskDetail';
 import { StaffDetail } from '../../features/staff/components/StaffDetail';
 import { BulkActionBar } from './components/BulkActionBar';
-import { TIME_SLOTS, ROW_HEIGHT, START_HOUR, HOURS_COUNT, Icons } from './constants';
+import { TIME_SLOTS, ROW_HEIGHT, START_HOUR, HOURS_COUNT, Icons, TASK_LABELS } from './constants';
 import { Task, FilterState, TaskStatus, Staff, TaskType } from '../../types';
 import { api } from '../../services/api';
+import { useDeepLink } from '../../hooks/useDeepLink'; // Import the new hook
 
 export const SchedulePage: React.FC = () => {
   // Data State
@@ -39,8 +40,17 @@ export const SchedulePage: React.FC = () => {
   const [sidebarSortBy, setSidebarSortBy] = useState<'name' | 'workload'>('name');
   const [sidebarShowWorkingOnly, setSidebarShowWorkingOnly] = useState(true);
 
-  // Flyout State
-  const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+  // Deep Linking for Tasks
+  // Callback needed for initial load if task data isn't ready yet, but since we fetch separately...
+  // We will rely on fetching the single task if it's not in the list, or finding it.
+  const { 
+    selectedId: deepLinkedTaskId, 
+    isOpen: isFlyoutOpen, 
+    open: openFlyout, 
+    close: closeFlyout,
+    getShareUrl
+  } = useDeepLink({ paramName: 'taskId' });
+
   const [selectedTask, setSelectedTask] = useState<Partial<Task> | null>(null);
   const [isNewTask, setIsNewTask] = useState(false);
 
@@ -74,6 +84,23 @@ export const SchedulePage: React.FC = () => {
     };
     loadData();
   }, [currentDate]);
+
+  // -- Handle Deep Link Task Loading --
+  useEffect(() => {
+    if (deepLinkedTaskId && !isNewTask) {
+        // Try to find in current loaded tasks
+        const found = tasks.find(t => t.id === deepLinkedTaskId);
+        if (found) {
+            setSelectedTask(found);
+        } else if (!isLoading) {
+            // If not found in list (maybe searching logic or pagination), fetch individually
+            api.fetchTask(deepLinkedTaskId).then(t => {
+                if(t) setSelectedTask(t);
+            });
+        }
+    }
+  }, [deepLinkedTaskId, tasks, isLoading, isNewTask]);
+
 
   // -- Derived Data --
   const uniqueRoles = useMemo(() => {
@@ -174,10 +201,10 @@ export const SchedulePage: React.FC = () => {
 
   // -- Flyout & Task Management --
   const openTaskDetails = (task: Task) => {
-    setSelectedTask(task);
+    // This will trigger the useEffect to load the task and open the flyout
     setIsNewTask(false);
-    setIsFlyoutOpen(true);
     setIsStaffFlyoutOpen(false);
+    openFlyout(task.id); 
   };
 
   const openCreateTask = (staffId: string, hour: number) => {
@@ -193,14 +220,17 @@ export const SchedulePage: React.FC = () => {
     };
     setSelectedTask(newTask);
     setIsNewTask(true);
-    setIsFlyoutOpen(true);
-    setIsStaffFlyoutOpen(false);
+  };
+
+  const handleCloseFlyout = () => {
+      closeFlyout();
+      setIsNewTask(false);
   };
 
   const handleStaffClick = (staff: Staff) => {
     setSelectedStaff(staff);
     setIsStaffFlyoutOpen(true);
-    setIsFlyoutOpen(false);
+    closeFlyout();
   };
 
   const handleSaveTask = async (task: Task) => {
@@ -208,17 +238,18 @@ export const SchedulePage: React.FC = () => {
       const newTask = { ...task, id: Math.random().toString(36).substr(2, 9) };
       setTasks([...tasks, newTask]);
       await api.createTask(newTask);
+      setIsNewTask(false); 
     } else {
       setTasks(tasks.map(t => t.id === task.id ? task : t));
       await api.updateTask(task);
     }
-    setIsFlyoutOpen(false);
+    handleCloseFlyout();
   };
 
   const handleDeleteTask = async (taskId: string) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       setTasks(tasks.filter(t => t.id !== taskId));
-      setIsFlyoutOpen(false);
+      handleCloseFlyout();
       await api.deleteTask(taskId);
     }
   };
@@ -327,6 +358,26 @@ export const SchedulePage: React.FC = () => {
       } as Task;
   };
 
+  // Custom Header Title for Task Flyout
+  const getTaskTitle = (task: Partial<Task> | null) => {
+    if (!task) return 'Task Details';
+    const type = task.type || 'maintenance';
+    const Icon = type === 'maintenance' ? Icons.Maintenance :
+                 type === 'cleaning' ? Icons.Cleaning :
+                 type === 'inspection' ? Icons.Inspection :
+                 type === 'delivery' ? Icons.Delivery : Icons.ClipboardCheck;
+                 
+    return (
+        <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+                <div className="text-slate-400"><Icon /></div>
+                <span className="capitalize font-semibold text-slate-800 leading-none">{TASK_LABELS[type]}</span>
+            </div>
+            {task.id && <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">ID {task.id}</span>}
+        </div>
+    );
+  };
+
   if (isLoading) {
       return (
           <div className="flex-1 flex items-center justify-center bg-white text-slate-500 gap-3">
@@ -335,6 +386,9 @@ export const SchedulePage: React.FC = () => {
           </div>
       );
   }
+
+  // Combined Open state for Flyout
+  const flyoutVisible = isFlyoutOpen || isNewTask;
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden relative bg-white">
@@ -499,11 +553,15 @@ export const SchedulePage: React.FC = () => {
         />
 
         <Flyout
-            isOpen={isFlyoutOpen}
-            onClose={() => setIsFlyoutOpen(false)}
-            title={isNewTask ? "New Task" : "Task Details"}
+            isOpen={flyoutVisible}
+            onClose={handleCloseFlyout}
+            title={isNewTask ? "New Task" : getTaskTitle(selectedTask)}
             side="right"
             noPadding={!isNewTask}
+            onShare={() => {
+                const url = getShareUrl();
+                navigator.clipboard.writeText(url);
+            }}
         >
             {isNewTask ? (
                 <TaskForm 
@@ -511,7 +569,7 @@ export const SchedulePage: React.FC = () => {
                     staffList={staffList}
                     onSave={handleSaveTask}
                     onDelete={handleDeleteTask}
-                    onCancel={() => setIsFlyoutOpen(false)}
+                    onCancel={handleCloseFlyout}
                     isNew={isNewTask}
                 />
             ) : (

@@ -1,5 +1,4 @@
 
-
 import { 
   Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
@@ -186,6 +185,28 @@ export const api = {
   fetchReservations: async (): Promise<Reservation[]> => {
     await delay(400);
     return MOCK_API_RESERVATIONS.map(mapApiReservationToUiReservation);
+  },
+
+  fetchReservation: async (id: string): Promise<Reservation | undefined> => {
+      await delay(300);
+      // Try to find in mock list
+      const res = MOCK_API_RESERVATIONS.find(r => r.id === id || r.reservationCode === id);
+      if (res) return mapApiReservationToUiReservation(res);
+      
+      // Fallback/Mock for prototype if not found in list but ID provided
+      return {
+          id: id,
+          propertyCode: 'MOCK-PROP',
+          reservationCode: 'MOCK-RES',
+          startDate: '2025-11-20',
+          endDate: '2025-11-25',
+          source: 'Direct',
+          guestName: 'Mock Guest',
+          nights: 5,
+          status: 'Confirmed',
+          guestCount: 2,
+          payout: 1000,
+      } as Reservation;
   },
 
   fetchReviews: async (): Promise<Review[]> => {

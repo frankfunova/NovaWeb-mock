@@ -27,6 +27,16 @@ export interface Staff {
   shiftEnd: number;   // 24h format integer (e.g. 17 for 5 PM)
 }
 
+export interface JobResult {
+  resultType?: 'Fixed' | 'Not Fixed' | 'Partial Fixed';
+  staffNotes?: string;
+  followUpRequired?: boolean;
+  managerFeedback?: {
+    rating?: number;
+    note?: string;
+  };
+}
+
 export interface Task {
   id: string;
   staffId: string | null; // null means unassigned
@@ -47,6 +57,7 @@ export interface Task {
   scheduledAt?: string; // ISO Date string for list view display
   assigneeName?: string; // Optional override for display
   isVendor?: boolean; // To show vendor badge/icon
+  jobResult?: JobResult;
 }
 
 export interface TimeSlot {

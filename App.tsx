@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GlobalNav } from './components/GlobalNav';
 import { GlobalHeader } from './components/GlobalHeader';
 import { SchedulePage } from './features/schedule/SchedulePage';
@@ -13,6 +13,31 @@ import { IntentsPage } from './features/intents/IntentsPage';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<string>('schedule');
+
+  // Initialize page from URL on load and sync state updates
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pageFromUrl = params.get('page');
+    if (pageFromUrl) {
+        setActivePage(pageFromUrl);
+    }
+  }, []);
+
+  const handleNavigate = (page: string) => {
+      setActivePage(page);
+      
+      // Update URL to reflect page change, preserving other deep link params if we wanted,
+      // but usually switching main module clears detailed deep links.
+      const url = new URL(window.location.href);
+      url.searchParams.set('page', page);
+      
+      // Clear entity IDs when switching main modules to avoid confusion
+      url.searchParams.delete('taskId');
+      url.searchParams.delete('intentId');
+      url.searchParams.delete('reservationId');
+      
+      window.history.pushState({}, '', url.toString());
+  };
 
   const renderContent = () => {
     switch (activePage) {
@@ -58,7 +83,7 @@ const App: React.FC = () => {
   return (
     <div className="flex h-screen w-screen bg-slate-50 overflow-hidden font-sans">
         {/* Global Sidebar */}
-        <GlobalNav activePage={activePage} onNavigate={setActivePage} />
+        <GlobalNav activePage={activePage} onNavigate={handleNavigate} />
         
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
             {/* Global Header */}
