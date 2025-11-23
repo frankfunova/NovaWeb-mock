@@ -6,7 +6,7 @@ import { TaskCard } from './components/TaskCard';
 import { UnassignedGroupCard } from './components/UnassignedGroupCard';
 import { UnassignedQueueModal } from './components/UnassignedQueueModal';
 import { Flyout } from '../../components/Flyout';
-import { TaskForm } from '../../features/tasks/components/TaskForm';
+import { TaskCreateForm } from '../../features/tasks/components/TaskCreateForm';
 import { TaskDetail } from '../../features/tasks/components/TaskDetail';
 import { StaffDetail } from '../../features/staff/components/StaffDetail';
 import { BulkActionBar } from './components/BulkActionBar';
@@ -233,17 +233,28 @@ export const SchedulePage: React.FC = () => {
     closeFlyout();
   };
 
-  const handleSaveTask = async (task: Task) => {
-    if (isNewTask) {
-      const newTask = { ...task, id: Math.random().toString(36).substr(2, 9) };
+  const handleCreateTask = async (newTaskData: any) => {
+      const newTask: Task = {
+          id: Math.random().toString(36).substr(2, 9),
+          title: newTaskData.title,
+          description: newTaskData.description,
+          type: newTaskData.taskType,
+          priority: newTaskData.priority,
+          status: 'pending',
+          staffId: newTaskData.dispatch.assigneeId,
+          assigneeName: newTaskData.dispatch.assigneeId ? 'Assigned Staff' : 'Unassigned',
+          location: 'Selected Property', // In real app, fetch prop name
+          startTime: parseFloat(newTaskData.dispatch.plannedTime.split(':')[0]) + parseFloat(newTaskData.dispatch.plannedTime.split(':')[1])/60,
+          duration: newTaskData.dispatch.duration,
+          plannedStartTime: parseFloat(newTaskData.dispatch.plannedTime.split(':')[0]) + parseFloat(newTaskData.dispatch.plannedTime.split(':')[1])/60,
+          plannedDuration: newTaskData.dispatch.duration,
+          scheduledAt: `${newTaskData.dispatch.plannedDate}T${newTaskData.dispatch.plannedTime}`
+      };
+      
       setTasks([...tasks, newTask]);
       await api.createTask(newTask);
       setIsNewTask(false); 
-    } else {
-      setTasks(tasks.map(t => t.id === task.id ? task : t));
-      await api.updateTask(task);
-    }
-    handleCloseFlyout();
+      handleCloseFlyout();
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -555,22 +566,24 @@ export const SchedulePage: React.FC = () => {
         <Flyout
             isOpen={flyoutVisible}
             onClose={handleCloseFlyout}
-            title={isNewTask ? "New Task" : getTaskTitle(selectedTask)}
+            title={isNewTask ? "" : getTaskTitle(selectedTask)}
             side="right"
             noPadding={!isNewTask}
+            size="xl"
             onShare={() => {
                 const url = getShareUrl();
                 navigator.clipboard.writeText(url);
             }}
         >
             {isNewTask ? (
-                <TaskForm 
-                    initialTask={selectedTask}
-                    staffList={staffList}
-                    onSave={handleSaveTask}
-                    onDelete={handleDeleteTask}
+                <TaskCreateForm 
                     onCancel={handleCloseFlyout}
-                    isNew={isNewTask}
+                    onCreate={handleCreateTask}
+                    initialData={{
+                        staffId: selectedTask?.staffId || '',
+                        startTime: selectedTask?.startTime || 9,
+                        date: currentDate
+                    }}
                 />
             ) : (
                 selectedTask && <TaskDetail task={getDisplayTask()!} />

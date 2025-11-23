@@ -1,18 +1,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Task, TaskType } from '../../types';
+import { Task } from '../../types';
 import { TasksTable } from './components/TasksTable';
 import { TasksToolbar } from './components/TasksToolbar';
 import { Flyout } from '../../components/Flyout';
 import { TaskDetail } from './components/TaskDetail';
+import { TaskCreateForm } from './components/TaskCreateForm';
 import { Icons, TASK_LABELS } from '../../constants';
 
 export const TasksPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Flyout States
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+  const [isDetailFlyoutOpen, setIsDetailFlyoutOpen] = useState(false);
+  const [isCreateFlyoutOpen, setIsCreateFlyoutOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -31,7 +35,31 @@ export const TasksPage: React.FC = () => {
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
-    setIsFlyoutOpen(true);
+    setIsDetailFlyoutOpen(true);
+  };
+
+  const handleCreateTask = (newTask: any) => {
+      // In a real app, post to API
+      console.log("Creating Task:", newTask);
+      setIsCreateFlyoutOpen(false);
+      // Mock Optimistic Update
+      const t: Task = {
+          id: `new-${Date.now()}`,
+          title: newTask.title,
+          description: newTask.description,
+          type: newTask.taskType,
+          priority: newTask.priority,
+          status: 'new',
+          staffId: newTask.dispatch.assigneeId,
+          assigneeName: newTask.dispatch.assigneeId ? 'Assigned Staff' : 'Unassigned',
+          location: 'Selected Property', // Mock
+          startTime: 0,
+          duration: newTask.dispatch.duration,
+          plannedStartTime: 0,
+          plannedDuration: newTask.dispatch.duration,
+          scheduledAt: `${newTask.dispatch.plannedDate}T${newTask.dispatch.plannedTime}`
+      };
+      setTasks([t, ...tasks]);
   };
 
   const getTaskTitle = (task: Task | null) => {
@@ -64,7 +92,7 @@ export const TasksPage: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
-        <TasksToolbar />
+        <TasksToolbar onCreate={() => setIsCreateFlyoutOpen(true)} />
         
         <div className="flex-1 overflow-auto bg-white custom-scrollbar">
             <TasksTable tasks={tasks} onTaskClick={handleTaskClick} />
@@ -81,13 +109,26 @@ export const TasksPage: React.FC = () => {
 
         {/* Detail Flyout */}
         <Flyout
-            isOpen={isFlyoutOpen}
-            onClose={() => setIsFlyoutOpen(false)}
+            isOpen={isDetailFlyoutOpen}
+            onClose={() => setIsDetailFlyoutOpen(false)}
             title={getTaskTitle(selectedTask)}
             side="right"
+            size="xl"
             noPadding={true}
         >
             {selectedTask && <TaskDetail task={selectedTask} />}
+        </Flyout>
+
+        {/* Create Flyout */}
+        <Flyout
+            isOpen={isCreateFlyoutOpen}
+            onClose={() => setIsCreateFlyoutOpen(false)}
+            title="" // Title handled inside component for custom look
+            side="right"
+            size="xl"
+            noPadding={true}
+        >
+            <TaskCreateForm onCancel={() => setIsCreateFlyoutOpen(false)} onCreate={handleCreateTask} />
         </Flyout>
     </div>
   );

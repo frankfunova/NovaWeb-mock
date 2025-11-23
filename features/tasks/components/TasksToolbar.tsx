@@ -2,7 +2,11 @@
 import React from 'react';
 import { Icons } from '../../../constants';
 
-export const TasksToolbar: React.FC = () => {
+interface TasksToolbarProps {
+    onCreate?: () => void;
+}
+
+export const TasksToolbar: React.FC<TasksToolbarProps> = ({ onCreate }) => {
     return (
         <div className="flex-shrink-0 border-b border-slate-200 bg-white px-6 py-3 flex flex-col gap-4">
             {/* Top Row: View Select, Search, Counts, Actions */}
@@ -59,7 +63,10 @@ export const TasksToolbar: React.FC = () => {
                     <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 border border-slate-200 rounded-md transition-all shadow-sm bg-white whitespace-nowrap">
                          Edit view
                     </button>
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-all shadow-sm whitespace-nowrap ml-2">
+                    <button 
+                        onClick={onCreate}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-all shadow-sm whitespace-nowrap ml-2"
+                    >
                         <Icons.Plus />
                         Create Task
                     </button>
