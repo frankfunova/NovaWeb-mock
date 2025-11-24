@@ -26,6 +26,10 @@ export const Flyout: React.FC<FlyoutProps> = ({
   onShare
 }) => {
   const [showCopyFeedback, setShowCopyFeedback] = useState(false);
+  
+  // Watch Feature State
+  const [isWatching, setIsWatching] = useState(false);
+  const [otherWatchers, setOtherWatchers] = useState(0);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -34,6 +38,19 @@ export const Flyout: React.FC<FlyoutProps> = ({
     if (isOpen) window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
+
+  // Reset/Simulate watch state when flyout opens
+  useEffect(() => {
+    if (isOpen) {
+        setIsWatching(false);
+        // Simulate random other watchers (0-5) for demo
+        setOtherWatchers(Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0);
+    }
+  }, [isOpen]);
+
+  const handleWatchToggle = () => {
+      setIsWatching(!isWatching);
+  };
 
   const handleShareClick = async () => {
     if (onShare) {
@@ -68,6 +85,8 @@ export const Flyout: React.FC<FlyoutProps> = ({
 
   const positionClass = side === 'right' ? 'right-0 inset-y-0 pl-10' : 'left-0 inset-y-0 pr-10';
 
+  const totalWatchers = otherWatchers + (isWatching ? 1 : 0);
+
   return (
     <div 
       className={`fixed inset-0 z-50 overflow-hidden transition-visibility duration-300 ${isOpen ? 'visible' : 'invisible'}`} 
@@ -91,6 +110,32 @@ export const Flyout: React.FC<FlyoutProps> = ({
             </div>
             
             <div className="flex items-center gap-1 pl-4">
+                {/* Watch Button */}
+                <button 
+                    onClick={handleWatchToggle}
+                    className={`
+                        relative flex items-center gap-1.5 transition-all font-medium text-xs border border-transparent
+                        ${isWatching 
+                            ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60 px-3 py-1.5 rounded-full' 
+                            : 'text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-md'
+                        }
+                    `}
+                    title={isWatching ? "Click to unwatch" : "Watch this item"}
+                >
+                    <Icons.Eye className={`w-4 h-4 ${isWatching ? 'text-indigo-600 dark:text-indigo-400' : 'text-current'}`} />
+                    
+                    {isWatching && <span>Watching</span>}
+                    
+                    {/* Watcher Count Badge (Show if multiple users are watching) */}
+                    {otherWatchers > 0 && (
+                        <span className="absolute -top-1 -right-1 min-w-[14px] h-3.5 flex items-center justify-center bg-red-500 text-white text-[9px] font-bold rounded-full ring-2 ring-white dark:ring-slate-900 px-0.5">
+                            {totalWatchers}
+                        </span>
+                    )}
+                </button>
+
+                <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+
                 {actions}
                 
                 <div className="relative">

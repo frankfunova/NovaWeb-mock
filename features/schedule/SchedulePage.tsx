@@ -116,7 +116,21 @@ export const SchedulePage: React.FC = () => {
   const hasUnassigned = unassignedTasks.length > 0;
   const staffHeader = selectedStaff ? <div className="flex items-center gap-3"><div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm ${selectedStaff.avatarColor}`}>{selectedStaff.initials}</div><div><div className="text-base font-bold text-slate-900 dark:text-slate-100 leading-tight">{selectedStaff.name}</div><div className="text-xs text-slate-500 dark:text-slate-400 font-normal">{selectedStaff.role}</div></div></div> : null;
   const getDisplayTask = () => selectedTask ? { ...selectedTask, description: selectedTask.description || selectedTask.notes || '', propertyName: selectedTask.propertyName || selectedTask.location || '', scheduledAt: selectedTask.scheduledAt || new Date().toISOString() } as Task : null;
-  const getTaskTitle = (task: Partial<Task> | null) => { if (!task) return 'Task Details'; const type = task.type || 'maintenance'; const Icon = Icons[type.charAt(0).toUpperCase() + type.slice(1) as keyof typeof Icons] || Icons.ClipboardCheck; return <div className="flex flex-col"><div className="flex items-center gap-2"><div className="text-slate-400"><Icon /></div><span className="capitalize font-semibold text-slate-800 dark:text-slate-100 leading-none">{TASK_LABELS[type]}</span></div>{task.id && <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">ID {task.id}</span>}</div>; };
+  
+  const getTaskTitle = (task: Partial<Task> | null) => { 
+      if (!task) return 'Task Details'; 
+      const type = task.type || 'maintenance'; 
+      const Icon = Icons[type.charAt(0).toUpperCase() + type.slice(1) as keyof typeof Icons] || Icons.ClipboardCheck; 
+      return (
+        <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+                <div className="text-slate-400"><Icon /></div>
+                <span className="capitalize font-semibold text-slate-800 dark:text-slate-100 leading-none">{TASK_LABELS[type]}</span>
+            </div>
+            {task.id && <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">Task ID {task.id}</span>}
+        </div>
+      );
+  };
 
   if (isLoading) return <div className="flex-1 flex items-center justify-center bg-white dark:bg-slate-900 text-slate-500 gap-3"><div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div><span>Loading schedule...</span></div>;
   const flyoutVisible = isFlyoutOpen || isNewTask;

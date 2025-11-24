@@ -122,12 +122,12 @@ export const ReservationsPage: React.FC = () => {
   const getTaskTitle = (task: Task | null) => {
       if (!task) return 'Task Details';
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
                 <div className="text-slate-400"><Icons.ClipboardCheck /></div>
                 <span className="capitalize font-semibold text-slate-800 leading-none">{task.title}</span>
             </div>
-            <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">ID {task.id}</span>
+            <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">Task ID {task.id}</span>
         </div>
       );
   };

@@ -71,12 +71,12 @@ export const TasksPage: React.FC = () => {
                  type === 'delivery' ? Icons.Delivery : Icons.ClipboardCheck;
                  
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
                 <div className="text-slate-400"><Icon /></div>
                 <span className="capitalize font-semibold text-slate-800 leading-none">{TASK_LABELS[type]}</span>
             </div>
-            <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">ID {task.id}</span>
+            <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">Task ID {task.id}</span>
         </div>
     );
   };
