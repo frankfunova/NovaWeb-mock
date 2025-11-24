@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ResourcePlanner Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                750: '#293548',
+                850: '#172033',
+                950: '#020617',
+              }
+            }
+          }
+        }
+      }
+    </script>
     <style>
       /* Custom scrollbar for better aesthetics */
       ::-webkit-scrollbar {
@@ -14,12 +30,21 @@
       ::-webkit-scrollbar-track {
         background: #f1f5f9;
       }
+      .dark ::-webkit-scrollbar-track {
+        background: #1e293b;
+      }
       ::-webkit-scrollbar-thumb {
         background: #cbd5e1;
         border-radius: 4px;
       }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
       }
       
       .hide-scrollbar::-webkit-scrollbar {
@@ -40,7 +65,7 @@
 }
 </script>
 </head>
-  <body class="bg-white text-slate-800 antialiased">
+  <body class="bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased transition-colors duration-200">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

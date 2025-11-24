@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { GlobalNav } from './components/GlobalNav';
 import { GlobalHeader } from './components/GlobalHeader';
@@ -90,11 +89,11 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen bg-slate-50 overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200">
         {/* Global Sidebar */}
         <GlobalNav activePage={activePage} onNavigate={handleNavigate} />
         
-        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
+        <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-white dark:bg-slate-900">
             {/* Global Header */}
             <GlobalHeader title={getPageTitle()} />
 

@@ -70,36 +70,30 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  // Format date for display (e.g. "Tue Nov 19")
   const displayDate = currentDate.toLocaleDateString('en-US', { 
     weekday: 'short', 
     month: 'short', 
     day: 'numeric' 
   });
 
-  // Format date for input value (YYYY-MM-DD)
   const inputValue = currentDate.toISOString().split('T')[0];
-
-  // Calculate active filter count (excluding search)
   const activeCount = filters.types.length + filters.statuses.length + (filters.assigneeId ? 1 : 0);
 
   return (
-    <header className="border-b border-slate-200 bg-white sticky top-0 z-40 relative flex flex-col">
-      {/* Main Header Row */}
-      <div className="h-16 flex items-center justify-between px-6 relative z-50 bg-white gap-8">
+    <header className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 sticky top-0 z-40 relative flex flex-col transition-colors duration-200">
+      <div className="h-16 flex items-center justify-between px-6 relative z-50 bg-white dark:bg-slate-900 gap-8">
         
         {/* LEFT: Date Navigation */}
         <div className="flex items-center gap-4 flex-shrink-0">
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
-            <button className="px-3 py-1 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-md transition-colors">Today</button>
-            <div className="h-4 w-px bg-slate-200 mx-1"></div>
-            <button onClick={onPrevDay} className="p-1 text-slate-500 hover:bg-slate-50 rounded-md"><Icons.ChevronLeft /></button>
+          <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1 shadow-sm">
+            <button className="px-3 py-1 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md transition-colors">Today</button>
+            <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
+            <button onClick={onPrevDay} className="p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md"><Icons.ChevronLeft /></button>
             
-            {/* Date Picker Trigger */}
             <div className="relative group">
                 <button 
                     onClick={openDatePicker}
-                    className="text-sm font-semibold text-slate-700 px-2 w-28 text-center hover:text-indigo-600 hover:bg-slate-50 rounded cursor-pointer flex items-center justify-center gap-1"
+                    className="text-sm font-semibold text-slate-700 dark:text-slate-200 px-2 w-28 text-center hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded cursor-pointer flex items-center justify-center gap-1"
                 >
                     <span>{displayDate}</span>
                     <svg className="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -113,14 +107,14 @@ export const Header: React.FC<HeaderProps> = ({
                 />
             </div>
 
-            <button onClick={onNextDay} className="p-1 text-slate-500 hover:bg-slate-50 rounded-md"><Icons.ChevronRight /></button>
+            <button onClick={onNextDay} className="p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md"><Icons.ChevronRight /></button>
           </div>
         </div>
 
         {/* MIDDLE: Search Box */}
         <div className="flex-1 max-w-2xl mx-auto">
           <div className="relative group w-full">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 dark:text-slate-500 group-focus-within:text-indigo-500 dark:group-focus-within:text-indigo-400 transition-colors">
               <Icons.Search />
             </div>
             <input 
@@ -128,7 +122,7 @@ export const Header: React.FC<HeaderProps> = ({
               value={filters.searchQuery}
               onChange={handleSearch}
               placeholder="Search tasks, locations, or notes..." 
-              className="w-full pl-11 pr-4 py-2.5 bg-slate-100 border border-transparent focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm transition-all outline-none placeholder:text-slate-400"
+              className="w-full pl-11 pr-4 py-2.5 bg-slate-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 dark:focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 rounded-xl text-sm text-slate-800 dark:text-slate-200 transition-all outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
         </div>
@@ -136,15 +130,13 @@ export const Header: React.FC<HeaderProps> = ({
         {/* RIGHT: Filter */}
         <div className="flex items-center gap-5 flex-shrink-0">
           <div className="flex items-center gap-2">
-            {/* Filter Count Badge (Outside Button) */}
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${activeCount > 0 ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 text-slate-300'}`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${activeCount > 0 ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600'}`}>
                 {activeCount > 0 ? activeCount : '0'}
             </div>
 
-            {/* Filter Button */}
             <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all border ${isFilterOpen ? 'bg-slate-800 text-white border-slate-800 shadow-md' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all border ${isFilterOpen ? 'bg-slate-800 text-white border-slate-800 dark:bg-slate-700 dark:border-slate-600 shadow-md' : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
             >
                 <Icons.Filter />
                 <span>Filter</span>
@@ -153,17 +145,16 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Expanded Filter Row (Dropdowns) */}
+      {/* Expanded Filter Row */}
       <div 
-        className={`overflow-hidden transition-all duration-300 ease-in-out border-b border-slate-100 bg-slate-50/50 ${isFilterOpen ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}
+        className={`overflow-hidden transition-all duration-300 ease-in-out border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 ${isFilterOpen ? 'max-h-24 opacity-100' : 'max-h-0 opacity-0'}`}
       >
         <div className="px-6 py-3 flex items-center gap-4 overflow-x-auto hide-scrollbar">
             
-            {/* Status Dropdown */}
             <div className="relative min-w-[160px]">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 ml-1">Status</label>
+                <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1 ml-1">Status</label>
                 <select 
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium shadow-sm"
+                    className="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium shadow-sm"
                     value={filters.statuses[0] || 'all'}
                     onChange={handleStatusChange}
                 >
@@ -177,11 +168,10 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
             </div>
 
-            {/* Type Dropdown */}
             <div className="relative min-w-[160px]">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 ml-1">Task Type</label>
+                <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1 ml-1">Task Type</label>
                 <select 
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium shadow-sm"
+                    className="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium shadow-sm"
                     value={filters.types[0] || 'all'}
                     onChange={handleTypeChange}
                 >
@@ -195,11 +185,10 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
             </div>
 
-            {/* Assignee Dropdown */}
             <div className="relative min-w-[160px]">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 ml-1">Assignee</label>
+                <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1 ml-1">Assignee</label>
                 <select 
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium shadow-sm"
+                    className="w-full appearance-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer font-medium shadow-sm"
                     value={filters.assigneeId || 'all'}
                     onChange={handleAssigneeChange}
                 >
@@ -214,19 +203,17 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
             </div>
 
-            {/* Property (Mock) */}
              <div className="relative min-w-[160px] opacity-60 cursor-not-allowed" title="Not available">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1 ml-1">Property</label>
-                <div className="w-full bg-slate-100 border border-slate-200 text-slate-400 text-sm rounded-lg px-3 py-2 font-medium select-none">
+                <label className="block text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 mb-1 ml-1">Property</label>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 text-sm rounded-lg px-3 py-2 font-medium select-none">
                     All Properties
                 </div>
             </div>
 
-            {/* Clear Button */}
             {activeCount > 0 && (
                 <button 
                     onClick={() => onFilterChange({ ...filters, types: [], statuses: [], assigneeId: null })}
-                    className="mt-5 text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded transition-colors whitespace-nowrap"
+                    className="mt-5 text-xs font-bold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-2 rounded transition-colors whitespace-nowrap"
                 >
                     Clear Filters
                 </button>

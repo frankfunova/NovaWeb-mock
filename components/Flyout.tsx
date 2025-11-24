@@ -11,7 +11,7 @@ interface FlyoutProps {
   actions?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | 'full';
   noPadding?: boolean;
-  onShare?: () => void; // Callback to get URL
+  onShare?: () => void;
 }
 
 export const Flyout: React.FC<FlyoutProps> = ({ 
@@ -27,7 +27,6 @@ export const Flyout: React.FC<FlyoutProps> = ({
 }) => {
   const [showCopyFeedback, setShowCopyFeedback] = useState(false);
 
-  // Close on escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -38,10 +37,8 @@ export const Flyout: React.FC<FlyoutProps> = ({
 
   const handleShareClick = async () => {
     if (onShare) {
-        // If parent provides custom share logic
         onShare();
     } else {
-        // Default behavior: Copy current URL
         try {
             await navigator.clipboard.writeText(window.location.href);
             setShowCopyFeedback(true);
@@ -78,32 +75,28 @@ export const Flyout: React.FC<FlyoutProps> = ({
       role="dialog" 
       aria-modal="true"
     >
-      {/* Backdrop */}
       <div 
-        className={`absolute inset-0 bg-slate-900/20 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-slate-900/20 dark:bg-slate-950/60 backdrop-blur-sm transition-opacity duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
       ></div>
 
       <div className={`absolute flex max-w-full pointer-events-none ${positionClass}`}>
         <div 
-          className={`pointer-events-auto w-screen ${maxWidthClass} transform transition-transform duration-300 ease-in-out bg-white shadow-2xl flex flex-col ${translateClass}`}
+          className={`pointer-events-auto w-screen ${maxWidthClass} transform transition-transform duration-300 ease-in-out bg-white dark:bg-slate-900 shadow-2xl flex flex-col ${translateClass}`}
         >
-          {/* Global Header - Standardized & Compact */}
-          <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 bg-white min-h-[56px] flex-shrink-0 z-20">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900 min-h-[56px] flex-shrink-0 z-20">
             <div className="flex-1 flex items-center gap-3 min-w-0" id="slide-over-title">
-              {/* Page Title on the left */}
-              <h2 className="text-base font-bold text-slate-800 truncate">{title}</h2>
+              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100 truncate">{title}</h2>
             </div>
             
-            {/* Common Tool Icons */}
             <div className="flex items-center gap-1 pl-4">
                 {actions}
                 
-                {/* Standard Share Button */}
                 <div className="relative">
                     <button 
                         onClick={handleShareClick}
-                        className={`p-2 rounded-md transition-colors ${showCopyFeedback ? 'text-green-600 bg-green-50' : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100'}`} 
+                        className={`p-2 rounded-md transition-colors ${showCopyFeedback ? 'text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400' : 'text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`} 
                         title="Copy Link to Clipboard"
                     >
                         {showCopyFeedback ? (
@@ -119,21 +112,19 @@ export const Flyout: React.FC<FlyoutProps> = ({
                     )}
                 </div>
 
-                {/* Standard Open New Tab Button */}
                 <button 
-                    className="p-2 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors" 
+                    className="p-2 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" 
                     title="Open in new tab"
                     onClick={() => window.open(window.location.href, '_blank')}
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </button>
 
-                <div className="h-5 w-px bg-slate-200 mx-1"></div>
+                <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
                 
-                {/* Close Button */}
                 <button
                     type="button"
-                    className="p-2 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                    className="p-2 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                     onClick={onClose}
                     title="Close"
                 >
@@ -143,8 +134,7 @@ export const Flyout: React.FC<FlyoutProps> = ({
             </div>
           </div>
 
-          {/* Content */}
-          <div className={`flex-1 bg-white ${noPadding ? 'flex flex-col overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
+          <div className={`flex-1 bg-white dark:bg-slate-900 ${noPadding ? 'flex flex-col overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
             {children}
           </div>
         </div>
