@@ -12,6 +12,7 @@ import { InboxPage } from './features/inbox/InboxPage';
 import { ResourceMapPage } from './features/resource-map/ResourceMapPage';
 import { IntentsPage } from './features/intents/IntentsPage';
 import { ListingsPage } from './features/listings/ListingsPage';
+import { GuestGuidePage } from './features/guest-guide/GuestGuidePage';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<string>('schedule');
@@ -61,6 +62,8 @@ const App: React.FC = () => {
         return <IntentsPage />;
       case 'listings':
         return <ListingsPage />;
+      case 'guest-guide':
+        return <GuestGuidePage />;
       default:
         return (
           <div className="flex items-center justify-center h-full text-slate-400">
@@ -81,6 +84,7 @@ const App: React.FC = () => {
           case 'staff-attendance': return 'Staff Attendance';
           case 'intents': return 'Intents';
           case 'listings': return 'Listings';
+          case 'guest-guide': return 'Guest Guide';
           default: return activePage.replace('-', ' ');
       }
   };

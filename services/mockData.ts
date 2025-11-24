@@ -1,6 +1,8 @@
 
 
-import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing } from '../types';
+
+
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem } from '../types';
 
 // Helper to create today's date with specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
@@ -1271,4 +1273,50 @@ export const MOCK_INTENTS: Intent[] = [
         listingId: '751PBD CG',
         createdAt: 'Nov 22',
     },
+];
+
+// --- MOCK GUEST GUIDE ITEMS ---
+export const MOCK_GUEST_GUIDE_ITEMS: GuestGuideItem[] = [
+    {
+        id: 'g1',
+        title: 'Welcome',
+        subtitle: 'Welcome message for guests',
+        category: 'Welcome',
+        content: 'We are delighted to have you stay at The Pink Door! Please make yourself at home.',
+    },
+    {
+        id: 'g2',
+        title: 'Reservation Info',
+        subtitle: 'Details about your reservation',
+        category: 'Welcome',
+        content: 'Check-in: 4:00 PM\nCheck-out: 11:00 AM',
+    },
+    {
+        id: 'g3',
+        title: 'Getting Here',
+        subtitle: 'Directions and transportation info',
+        category: 'Welcome',
+        content: 'From the airport, take I-4 West to exit 64...',
+    },
+    {
+        id: 'g4',
+        title: 'Access Code',
+        subtitle: 'Property access information',
+        category: 'Access',
+        content: 'Your door code is 1234#',
+    },
+    {
+        id: 'g5',
+        title: 'Wifi',
+        subtitle: 'Internet connection details',
+        category: 'Access',
+        content: 'Network: PinkDoorGuest\nPassword: happyguest',
+    },
+    {
+        id: 'g6',
+        title: 'Pool Rules',
+        subtitle: 'Pool usage guidelines',
+        category: 'Policy',
+        content: 'No glass near the pool. Pool hours are 8am - 10pm.',
+    }
 ];

@@ -297,6 +297,17 @@ export interface Listing {
   status: 'Active' | 'Inactive';
 }
 
+// --- Guest Guide Types ---
+
+export interface GuestGuideItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  category: 'Welcome' | 'Access' | 'Policy' | 'House Manual' | 'Local';
+  content?: string;
+  icon?: string;
+}
+
 // --- Dashboard & Stats Types (OpenAPI) ---
 
 export interface PerformanceKPIs {

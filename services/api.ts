@@ -1,10 +1,12 @@
 
 
+
+
 import { 
   Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
   TaskType, TaskStatus, ReservationSource, AttendanceStatus,
-  InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing
+  InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem
 } from '../types';
 import { 
   MOCK_STAFF, 
@@ -19,7 +21,8 @@ import {
   MOCK_MAP_PROPERTIES,
   MOCK_MAP_STAFF,
   MOCK_INTENTS,
-  MOCK_LISTINGS
+  MOCK_LISTINGS,
+  MOCK_GUEST_GUIDE_ITEMS
 } from './mockData';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -394,5 +397,11 @@ export const api = {
   fetchListings: async (): Promise<Listing[]> => {
       await delay(500);
       return [...MOCK_LISTINGS];
+  },
+
+  // --- Guest Guide ---
+  fetchGuestGuide: async (): Promise<GuestGuideItem[]> => {
+      await delay(400);
+      return [...MOCK_GUEST_GUIDE_ITEMS];
   }
 };
