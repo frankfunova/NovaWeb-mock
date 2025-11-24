@@ -1,10 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Reservation } from '../../types';
+import { Reservation, Intent, Task } from '../../types';
 import { ReservationTable } from './components/ReservationTable';
 import { ReservationDetail } from './components/ReservationDetail';
 import { ReservationHeader } from './components/ReservationHeader';
+import { IntentDetail } from '../../features/intents/components/IntentDetail';
+import { TaskDetail } from '../../features/tasks/components/TaskDetail';
 import { Flyout } from '../../components/Flyout';
+import { Icons } from '../../constants';
 
 const STATUS_STYLES: Record<string, string> = {
   Confirmed: 'bg-green-100 text-green-800 border-green-200',
@@ -17,8 +21,20 @@ const STATUS_STYLES: Record<string, string> = {
 export const ReservationsPage: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Reservation Flyout
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+
+  // Intent Flyout
+  const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
+  const [isIntentFlyoutOpen, setIsIntentFlyoutOpen] = useState(false);
+  const [isLoadingIntent, setIsLoadingIntent] = useState(false);
+
+  // Task Flyout
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isTaskFlyoutOpen, setIsTaskFlyoutOpen] = useState(false);
+  const [isLoadingTask, setIsLoadingTask] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,6 +54,82 @@ export const ReservationsPage: React.FC = () => {
   const handleSelectReservation = (res: Reservation) => {
     setSelectedReservation(res);
     setIsFlyoutOpen(true);
+  };
+
+  const handleOpenIntent = async (intentId: string) => {
+      setIsIntentFlyoutOpen(true);
+      setIsLoadingIntent(true);
+      try {
+          const intent = await api.fetchIntent(intentId);
+          // Fallback mock if API doesn't return (for prototype stability)
+          const mockIntent: Intent = intent || {
+              id: intentId,
+              description: 'Details not found for this intent.',
+              status: 'new',
+              priority: 'medium',
+              source: 'System',
+              intentTypeCode: 'SR',
+              createdAt: 'Today',
+              listingId: selectedReservation?.propertyCode
+          };
+          setSelectedIntent(mockIntent);
+      } catch (e) {
+          console.error("Failed to fetch intent", e);
+      } finally {
+          setIsLoadingIntent(false);
+      }
+  };
+
+  const handleOpenTask = async (taskId: string) => {
+      setIsTaskFlyoutOpen(true);
+      setIsLoadingTask(true);
+      try {
+          const task = await api.fetchTask(taskId);
+          // Fallback mock
+          const mockTask: Task = task || {
+              id: taskId,
+              title: 'Task Details',
+              location: selectedReservation?.propertyCode || '',
+              type: 'maintenance',
+              startTime: 9,
+              duration: 1,
+              plannedStartTime: 9,
+              plannedDuration: 1,
+              status: 'pending',
+              staffId: null,
+              assigneeName: 'Unassigned'
+          };
+          setSelectedTask(mockTask);
+      } catch (e) {
+          console.error("Failed to fetch task", e);
+      } finally {
+          setIsLoadingTask(false);
+      }
+  };
+
+  // Helper for Intent Header
+  const getIntentTitle = (intent: Intent | null) => {
+      if (!intent) return 'Intent Details';
+      return (
+        <div className="flex flex-col whitespace-normal">
+            <span className="leading-none">{intent.intentTypeCode === 'SR' ? 'Service Request' : 'Intent Details'}</span>
+            <span className="text-[10px] font-normal text-slate-400 font-mono leading-none mt-0.5">ID {intent.id}</span>
+        </div>
+      );
+  };
+
+  // Helper for Task Header
+  const getTaskTitle = (task: Task | null) => {
+      if (!task) return 'Task Details';
+      return (
+        <div className="flex flex-col">
+            <div className="flex items-center gap-2">
+                <div className="text-slate-400"><Icons.ClipboardCheck /></div>
+                <span className="capitalize font-semibold text-slate-800 leading-none">{task.title}</span>
+            </div>
+            <span className="text-[10px] font-normal text-slate-400 font-mono ml-6 leading-none">ID {task.id}</span>
+        </div>
+      );
   };
 
   const StatsPill = ({ label, value, color }: { label: string, value: string | number, color: string }) => (
@@ -92,15 +184,22 @@ export const ReservationsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-2">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 border border-transparent hover:border-slate-200 rounded-md transition-all">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                    Save as view
+            {/* Right Actions - Icons */}
+            <div className="flex items-center gap-1">
+                <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="Export to CSV">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
                 </button>
-                 <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-50 border border-slate-200 rounded-md transition-all shadow-sm bg-white">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                    Edit view
+                <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="Share Link">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                    </svg>
+                </button>
+                <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="More Actions">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                    </svg>
                 </button>
             </div>
         </div>
@@ -124,7 +223,7 @@ export const ReservationsPage: React.FC = () => {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
                  </button>
                  <button className="p-1.5 text-slate-500 hover:bg-white hover:text-indigo-600 rounded border border-transparent hover:border-slate-200 transition-all">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 00-2 2" /></svg>
                  </button>
             </div>
         </div>
@@ -141,7 +240,7 @@ export const ReservationsPage: React.FC = () => {
             </div>
         </div>
 
-        {/* Detail Flyout */}
+        {/* Reservation Detail Flyout */}
         <Flyout 
             isOpen={isFlyoutOpen} 
             onClose={() => setIsFlyoutOpen(false)} 
@@ -150,7 +249,49 @@ export const ReservationsPage: React.FC = () => {
             size="md"
             noPadding={true}
         >
-            {selectedReservation && <ReservationDetail reservation={selectedReservation} />}
+            {selectedReservation && (
+                <ReservationDetail 
+                    reservation={selectedReservation} 
+                    onOpenIntent={handleOpenIntent}
+                    onOpenTask={handleOpenTask}
+                />
+            )}
+        </Flyout>
+
+        {/* Intent Detail Flyout (Stacked) */}
+        <Flyout
+            isOpen={isIntentFlyoutOpen}
+            onClose={() => setIsIntentFlyoutOpen(false)}
+            title={getIntentTitle(selectedIntent)}
+            side="right"
+            size="xl"
+            noPadding={true}
+        >
+            {isLoadingIntent ? (
+                <div className="flex h-full items-center justify-center">
+                     <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            ) : (
+                selectedIntent && <IntentDetail intent={selectedIntent} />
+            )}
+        </Flyout>
+
+        {/* Task Detail Flyout (Stacked) */}
+        <Flyout
+            isOpen={isTaskFlyoutOpen}
+            onClose={() => setIsTaskFlyoutOpen(false)}
+            title={getTaskTitle(selectedTask)}
+            side="right"
+            size="xl"
+            noPadding={true}
+        >
+            {isLoadingTask ? (
+                <div className="flex h-full items-center justify-center">
+                     <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            ) : (
+                selectedTask && <TaskDetail task={selectedTask} />
+            )}
         </Flyout>
     </div>
   );

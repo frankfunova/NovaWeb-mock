@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Reservation, Task } from '../../../types';
 import { Icons } from '../../../constants';
@@ -6,6 +7,8 @@ import { ReservationHeader } from './ReservationHeader';
 
 interface ReservationDetailProps {
   reservation: Reservation;
+  onOpenIntent?: (intentId: string) => void;
+  onOpenTask?: (taskId: string) => void;
 }
 
 // --- Reusable Components ---
@@ -78,7 +81,7 @@ const MOCK_TEAM = {
 
 // --- Sub-Components for Content ---
 
-const GuestExperienceContent = () => {
+const GuestExperienceContent = ({ onOpenIntent }: { onOpenIntent?: (id: string) => void }) => {
     const [activeTab, setActiveTab] = useState<'intents' | 'timeline'>('intents');
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState<{intents: any[], timeline: any[]}>({ intents: [], timeline: [] });
@@ -90,9 +93,9 @@ const GuestExperienceContent = () => {
             await new Promise(resolve => setTimeout(resolve, 600)); // 600ms delay
             setData({
                 intents: [
-                    { id: 1, type: 'request', title: 'Early Check-in Request', date: 'Today, 10:23 AM', status: 'Pending', icon: Icons.Clock },
-                    { id: 2, type: 'inquiry', title: 'Asking about Wi-Fi', date: 'Yesterday, 4:15 PM', status: 'Resolved', icon: Icons.Map },
-                    { id: 3, type: 'complaint', title: 'Noise Complaint', date: 'Nov 12, 8:00 PM', status: 'Resolved', icon: Icons.Bell },
+                    { id: 'i1', type: 'request', title: 'Early Check-in Request', date: 'Today, 10:23 AM', status: 'Pending', icon: Icons.Clock },
+                    { id: 'i2', type: 'inquiry', title: 'Asking about Wi-Fi', date: 'Yesterday, 4:15 PM', status: 'Resolved', icon: Icons.Map },
+                    { id: 'i3', type: 'complaint', title: 'Noise Complaint', date: 'Nov 12, 8:00 PM', status: 'Resolved', icon: Icons.Bell },
                 ],
                 timeline: [
                     { id: 1, type: 'message_in', title: 'Guest sent a message', desc: '"Hi, is the pool heated?"', date: 'Today, 10:30 AM', icon: Icons.Inbox },
@@ -136,7 +139,11 @@ const GuestExperienceContent = () => {
                         </div>
 
                         {data.intents.map(intent => (
-                            <div key={intent.id} className="flex items-start gap-3 group cursor-pointer hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors">
+                            <div 
+                                key={intent.id} 
+                                onClick={() => onOpenIntent && onOpenIntent(intent.id)}
+                                className="flex items-start gap-3 group cursor-pointer hover:bg-slate-50 p-2 -mx-2 rounded-lg transition-colors"
+                            >
                                 <div className="mt-0.5 p-1.5 rounded-md bg-white text-slate-400 border border-slate-200 shadow-sm group-hover:border-indigo-200 group-hover:text-indigo-500 transition-colors">
                                     <intent.icon />
                                 </div>
@@ -184,7 +191,7 @@ const GuestExperienceContent = () => {
     );
 };
 
-const OperationsContent = () => {
+const OperationsContent = ({ onOpenTask }: { onOpenTask?: (id: string) => void }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState<any[]>([]);
 
@@ -227,12 +234,26 @@ const OperationsContent = () => {
             </div>
 
             {tasks.map(task => (
-                <div key={task.id} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group">
+                <div 
+                    key={task.id} 
+                    onClick={() => onOpenTask && onOpenTask(task.id)}
+                    className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer group"
+                >
                         <div className="flex items-center gap-3">
                             <StatusDot status={task.status || 'new'} />
                             <div>
                                 <div className="text-xs font-semibold text-slate-700 group-hover:text-indigo-600">{task.title}</div>
-                                <div className="text-[10px] text-slate-400 capitalize">{task.type}</div>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                    <div className="text-[10px] text-slate-400 capitalize">{task.type}</div>
+                                    <span className="text-slate-300 text-[9px]">•</span>
+                                    <div className={`text-[9px] font-medium uppercase tracking-wide ${
+                                        task.status === 'completed' ? 'text-emerald-600' :
+                                        task.status === 'pending' ? 'text-amber-600' :
+                                        task.status === 'new' ? 'text-blue-600' : 'text-slate-500'
+                                    }`}>
+                                        {task.status}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -256,7 +277,7 @@ const OperationsContent = () => {
 
 // --- Main Component ---
 
-export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservation }) => {
+export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservation, onOpenIntent, onOpenTask }) => {
   const [isFinancialsExpanded, setIsFinancialsExpanded] = useState(false);
 
   const checkIn = new Date(reservation.startDate);
@@ -450,7 +471,7 @@ export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservatio
                     defaultOpen={true}
                     colorTheme="indigo"
                 >
-                    <GuestExperienceContent />
+                    <GuestExperienceContent onOpenIntent={onOpenIntent} />
                 </CollapsibleCard>
 
                 {/* Operations Section */}
@@ -465,7 +486,7 @@ export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservatio
                     defaultOpen={false}
                     colorTheme="slate"
                 >
-                    <OperationsContent />
+                    <OperationsContent onOpenTask={onOpenTask} />
                 </CollapsibleCard>
             </div>
 

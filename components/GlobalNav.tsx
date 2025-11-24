@@ -22,7 +22,6 @@ const SECTIONS: MenuSection[] = [
       { label: 'Inbox', icon: Icons.Inbox, id: 'inbox' },
       { label: 'Reservations', icon: Icons.Calendar, id: 'reservations' },
       { label: 'Reviews', icon: Icons.Star, id: 'reviews' },
-      { label: 'Guests', icon: Icons.User, id: 'guests' },
     ]
   },
   {
@@ -53,6 +52,7 @@ const SECTIONS: MenuSection[] = [
       { label: 'Users', icon: Icons.Users, id: 'users' },
       { label: 'Roles', icon: Icons.Settings, id: 'roles' },
       { label: 'Owners', icon: Icons.User, id: 'owners' },
+      { label: 'Guests', icon: Icons.User, id: 'guests' },
       { label: 'Tenants', icon: Icons.User, id: 'tenants' },
     ]
   }

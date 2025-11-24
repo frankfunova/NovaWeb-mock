@@ -42,7 +42,7 @@ export const IntentsToolbar: React.FC<IntentsToolbarProps> = ({ onCreate }) => {
     return (
         <div className="flex-shrink-0 border-b border-slate-200 bg-white px-6 py-3 flex flex-col gap-3">
             {/* Top Row */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-6">
                 <div className="flex items-center gap-4 flex-1">
                     {/* View Toggle */}
                      <div className="p-2 border border-indigo-600 text-indigo-600 rounded-lg cursor-pointer bg-indigo-50 shadow-sm">
@@ -80,37 +80,60 @@ export const IntentsToolbar: React.FC<IntentsToolbarProps> = ({ onCreate }) => {
                     </div>
                 </div>
 
-                {/* New Request Split Button */}
-                <div className="relative" ref={dropdownRef}>
-                    <div className="flex rounded-lg shadow-sm transition-all bg-purple-600 hover:bg-purple-700">
-                        <button 
-                            onClick={() => onCreate('Service Request')}
-                            className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white border-r border-purple-500/30 rounded-l-lg transition-colors"
-                        >
-                            <Icons.Plus />
-                            New Request
-                        </button>
-                        <button 
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className="px-2 py-2 text-white rounded-r-lg hover:bg-purple-800 transition-colors"
-                        >
-                            <Icons.ChevronDown className="w-4 h-4" />
-                        </button>
+                <div className="flex items-center gap-3">
+                    {/* New Request Split Button */}
+                    <div className="relative" ref={dropdownRef}>
+                        <div className="flex rounded-lg shadow-sm transition-all bg-purple-600 hover:bg-purple-700">
+                            <button 
+                                onClick={() => onCreate('Service Request')}
+                                className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white border-r border-purple-500/30 rounded-l-lg transition-colors"
+                            >
+                                <Icons.Plus />
+                                New Request
+                            </button>
+                            <button 
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                className="px-2 py-2 text-white rounded-r-lg hover:bg-purple-800 transition-colors"
+                            >
+                                <Icons.ChevronDown className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {isDropdownOpen && (
+                            <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 py-1">
+                                {REQUEST_TYPES.map((type) => (
+                                    <button
+                                        key={type}
+                                        onClick={() => handleCreateClick(type)}
+                                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors font-medium"
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    {isDropdownOpen && (
-                        <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 py-1">
-                            {REQUEST_TYPES.map((type) => (
-                                <button
-                                    key={type}
-                                    onClick={() => handleCreateClick(type)}
-                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors font-medium"
-                                >
-                                    {type}
-                                </button>
-                            ))}
-                        </div>
-                    )}
+                    <div className="h-6 w-px bg-slate-200"></div>
+
+                    {/* Action Icons */}
+                    <div className="flex items-center gap-1">
+                        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="Export to CSV">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </button>
+                        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="Share Link">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                            </svg>
+                        </button>
+                        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="More Actions">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
