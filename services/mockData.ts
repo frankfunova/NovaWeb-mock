@@ -1,5 +1,6 @@
 
-import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent } from '../types';
+
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing } from '../types';
 
 // Helper to create today's date with specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
@@ -10,6 +11,127 @@ const getTodayAt = (hour: number, minute: number = 0) => {
 
 // Snowflake ID Generator (Mock)
 const genId = (suffix: string) => `7333${suffix.padStart(14, '0')}`;
+
+// --- MOCK LISTINGS ---
+export const MOCK_LISTINGS: Listing[] = [
+    {
+        id: 'l1',
+        nickname: '5481MOC Solterra',
+        address: '5481 Misty Oak Circle, Davenport, Florida 33837, United States',
+        group: 'No Group',
+        bedroomCount: 5,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l2',
+        nickname: '1820SD WIR (New)',
+        address: '1820 Summer Dr, Davenport, FL 33897, USA',
+        group: 'No Group',
+        bedroomCount: 5,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l3',
+        nickname: '1594MCW Solara',
+        address: '1594 Mermaid Cove Way, Kissimmee, Florida 34747, United States',
+        group: 'No Group',
+        bedroomCount: 9,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l4',
+        nickname: '7510BD MVV',
+        address: '7510 Brooklyn Drive, Kissimmee, Florida 34747, United States',
+        group: 'MVV',
+        bedroomCount: 4,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l5',
+        nickname: '2735NPB Unit 95',
+        address: '2735 North Poinciana Boulevard, Kissimmee, Florida 34746, United States',
+        group: 'No Group',
+        bedroomCount: 3,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l6',
+        nickname: '7580BD MVV',
+        address: '7580 Brooklyn Drive, Kissimmee, Florida 34747, United States',
+        group: 'MVV',
+        bedroomCount: 4,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l7',
+        nickname: '3991SB Sonoma',
+        address: '3991 Sonoma Blvd, Kissimmee, FL 34741, USA',
+        group: 'Sonoma',
+        bedroomCount: 15,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l8',
+        nickname: '2828SS SL',
+        address: '2828 Simile Street, Kissimmee, Florida 34746, United States',
+        group: 'SL',
+        bedroomCount: 9,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l9',
+        nickname: '8831IC CG',
+        address: '8831 Interlocking Court, Davenport, Florida 33896, United States',
+        group: 'CG',
+        bedroomCount: 8,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l10',
+        nickname: '1852NC WAW',
+        address: '1852 Nice Ct, Kissimmee, FL 34747, USA',
+        group: 'WAW',
+        bedroomCount: 8,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l11',
+        nickname: '9012 Palm Tree Rd',
+        address: '9012 Palm Tree Road, Orlando, FL 32801, USA',
+        group: 'No Group',
+        bedroomCount: 6,
+        isActive: true,
+        status: 'Active'
+    },
+    {
+        id: 'l12',
+        nickname: '101 Ocean Dr',
+        address: '101 Ocean Drive, Miami, FL 33139, USA',
+        group: 'Miami',
+        bedroomCount: 4,
+        isActive: false,
+        status: 'Inactive'
+    },
+    {
+        id: 'l13',
+        nickname: '4421 Sunset Blvd',
+        address: '4421 Sunset Boulevard, Los Angeles, CA 90027, USA',
+        group: 'LA',
+        bedroomCount: 3,
+        isActive: true,
+        status: 'Active'
+    }
+];
 
 // --- MOCK STAFF ---
 export const MOCK_STAFF: Staff[] = [

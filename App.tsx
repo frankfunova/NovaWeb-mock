@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { GlobalNav } from './components/GlobalNav';
 import { GlobalHeader } from './components/GlobalHeader';
@@ -10,6 +11,7 @@ import { ReviewsPage } from './features/reviews/ReviewsPage';
 import { InboxPage } from './features/inbox/InboxPage';
 import { ResourceMapPage } from './features/resource-map/ResourceMapPage';
 import { IntentsPage } from './features/intents/IntentsPage';
+import { ListingsPage } from './features/listings/ListingsPage';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<string>('schedule');
@@ -57,6 +59,8 @@ const App: React.FC = () => {
         return <ResourceMapPage />;
       case 'intents':
         return <IntentsPage />;
+      case 'listings':
+        return <ListingsPage />;
       default:
         return (
           <div className="flex items-center justify-center h-full text-slate-400">
@@ -76,6 +80,7 @@ const App: React.FC = () => {
           case 'inbox': return 'Inbox';
           case 'staff-attendance': return 'Staff Attendance';
           case 'intents': return 'Intents';
+          case 'listings': return 'Listings';
           default: return activePage.replace('-', ' ');
       }
   };

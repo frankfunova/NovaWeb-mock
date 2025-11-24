@@ -1,8 +1,38 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Icons } from '../../../constants';
 
-export const IntentsToolbar: React.FC = () => {
+interface IntentsToolbarProps {
+    onCreate: (type?: string) => void;
+}
+
+const REQUEST_TYPES = [
+    'Service Request',
+    'Reservation Change',
+    'Refund Request',
+    'Damage Claim',
+    'Approval & Purchase'
+];
+
+export const IntentsToolbar: React.FC<IntentsToolbarProps> = ({ onCreate }) => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleCreateClick = (type: string) => {
+        onCreate(type);
+        setIsDropdownOpen(false);
+    };
+
     const StatsPill = ({ values, color }: { values: string, color: string }) => (
       <div className="flex items-center gap-2 px-2">
           <span className={`text-xs font-bold ${color}`}>{values}</span>
@@ -50,12 +80,38 @@ export const IntentsToolbar: React.FC = () => {
                     </div>
                 </div>
 
-                {/* New Intent Button */}
-                 <button className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-all shadow-sm">
-                    <Icons.Plus />
-                    New Intent
-                     <svg className="w-4 h-4 ml-1 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                </button>
+                {/* New Request Split Button */}
+                <div className="relative" ref={dropdownRef}>
+                    <div className="flex rounded-lg shadow-sm transition-all bg-purple-600 hover:bg-purple-700">
+                        <button 
+                            onClick={() => onCreate('Service Request')}
+                            className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white border-r border-purple-500/30 rounded-l-lg transition-colors"
+                        >
+                            <Icons.Plus />
+                            New Request
+                        </button>
+                        <button 
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className="px-2 py-2 text-white rounded-r-lg hover:bg-purple-800 transition-colors"
+                        >
+                            <Icons.ChevronDown className="w-4 h-4" />
+                        </button>
+                    </div>
+
+                    {isDropdownOpen && (
+                        <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 py-1">
+                            {REQUEST_TYPES.map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => handleCreateClick(type)}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition-colors font-medium"
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
 
              {/* Filter Row */}

@@ -4,6 +4,7 @@ import { IntentsSidebar } from './components/IntentsSidebar';
 import { IntentsToolbar } from './components/IntentsToolbar';
 import { IntentsTable } from './components/IntentsTable';
 import { IntentDetail } from './components/IntentDetail';
+import { IntentCreateForm } from './components/IntentCreateForm';
 import { TaskDetail } from '../../features/tasks/components/TaskDetail';
 import { ReservationDetail } from '../../features/reservations/components/ReservationDetail';
 import { Flyout } from '../../components/Flyout';
@@ -14,10 +15,14 @@ export const IntentsPage: React.FC = () => {
   const [intents, setIntents] = useState<Intent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Intent Flyout State
+  // Intent Detail Flyout State
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
   const [selectedIntent, setSelectedIntent] = useState<Intent | null>(null);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+  // Create Flyout State
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createType, setCreateType] = useState('Service Request');
 
   // Task Flyout State
   const [isTaskFlyoutOpen, setIsTaskFlyoutOpen] = useState(false);
@@ -85,6 +90,27 @@ export const IntentsPage: React.FC = () => {
       }
   };
 
+  const handleCreateIntent = (data: any) => {
+      // Mock creation
+      const newIntent: Intent = {
+          id: `new-${Date.now()}`,
+          description: data.description || `New ${data.type}`,
+          status: data.markResolved ? 'resolved' : 'new',
+          priority: data.priority,
+          source: 'Manual',
+          intentTypeCode: data.type === 'Service Request' ? 'SR' : 'REQ',
+          createdAt: 'Just now',
+          listingId: data.propertyId
+      };
+      setIntents([newIntent, ...intents]);
+      setIsCreateOpen(false);
+  };
+
+  const handleOpenCreate = (type: string = 'Service Request') => {
+      setCreateType(type);
+      setIsCreateOpen(true);
+  };
+
   // Helper to map intent codes to display names for the header
   const getIntentTitle = (intent: Intent | null) => {
       if (!intent) return 'Intent Details';
@@ -117,7 +143,7 @@ export const IntentsPage: React.FC = () => {
         
         {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0 bg-white">
-             <IntentsToolbar />
+             <IntentsToolbar onCreate={handleOpenCreate} />
              
              <div className="flex-1 overflow-auto bg-white custom-scrollbar">
                 <IntentsTable intents={intents} onIntentClick={handleIntentClick} />
@@ -149,6 +175,22 @@ export const IntentsPage: React.FC = () => {
             ) : (
                 selectedIntent && <IntentDetail intent={selectedIntent} onOpenTask={handleOpenTask} onOpenReservation={handleOpenReservation} />
             )}
+        </Flyout>
+
+        {/* Create Intent Flyout */}
+        <Flyout
+            isOpen={isCreateOpen}
+            onClose={() => setIsCreateOpen(false)}
+            title="" 
+            side="right"
+            size="xl"
+            noPadding={true}
+        >
+            <IntentCreateForm 
+                type={createType}
+                onCancel={() => setIsCreateOpen(false)} 
+                onCreate={handleCreateIntent} 
+            />
         </Flyout>
 
         {/* Task Detail Flyout (Secondary) */}

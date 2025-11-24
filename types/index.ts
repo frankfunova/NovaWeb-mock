@@ -285,6 +285,18 @@ export interface MapStaff extends Staff {
   completionPercent: number;
 }
 
+// --- Listing Types ---
+
+export interface Listing {
+  id: string;
+  nickname: string;
+  address: string;
+  group: string;
+  bedroomCount: number;
+  isActive: boolean;
+  status: 'Active' | 'Inactive';
+}
+
 // --- Dashboard & Stats Types (OpenAPI) ---
 
 export interface PerformanceKPIs {
