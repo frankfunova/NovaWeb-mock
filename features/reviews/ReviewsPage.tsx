@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { Review } from '../../types';
@@ -11,8 +12,14 @@ export const ReviewsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedReview, setSelectedReview] = useState<Review | null>(null);
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+  const [view, setView] = useState('All Reviews');
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'watchlist') {
+        setView('My Watchlist');
+    }
+
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -25,6 +32,19 @@ export const ReviewsPage: React.FC = () => {
       }
     };
     loadData();
+  }, []);
+
+  useEffect(() => {
+      const handlePopState = () => {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get('view') === 'watchlist') {
+              setView('My Watchlist');
+          } else {
+              setView('All Reviews');
+          }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleReviewClick = (review: Review) => {
@@ -43,10 +63,10 @@ export const ReviewsPage: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
-        <ReviewsToolbar />
+        <ReviewsToolbar view={view} onViewChange={setView} />
         
         <div className="flex-1 overflow-auto bg-white custom-scrollbar">
-            <ReviewsTable reviews={reviews} onReviewClick={handleReviewClick} />
+            <ReviewsTable reviews={reviews} onReviewClick={handleReviewClick} isWatchlist={view === 'My Watchlist'} />
             
             {/* Pagination Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm bg-slate-50/50">

@@ -8,8 +8,14 @@ import { Listing } from '../../types';
 export const ListingsPage: React.FC = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [view, setView] = useState('All Active Listings');
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'watchlist') {
+        setView('My Watchlist');
+    }
+
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -24,6 +30,19 @@ export const ListingsPage: React.FC = () => {
     loadData();
   }, []);
 
+  useEffect(() => {
+      const handlePopState = () => {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get('view') === 'watchlist') {
+              setView('My Watchlist');
+          } else {
+              setView('All Active Listings');
+          }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   if (isLoading) {
       return (
           <div className="flex-1 flex items-center justify-center h-full bg-white">
@@ -35,10 +54,10 @@ export const ListingsPage: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
-        <ListingsToolbar />
+        <ListingsToolbar view={view} onViewChange={setView} />
         
         <div className="flex-1 overflow-auto bg-white custom-scrollbar">
-            <ListingsTable listings={listings} />
+            <ListingsTable listings={listings} isWatchlist={view === 'My Watchlist'} />
             
             {/* Pagination Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm bg-slate-50/50">

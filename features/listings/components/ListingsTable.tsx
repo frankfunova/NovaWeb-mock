@@ -1,12 +1,27 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Listing } from '../../../types';
+import { Icons } from '../../../constants';
 
 interface ListingsTableProps {
   listings: Listing[];
+  isWatchlist?: boolean;
 }
 
-export const ListingsTable: React.FC<ListingsTableProps> = ({ listings }) => {
+const WatchToggle: React.FC = () => {
+    const [isWatched, setIsWatched] = useState(true); 
+    return (
+        <button 
+            onClick={(e) => { e.stopPropagation(); setIsWatched(!isWatched); }}
+            className={`p-1.5 rounded-full transition-colors ${isWatched ? 'text-amber-400 bg-amber-50 hover:bg-amber-100' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'}`}
+            title={isWatched ? "Unwatch" : "Watch"}
+        >
+            {isWatched ? <Icons.StarFilled className="w-4 h-4" /> : <Icons.Star className="w-4 h-4" />}
+        </button>
+    );
+};
+
+export const ListingsTable: React.FC<ListingsTableProps> = ({ listings, isWatchlist }) => {
   return (
     <div className="min-w-full inline-block align-middle">
       <div className="overflow-hidden">
@@ -16,6 +31,11 @@ export const ListingsTable: React.FC<ListingsTableProps> = ({ listings }) => {
               <th scope="col" className="px-6 py-3 text-left w-10">
                  <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
               </th>
+              {isWatchlist && (
+                  <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
+                      Watch
+                  </th>
+              )}
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Nickname/Address
               </th>
@@ -45,6 +65,11 @@ export const ListingsTable: React.FC<ListingsTableProps> = ({ listings }) => {
                 <td className="px-6 py-4 w-10" onClick={(e) => e.stopPropagation()}>
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                 </td>
+                {isWatchlist && (
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                        <WatchToggle />
+                    </td>
+                )}
                 
                 {/* Nickname/Address */}
                 <td className="px-6 py-4">

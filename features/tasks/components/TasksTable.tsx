@@ -1,15 +1,29 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Task } from '../../../types';
 import { Icons } from '../../../constants';
 import { STATUS_BADGES, PRIORITY_STYLES } from '../constants';
 
 interface TasksTableProps {
   tasks: Task[];
-  onTaskClick?: (task: Task) => void; // Added prop
+  onTaskClick?: (task: Task) => void;
+  isWatchlist?: boolean;
 }
 
-export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) => {
+const WatchToggle: React.FC = () => {
+    const [isWatched, setIsWatched] = useState(true); // Default to true for watchlist view demo
+    return (
+        <button 
+            onClick={(e) => { e.stopPropagation(); setIsWatched(!isWatched); }}
+            className={`p-1.5 rounded-full transition-colors ${isWatched ? 'text-amber-400 bg-amber-50 hover:bg-amber-100' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'}`}
+            title={isWatched ? "Unwatch" : "Watch"}
+        >
+            {isWatched ? <Icons.StarFilled className="w-4 h-4" /> : <Icons.Star className="w-4 h-4" />}
+        </button>
+    );
+};
+
+export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick, isWatchlist }) => {
   
   const formatScheduledDate = (dateStr?: string) => {
       if (!dateStr) return '--';
@@ -25,7 +39,6 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
   };
 
   const getInitials = (name: string) => {
-      // Handle formats like "MT - Luis" or "Vendor - ..."
       const cleanName = name.includes('-') ? name.split('-')[1].trim() : name;
       return cleanName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
@@ -46,6 +59,11 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
               <th scope="col" className="px-4 py-3 text-left w-10">
                  <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
               </th>
+              {isWatchlist && (
+                  <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
+                      Watch
+                  </th>
+              )}
               <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider flex items-center gap-1 cursor-pointer hover:text-slate-700">
                 Task
                 <svg className="w-3 h-3 opacity-0 group-hover:opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
@@ -73,13 +91,17 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
               <tr 
                 key={task.id} 
                 className="hover:bg-slate-50 transition-colors group cursor-pointer"
-                onClick={() => onTaskClick && onTaskClick(task)} // Added click handler
+                onClick={() => onTaskClick && onTaskClick(task)}
               >
                 <td className="px-4 py-4 w-10" onClick={(e) => e.stopPropagation()}>
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                 </td>
+                {isWatchlist && (
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                        <WatchToggle />
+                    </td>
+                )}
                 
-                {/* Task Title & Description */}
                 <td className="px-4 py-3">
                     <div className="flex items-start gap-3">
                         <div className="mt-0.5 text-slate-400">
@@ -95,7 +117,6 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
                     </div>
                 </td>
 
-                {/* Property */}
                 <td className="px-4 py-3 whitespace-nowrap">
                     <div className="flex items-center gap-2 text-sm text-slate-700">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 text-slate-400">
@@ -105,14 +126,12 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
                     </div>
                 </td>
 
-                {/* Status */}
                 <td className="px-4 py-3 whitespace-nowrap">
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${STATUS_BADGES[task.status] || 'bg-gray-100 text-gray-600'}`}>
                         {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
                     </span>
                 </td>
 
-                {/* Priority */}
                 <td className="px-4 py-3 whitespace-nowrap">
                     {task.priority ? (
                         <span className={`px-2.5 py-0.5 rounded text-xs font-medium ${PRIORITY_STYLES[task.priority]}`}>
@@ -121,7 +140,6 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
                     ) : <span className="text-slate-300 text-xs">--</span>}
                 </td>
 
-                {/* Assignee */}
                 <td className="px-4 py-3 whitespace-nowrap">
                     {task.assigneeName ? (
                         <div className="flex items-center gap-2">
@@ -135,7 +153,6 @@ export const TasksTable: React.FC<TasksTableProps> = ({ tasks, onTaskClick }) =>
                     )}
                 </td>
 
-                {/* Scheduled */}
                 <td className="px-4 py-3 whitespace-nowrap">
                     {formatScheduledDate(task.scheduledAt)}
                 </td>

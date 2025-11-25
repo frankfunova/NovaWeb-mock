@@ -1,12 +1,26 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Review } from '../../../types';
 import { Icons } from '../../../constants';
 
 interface ReviewsTableProps {
   reviews: Review[];
   onReviewClick?: (review: Review) => void;
+  isWatchlist?: boolean;
 }
+
+const WatchToggle: React.FC = () => {
+    const [isWatched, setIsWatched] = useState(true); 
+    return (
+        <button 
+            onClick={(e) => { e.stopPropagation(); setIsWatched(!isWatched); }}
+            className={`p-1.5 rounded-full transition-colors ${isWatched ? 'text-amber-400 bg-amber-50 hover:bg-amber-100' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'}`}
+            title={isWatched ? "Unwatch" : "Watch"}
+        >
+            {isWatched ? <Icons.StarFilled className="w-4 h-4" /> : <Icons.Star className="w-4 h-4" />}
+        </button>
+    );
+};
 
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
     return (
@@ -57,7 +71,7 @@ const ReviewStatusBadge: React.FC<{ status: string }> = ({ status }) => {
     );
 };
 
-export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewClick }) => {
+export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewClick, isWatchlist }) => {
   
   const formatDate = (dateStr: string) => {
       return new Date(dateStr).toLocaleDateString('en-US', {
@@ -76,6 +90,11 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewCli
               <th scope="col" className="px-6 py-3 text-left w-10">
                  <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
               </th>
+              {isWatchlist && (
+                  <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
+                      Watch
+                  </th>
+              )}
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Listing
               </th>
@@ -118,6 +137,11 @@ export const ReviewsTable: React.FC<ReviewsTableProps> = ({ reviews, onReviewCli
                 <td className="px-6 py-4 w-10" onClick={(e) => e.stopPropagation()}>
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                 </td>
+                {isWatchlist && (
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                        <WatchToggle />
+                    </td>
+                )}
                 
                 {/* Listing - Removed Icon */}
                 <td className="px-6 py-4">

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Reservation, Task } from '../../../types';
 import { Icons } from '../../../constants';
 import { api } from '../../../services/api';
@@ -19,7 +19,7 @@ interface CollapsibleCardProps {
   summary: React.ReactNode;
   children: React.ReactNode;
   defaultOpen?: boolean;
-  colorTheme?: 'indigo' | 'slate' | 'purple';
+  colorTheme?: 'indigo' | 'slate' | 'purple' | 'gray';
 }
 
 const CollapsibleCard: React.FC<CollapsibleCardProps> = ({ 
@@ -36,6 +36,7 @@ const CollapsibleCard: React.FC<CollapsibleCardProps> = ({
     indigo: 'bg-indigo-50/30 border-indigo-100 text-indigo-700',
     slate: 'bg-slate-50/50 border-slate-100 text-slate-700',
     purple: 'bg-purple-50/30 border-purple-100 text-purple-700',
+    gray: 'bg-white border-slate-100 text-slate-800'
   };
 
   return (
@@ -68,15 +69,6 @@ const CollapsibleCard: React.FC<CollapsibleCardProps> = ({
        )}
     </div>
   );
-};
-
-// --- Mock Data & Types ---
-
-const MOCK_TEAM = {
-    cs: { name: 'Sarah', avatarColor: 'bg-purple-500', initials: 'S' },
-    cleaner: { name: 'Team HK', avatarColor: 'bg-green-500', initials: 'TH' },
-    inspector: null, // Unassigned
-    watcher: { name: 'Mike', avatarColor: 'bg-indigo-500', initials: 'M' }
 };
 
 // --- Sub-Components for Content ---
@@ -191,37 +183,18 @@ const GuestExperienceContent = ({ onOpenIntent }: { onOpenIntent?: (id: string) 
     );
 };
 
-const OperationsContent = ({ onOpenTask }: { onOpenTask?: (id: string) => void }) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [tasks, setTasks] = useState<any[]>([]);
-
-    // Simulate independent API call
-    useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 800)); // 800ms delay
-            setTasks([
-                { id: 't1', title: 'Checkout Cleaning', type: 'cleaning', status: 'pending', assigneeName: 'Team HK' },
-                { id: 't2', title: 'Pre-arrival Inspection', type: 'inspection', status: 'new', assigneeName: 'Unassigned' },
-                { id: 't3', title: 'Fix Loose Handle', type: 'maintenance', status: 'completed', assigneeName: 'Frank Fu' },
-                { id: 't4', title: 'Pool Filter Check', type: 'maintenance', status: 'completed', assigneeName: 'John Smith' },
-            ]);
-            setIsLoading(false);
-        };
-        loadData();
-    }, []);
-
+const OperationsContent = ({ tasks, onOpenTask }: { tasks: Task[], onOpenTask?: (id: string) => void }) => {
     const StatusDot = ({ status }: { status: string }) => {
         const colors: Record<string, string> = {
             completed: 'bg-emerald-500',
             pending: 'bg-amber-400',
             new: 'bg-blue-400',
-            cancelled: 'bg-slate-300'
+            cancelled: 'bg-slate-300',
+            'in-progress': 'bg-amber-500',
+            delayed: 'bg-red-500'
         };
         return <div className={`w-2 h-2 rounded-full ${colors[status.toLowerCase()] || 'bg-slate-300'}`}></div>;
     };
-
-    if (isLoading) return <div className="p-8 flex justify-center"><div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>;
 
     return (
         <div className="divide-y divide-slate-50">
@@ -233,7 +206,7 @@ const OperationsContent = ({ onOpenTask }: { onOpenTask?: (id: string) => void }
                  </select>
             </div>
 
-            {tasks.map(task => (
+            {tasks.length > 0 ? tasks.map(task => (
                 <div 
                     key={task.id} 
                     onClick={() => onOpenTask && onOpenTask(task.id)}
@@ -264,7 +237,9 @@ const OperationsContent = ({ onOpenTask }: { onOpenTask?: (id: string) => void }
                             )}
                         </div>
                 </div>
-            ))}
+            )) : (
+                <div className="p-6 text-center text-slate-400 text-xs italic">No tasks for this reservation.</div>
+            )}
             
             <div className="p-2 text-center border-t border-slate-100">
                 <button className="text-xs font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-wide py-1">
@@ -279,6 +254,8 @@ const OperationsContent = ({ onOpenTask }: { onOpenTask?: (id: string) => void }
 
 export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservation, onOpenIntent, onOpenTask }) => {
   const [isFinancialsExpanded, setIsFinancialsExpanded] = useState(false);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
 
   const checkIn = new Date(reservation.startDate);
   const checkOut = new Date(reservation.endDate);
@@ -289,57 +266,99 @@ export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservatio
   // Mock "Today" for logic (Nov 19, 2025)
   const TODAY = new Date(2025, 10, 19);
 
+  useEffect(() => {
+    const loadTasks = async () => {
+        setIsLoadingTasks(true);
+        try {
+            const allTasks = await api.fetchTasksList();
+            // Approximate filter: In real app, filter by reservationId or listingId
+            const relevant = allTasks.filter(t => 
+                t.location === reservation.propertyCode || 
+                t.propertyName === reservation.propertyCode ||
+                t.title.includes(reservation.reservationCode)
+            );
+            setTasks(relevant);
+        } catch(e) {
+            console.error(e);
+        } finally {
+            setIsLoadingTasks(false);
+        }
+    }
+    loadTasks();
+  }, [reservation.propertyCode, reservation.reservationCode]);
+
+  // Compute Team Members based on fetched tasks + mock CS
+  const teamMembers = useMemo(() => {
+      const members: Array<{ role: string, user: { name: string, avatarColor?: string, initials: string } | null }> = [];
+
+      // 1. Custom Service (Mocked)
+      members.push({
+          role: 'Custom Service',
+          user: { name: 'Mary Mae Tano', avatarColor: 'bg-purple-500', initials: 'MM' }
+      });
+      members.push({
+          role: 'Custom Service',
+          user: { name: 'Support Team', avatarColor: 'bg-indigo-500', initials: 'ST' }
+      });
+
+      // 2. Cleaner
+      const uniqueCleaners = new Set<string>();
+      tasks.filter(t => t.type === 'cleaning').forEach(t => {
+          if (t.assigneeName && t.assigneeName !== 'Unassigned' && !uniqueCleaners.has(t.assigneeName)) {
+              uniqueCleaners.add(t.assigneeName);
+              members.push({
+                  role: 'Cleaner',
+                  user: { name: t.assigneeName, avatarColor: 'bg-green-500', initials: t.assigneeName.substring(0,2).toUpperCase() }
+              });
+          }
+      });
+
+      // 3. Inspector
+      const uniqueInspectors = new Set<string>();
+      tasks.filter(t => t.type === 'inspection').forEach(t => {
+          if (t.assigneeName && t.assigneeName !== 'Unassigned' && !uniqueInspectors.has(t.assigneeName)) {
+              uniqueInspectors.add(t.assigneeName);
+              members.push({
+                  role: 'Inspector',
+                  user: { name: t.assigneeName, avatarColor: 'bg-red-500', initials: t.assigneeName.substring(0,2).toUpperCase() }
+              });
+          }
+      });
+
+      // 4. Maintenance
+      const uniqueMaint = new Set<string>();
+      tasks.filter(t => t.type === 'maintenance').forEach(t => {
+          if (t.assigneeName && t.assigneeName !== 'Unassigned' && !uniqueMaint.has(t.assigneeName)) {
+              uniqueMaint.add(t.assigneeName);
+              members.push({
+                  role: 'Maintenance',
+                  user: { name: t.assigneeName, avatarColor: 'bg-orange-500', initials: t.assigneeName.substring(0,2).toUpperCase() }
+              });
+          }
+      });
+
+      return members;
+  }, [tasks]);
+
   const getJourneyStatus = () => {
       const start = new Date(checkIn.getFullYear(), checkIn.getMonth(), checkIn.getDate());
       const end = new Date(checkOut.getFullYear(), checkOut.getMonth(), checkOut.getDate());
       const now = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
 
-      if (reservation.status === 'Cancelled') {
-          return { label: 'Cancelled', color: 'text-slate-400 bg-slate-50 border-slate-200' };
-      }
-
-      if (reservation.status === 'Pending') {
-          return { label: 'Inquiry', color: 'text-amber-700 bg-amber-50 border-amber-200' };
-      }
-
-      if (now > end || reservation.status === 'Checked Out') {
-          return { label: 'Past Guest', color: 'text-slate-500 bg-slate-100 border-slate-200' };
-      }
-
-      if ((now >= start && now <= end) || reservation.status === 'Checked In') {
-          return { label: 'Current Stay', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
-      }
-
+      if (reservation.status === 'Cancelled') return { label: 'Cancelled', color: 'text-slate-400 bg-slate-50 border-slate-200' };
+      if (reservation.status === 'Pending') return { label: 'Inquiry', color: 'text-amber-700 bg-amber-50 border-amber-200' };
+      if (now > end || reservation.status === 'Checked Out') return { label: 'Past Guest', color: 'text-slate-500 bg-slate-100 border-slate-200' };
+      if ((now >= start && now <= end) || reservation.status === 'Checked In') return { label: 'Current Stay', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
+      
       if (now < start) {
           const diffTime = Math.abs(start.getTime() - now.getTime());
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           return { label: `Arriving in ${diffDays} days`, color: 'text-blue-700 bg-blue-50 border-blue-200' };
       }
-
       return { label: '', color: '' };
   };
 
   const journey = getJourneyStatus();
-
-  // Helper for Team Slots
-  const TeamSlot = ({ role, user }: { role: string, user: any }) => (
-      <div className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-100 bg-slate-50/50 text-center h-20">
-          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{role}</div>
-          {user ? (
-              <>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[9px] font-bold shadow-sm mb-1 ${user.avatarColor}`}>
-                      {user.initials}
-                  </div>
-                  <div className="text-xs font-medium text-slate-700 truncate w-full px-1">{user.name}</div>
-              </>
-          ) : (
-              <div className="flex flex-col items-center justify-center opacity-50">
-                  <div className="w-6 h-6 rounded-full border border-dashed border-slate-300 mb-1"></div>
-                  <span className="text-[9px] text-slate-400 italic">--</span>
-              </div>
-          )}
-      </div>
-  );
 
   return (
     <div className="flex flex-col h-full bg-white overflow-hidden">
@@ -440,23 +459,49 @@ export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservatio
                  )}
             </div>
 
-            {/* 2. Team Assignments Row */}
-            <div className="flex-shrink-0 mb-6">
-                 <div className="flex items-center gap-2 mb-2">
-                    <Icons.Users />
-                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wide">Assigned Team</h3>
-                 </div>
-                 <div className="grid grid-cols-4 gap-3">
-                     <TeamSlot role="Custom Service" user={MOCK_TEAM.cs} />
-                     <TeamSlot role="Cleaner" user={MOCK_TEAM.cleaner} />
-                     <TeamSlot role="Inspector" user={MOCK_TEAM.inspector} />
-                     <TeamSlot role="Watcher" user={MOCK_TEAM.watcher} />
-                 </div>
-            </div>
-
             {/* 3. Departmental Sections - Collapsible */}
             <div className="flex-1 flex flex-col gap-4 mb-6">
                 
+                {/* Assigned Team Section - UPDATED */}
+                <CollapsibleCard 
+                    title="Assigned Team" 
+                    icon={<Icons.Users />}
+                    summary={
+                        <div className="flex gap-3 text-[10px] font-medium text-slate-500">
+                            {isLoadingTasks ? <span>Loading...</span> : <span>{teamMembers.filter(m => m.user).length} Staff</span>}
+                        </div>
+                    }
+                    defaultOpen={true}
+                    colorTheme="gray"
+                >
+                    <div className="divide-y divide-slate-50">
+                        {teamMembers.map((member, idx) => (
+                            <div key={idx} className="px-4 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-24 text-[10px] font-bold text-slate-400 uppercase tracking-wide flex-shrink-0">
+                                        {member.role}
+                                    </div>
+                                    {member.user ? (
+                                        <div className="flex items-center gap-2.5">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm ${member.user.avatarColor || 'bg-slate-400'}`}>
+                                                {member.user.initials}
+                                            </div>
+                                            <span className="text-sm font-semibold text-slate-700">{member.user.name}</span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2.5 opacity-50">
+                                            <div className="w-8 h-8 rounded-full border border-dashed border-slate-300 flex items-center justify-center">
+                                                <Icons.User className="w-4 h-4 text-slate-300" />
+                                            </div>
+                                            <span className="text-xs italic text-slate-400">Unassigned</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CollapsibleCard>
+
                 {/* Customer Service Section */}
                 <CollapsibleCard 
                     title="Guest Experience" 
@@ -480,13 +525,13 @@ export const ReservationDetail: React.FC<ReservationDetailProps> = ({ reservatio
                     icon={<Icons.ClipboardCheck />}
                     summary={
                          <div className="text-[10px] font-medium text-slate-400">
-                            2/4 Tasks Done
+                            {tasks.filter(t => t.status === 'completed').length}/{tasks.length} Tasks Done
                          </div>
                     }
                     defaultOpen={false}
                     colorTheme="slate"
                 >
-                    <OperationsContent onOpenTask={onOpenTask} />
+                    <OperationsContent tasks={tasks} onOpenTask={onOpenTask} />
                 </CollapsibleCard>
             </div>
 

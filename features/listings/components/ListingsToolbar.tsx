@@ -1,8 +1,26 @@
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Icons } from '../../../constants';
 
-export const ListingsToolbar: React.FC = () => {
+interface ListingsToolbarProps {
+    view?: string;
+    onViewChange?: (view: string) => void;
+}
+
+export const ListingsToolbar: React.FC<ListingsToolbarProps> = ({ view = 'All Active Listings', onViewChange }) => {
+  const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
+  const viewMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+          if (viewMenuRef.current && !viewMenuRef.current.contains(event.target as Node)) {
+              setIsViewMenuOpen(false);
+          }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="flex-shrink-0 border-b border-slate-200 bg-white px-6 py-3 flex flex-col gap-3">
         {/* Top Row */}
@@ -10,12 +28,36 @@ export const ListingsToolbar: React.FC = () => {
              <div className="flex items-center gap-4 flex-1">
                  
                  {/* View Selector */}
-                 <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors group">
-                    <div className="w-4 h-4 opacity-50 group-hover:opacity-100">
-                        <Icons.Dashboard />
-                    </div>
-                    <span className="text-sm font-bold text-slate-800">All Active Listings</span>
-                    <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                 <div className="relative" ref={viewMenuRef}>
+                    <button 
+                        onClick={() => setIsViewMenuOpen(!isViewMenuOpen)}
+                        className={`flex items-center gap-2 cursor-pointer px-2 py-1 rounded-lg transition-colors ${isViewMenuOpen ? 'bg-slate-100' : 'hover:bg-slate-50'}`}
+                    >
+                        <div className="w-4 h-4 text-slate-500">
+                            {view === 'My Watchlist' ? <Icons.Eye className="text-indigo-600" /> : <Icons.Dashboard />}
+                        </div>
+                        <span className={`text-sm font-bold ${view === 'My Watchlist' ? 'text-indigo-600' : 'text-slate-800'}`}>{view}</span>
+                        <svg className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isViewMenuOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    
+                    {isViewMenuOpen && (
+                        <div className="absolute top-full left-0 mt-1 w-48 bg-white shadow-xl rounded-lg border border-slate-100 z-50 animate-in fade-in zoom-in-95 duration-100">
+                            <div className="py-1">
+                                <button 
+                                    onClick={() => { onViewChange?.('All Active Listings'); setIsViewMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                                >
+                                    <Icons.Dashboard className="w-4 h-4 text-slate-400" /> All Active Listings
+                                </button>
+                                <button 
+                                    onClick={() => { onViewChange?.('My Watchlist'); setIsViewMenuOpen(false); }}
+                                    className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2 text-slate-700"
+                                >
+                                    <Icons.StarFilled className="w-4 h-4 text-amber-400" /> My Watchlist
+                                </button>
+                            </div>
+                        </div>
+                    )}
                  </div>
 
                  {/* Search Bar */}
@@ -57,7 +99,7 @@ export const ListingsToolbar: React.FC = () => {
                 </button>
                 <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="Share Link">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                     </svg>
                 </button>
                 <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors" title="More Actions">

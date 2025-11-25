@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Reservation } from '../../../types';
+import { Icons } from '../../../constants';
 
 interface ReservationTableProps {
   reservations: Reservation[];
   onSelectReservation: (reservation: Reservation) => void;
+  isWatchlist?: boolean;
 }
 
 const SOURCE_STYLES = {
@@ -22,7 +24,20 @@ const STATUS_STYLES = {
   'Checked Out': 'bg-gray-100 text-gray-800'
 };
 
-export const ReservationTable: React.FC<ReservationTableProps> = ({ reservations, onSelectReservation }) => {
+const WatchToggle: React.FC = () => {
+    const [isWatched, setIsWatched] = useState(true); // Default to true for watchlist view demo
+    return (
+        <button 
+            onClick={(e) => { e.stopPropagation(); setIsWatched(!isWatched); }}
+            className={`p-1.5 rounded-full transition-colors ${isWatched ? 'text-amber-400 bg-amber-50 hover:bg-amber-100' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-100'}`}
+            title={isWatched ? "Unwatch" : "Watch"}
+        >
+            {isWatched ? <Icons.StarFilled className="w-4 h-4" /> : <Icons.Star className="w-4 h-4" />}
+        </button>
+    );
+};
+
+export const ReservationTable: React.FC<ReservationTableProps> = ({ reservations, onSelectReservation, isWatchlist }) => {
   
   const formatDateRange = (start: string, end: string) => {
     const s = new Date(start);
@@ -48,6 +63,11 @@ export const ReservationTable: React.FC<ReservationTableProps> = ({ reservations
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-10">
                 <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
               </th>
+              {isWatchlist && (
+                  <th scope="col" className="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider w-12">
+                      Watch
+                  </th>
+              )}
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:text-slate-700">
                 Property
               </th>
@@ -84,6 +104,11 @@ export const ReservationTable: React.FC<ReservationTableProps> = ({ reservations
                 <td className="px-6 py-4 whitespace-nowrap w-10" onClick={(e) => e.stopPropagation()}>
                    <input type="checkbox" className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
                 </td>
+                {isWatchlist && (
+                    <td className="px-4 py-4 whitespace-nowrap text-center">
+                        <WatchToggle />
+                    </td>
+                )}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center gap-3">
                      <div className="w-8 h-8 rounded bg-slate-200 border border-slate-300"></div>

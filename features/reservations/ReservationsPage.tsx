@@ -21,6 +21,7 @@ const STATUS_STYLES: Record<string, string> = {
 export const ReservationsPage: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [view, setView] = useState('All Reservations');
   
   // Reservation Flyout
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
@@ -37,6 +38,11 @@ export const ReservationsPage: React.FC = () => {
   const [isLoadingTask, setIsLoadingTask] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'watchlist') {
+        setView('My Watchlist');
+    }
+
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -51,6 +57,20 @@ export const ReservationsPage: React.FC = () => {
     loadData();
   }, []);
 
+  // Listen for URL changes handled by App.tsx
+  useEffect(() => {
+      const handlePopState = () => {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get('view') === 'watchlist') {
+              setView('My Watchlist');
+          } else {
+              setView('All Reservations');
+          }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const handleSelectReservation = (res: Reservation) => {
     setSelectedReservation(res);
     setIsFlyoutOpen(true);
@@ -61,7 +81,7 @@ export const ReservationsPage: React.FC = () => {
       setIsLoadingIntent(true);
       try {
           const intent = await api.fetchIntent(intentId);
-          // Fallback mock if API doesn't return (for prototype stability)
+          // Fallback mock if API doesn't return
           const mockIntent: Intent = intent || {
               id: intentId,
               description: 'Details not found for this intent.',
@@ -144,13 +164,26 @@ export const ReservationsPage: React.FC = () => {
             
             <div className="flex items-center gap-4 flex-1">
                 {/* View Selector */}
-                <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors group">
-                   <div className="grid grid-cols-2 gap-0.5 w-4 h-4 opacity-50 group-hover:opacity-100">
-                      <div className="bg-slate-800 rounded-[1px]"></div><div className="bg-slate-800 rounded-[1px]"></div>
-                      <div className="bg-slate-800 rounded-[1px]"></div><div className="bg-slate-800 rounded-[1px]"></div>
-                   </div>
-                   <span className="text-sm font-bold text-slate-800">All Reservations</span>
-                   <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                <div className="relative group">
+                    <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors">
+                        <div className="w-4 h-4 opacity-50 group-hover:opacity-100">
+                            {view === 'My Watchlist' ? <Icons.Eye className="text-indigo-600" /> : <Icons.Calendar />}
+                        </div>
+                        <span className={`text-sm font-bold ${view === 'My Watchlist' ? 'text-indigo-600' : 'text-slate-800'}`}>{view}</span>
+                        <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                    
+                    {/* Mock Dropdown for Demo */}
+                    <div className="absolute top-full left-0 mt-1 w-48 bg-white shadow-xl rounded-lg border border-slate-100 hidden group-hover:block z-50">
+                        <div className="py-1">
+                            <button onClick={() => setView('All Reservations')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
+                                <Icons.Calendar className="w-4 h-4 text-slate-400" /> All Reservations
+                            </button>
+                            <button onClick={() => setView('My Watchlist')} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 flex items-center gap-2">
+                                <Icons.Eye className="w-4 h-4 text-indigo-600" /> My Watchlist
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Search Bar */}
@@ -233,6 +266,7 @@ export const ReservationsPage: React.FC = () => {
             <ReservationTable 
                 reservations={reservations} 
                 onSelectReservation={handleSelectReservation}
+                isWatchlist={view === 'My Watchlist'}
             />
             <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
                 <span>Showing {reservations.length} reservations</span>

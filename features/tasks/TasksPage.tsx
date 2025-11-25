@@ -12,6 +12,7 @@ import { Icons, TASK_LABELS } from '../../constants';
 export const TasksPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [view, setView] = useState('All Tasks');
   
   // Flyout States
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -19,6 +20,11 @@ export const TasksPage: React.FC = () => {
   const [isCreateFlyoutOpen, setIsCreateFlyoutOpen] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'watchlist') {
+        setView('My Watchlist');
+    }
+
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -31,6 +37,19 @@ export const TasksPage: React.FC = () => {
       }
     };
     loadData();
+  }, []);
+
+  useEffect(() => {
+      const handlePopState = () => {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get('view') === 'watchlist') {
+              setView('My Watchlist');
+          } else {
+              setView('All Tasks');
+          }
+      };
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleTaskClick = (task: Task) => {
@@ -92,10 +111,10 @@ export const TasksPage: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
-        <TasksToolbar onCreate={() => setIsCreateFlyoutOpen(true)} />
+        <TasksToolbar onCreate={() => setIsCreateFlyoutOpen(true)} view={view} onViewChange={setView} />
         
         <div className="flex-1 overflow-auto bg-white custom-scrollbar">
-            <TasksTable tasks={tasks} onTaskClick={handleTaskClick} />
+            <TasksTable tasks={tasks} onTaskClick={handleTaskClick} isWatchlist={view === 'My Watchlist'} />
             
             {/* Pagination Footer */}
             <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between text-sm bg-slate-50/50">

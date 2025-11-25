@@ -25,11 +25,10 @@ const App: React.FC = () => {
     }
   }, []);
 
-  const handleNavigate = (page: string) => {
+  const handleNavigate = (page: string, params?: Record<string, string>) => {
       setActivePage(page);
       
-      // Update URL to reflect page change, preserving other deep link params if we wanted,
-      // but usually switching main module clears detailed deep links.
+      // Update URL to reflect page change
       const url = new URL(window.location.href);
       url.searchParams.set('page', page);
       
@@ -37,8 +36,21 @@ const App: React.FC = () => {
       url.searchParams.delete('taskId');
       url.searchParams.delete('intentId');
       url.searchParams.delete('reservationId');
+
+      // Handle extra params (e.g. view=watchlist)
+      if (params) {
+          Object.entries(params).forEach(([key, value]) => {
+              url.searchParams.set(key, value);
+          });
+      } else {
+          // Clear view param if not explicitly passed
+          url.searchParams.delete('view');
+      }
       
       window.history.pushState({}, '', url.toString());
+      
+      // Dispatch a custom event to notify components of URL change if they listen to it
+      window.dispatchEvent(new Event('popstate'));
   };
 
   const renderContent = () => {
@@ -95,7 +107,7 @@ const App: React.FC = () => {
         
         <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden bg-white dark:bg-slate-900">
             {/* Global Header */}
-            <GlobalHeader title={getPageTitle()} />
+            <GlobalHeader title={getPageTitle()} onNavigate={handleNavigate} />
 
             {/* Main Feature Content */}
             {renderContent()}
