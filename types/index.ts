@@ -1,5 +1,7 @@
 
 
+
+
 // --- UI Domain Types (Used by React Components) ---
 
 export type TaskType = 'cleaning' | 'maintenance' | 'inspection' | 'delivery';
@@ -306,6 +308,43 @@ export interface GuestGuideItem {
   category: 'Welcome' | 'Access' | 'Policy' | 'House Manual' | 'Local';
   content?: string;
   icon?: string;
+}
+
+// --- AI Agent Types ---
+
+export interface Agent {
+  id: string;
+  name: string;
+  isActive: boolean;
+  description: string;
+  optimizedDescription?: string;
+  tools: string[];
+  expectedOutput?: string;
+  agentType: string;
+  modelName?: string;
+  createdAt: string;
+  updatedAt: string;
+  requiredInput?: string[][]; // Array of acceptable alternatives, e.g. [["listing_id", "listing.nickname"]]
+}
+
+export interface AgentLog {
+    id: string;
+    agentId?: string;
+    toolName: string;
+    status: 'success' | 'failed';
+    durationMs: number;
+    tokenUsage: number;
+    promptTokens: number;
+    completionTokens: number;
+    modelName: string;
+    llmCallCount: number;
+    createdAt: string;
+    inputContext?: Record<string, any>;
+    errorMessage?: string;
+    errorTraceback?: string;
+    finalPrompt?: string;
+    userId?: string;
+    userName?: string; 
 }
 
 // --- Dashboard & Stats Types (OpenAPI) ---

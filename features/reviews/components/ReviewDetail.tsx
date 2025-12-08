@@ -139,6 +139,22 @@ const CommentItem: React.FC<{ comment: Comment }> = ({ comment }) => {
     );
 };
 
+// Helper for Team Slots
+const TeamSlot = ({ staff }: { staff: any }) => (
+    <div className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-100 bg-slate-50 text-center h-24 relative overflow-hidden group hover:border-indigo-200 transition-colors">
+        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 z-10">{staff.role}</div>
+        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm mb-1 z-10 ${staff.avatarColor}`}>
+            {staff.initials}
+        </div>
+        <div className="text-xs font-medium text-slate-700 truncate w-full px-1 z-10">{staff.name}</div>
+        
+        <div className="absolute bottom-1 right-1 bg-white/80 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-slate-200 flex items-center gap-0.5 shadow-sm z-10">
+            <svg className="w-2.5 h-2.5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+            <span className="text-[9px] font-bold text-slate-700">{staff.rating.toFixed(1)}</span>
+        </div>
+    </div>
+);
+
 export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialReview }) => {
   // Use local state to simulate updates (like posting a reply)
   const [review, setReview] = useState<Review>(initialReview);
@@ -310,22 +326,6 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
           setPrevReviewsLoading(false);
       }, 600);
   };
-
-  // Helper for Team Slots
-  const TeamSlot = ({ staff }: { staff: any }) => (
-      <div className="flex flex-col items-center justify-center p-2 rounded-lg border border-slate-100 bg-slate-50 text-center h-24 relative overflow-hidden group hover:border-indigo-200 transition-colors">
-          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 z-10">{staff.role}</div>
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-sm mb-1 z-10 ${staff.avatarColor}`}>
-              {staff.initials}
-          </div>
-          <div className="text-xs font-medium text-slate-700 truncate w-full px-1 z-10">{staff.name}</div>
-          
-          <div className="absolute bottom-1 right-1 bg-white/80 backdrop-blur-sm rounded-full px-1.5 py-0.5 border border-slate-200 flex items-center gap-0.5 shadow-sm z-10">
-              <svg className="w-2.5 h-2.5 text-amber-400 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-              <span className="text-[9px] font-bold text-slate-700">{staff.rating.toFixed(1)}</span>
-          </div>
-      </div>
-  );
 
   const hasReply = review.status === 'replied' || !!(review as any).reviewReplyText;
   const existingReplyText = (review as any).reviewReplyText || "Thank you for your feedback! We are glad you enjoyed your stay.";
@@ -703,9 +703,9 @@ export const ReviewDetail: React.FC<ReviewDetailProps> = ({ review: initialRevie
 
         {/* Fixed Comment Input Footer */}
         <div className="flex-shrink-0 p-4 border-t border-slate-200 bg-white z-10">
-             <div className="border border-slate-200 rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all bg-white">
+             <div className="border border-slate-200 rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all bg-white flex gap-3 items-end">
                 <textarea 
-                    className="w-full text-sm text-slate-700 placeholder:text-slate-400 outline-none resize-none bg-transparent"
+                    className="flex-1 text-sm text-slate-700 placeholder:text-slate-400 outline-none resize-none bg-transparent py-1"
                     placeholder="Write a comment... (Type @ to mention users)"
                     rows={1}
                     style={{ minHeight: '24px', maxHeight: '100px' }}

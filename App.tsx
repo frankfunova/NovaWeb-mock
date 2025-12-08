@@ -12,17 +12,26 @@ import { ResourceMapPage } from './features/resource-map/ResourceMapPage';
 import { IntentsPage } from './features/intents/IntentsPage';
 import { ListingsPage } from './features/listings/ListingsPage';
 import { GuestGuidePage } from './features/guest-guide/GuestGuidePage';
+import { AiAgentsPage } from './features/ai-agents/AiAgentsPage';
+import { AiAgentLogsPage } from './features/ai-agent-logs/AiAgentLogsPage';
 
 const App: React.FC = () => {
   const [activePage, setActivePage] = useState<string>('schedule');
 
   // Initialize page from URL on load and sync state updates
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const pageFromUrl = params.get('page');
-    if (pageFromUrl) {
-        setActivePage(pageFromUrl);
-    }
+    const handleUrlChange = () => {
+        const params = new URLSearchParams(window.location.search);
+        const pageFromUrl = params.get('page');
+        if (pageFromUrl) {
+            setActivePage(pageFromUrl);
+        }
+    };
+    
+    handleUrlChange(); // Initial check
+    window.addEventListener('popstate', handleUrlChange); // Listen for history changes
+    
+    return () => window.removeEventListener('popstate', handleUrlChange);
   }, []);
 
   const handleNavigate = (page: string, params?: Record<string, string>) => {
@@ -36,6 +45,7 @@ const App: React.FC = () => {
       url.searchParams.delete('taskId');
       url.searchParams.delete('intentId');
       url.searchParams.delete('reservationId');
+      url.searchParams.delete('agentId'); // Clear agent filter unless explicitly set
 
       // Handle extra params (e.g. view=watchlist)
       if (params) {
@@ -75,6 +85,10 @@ const App: React.FC = () => {
         return <ListingsPage />;
       case 'guest-guide':
         return <GuestGuidePage />;
+      case 'ai-agents':
+        return <AiAgentsPage onNavigate={handleNavigate} />;
+      case 'ai-agent-logs':
+        return <AiAgentLogsPage />;
       default:
         return (
           <div className="flex items-center justify-center h-full text-slate-400">
@@ -96,6 +110,8 @@ const App: React.FC = () => {
           case 'intents': return 'Intents';
           case 'listings': return 'Listings';
           case 'guest-guide': return 'Guest Guide';
+          case 'ai-agents': return 'AI Agents';
+          case 'ai-agent-logs': return 'Agent Execution Logs';
           default: return activePage.replace('-', ' ');
       }
   };

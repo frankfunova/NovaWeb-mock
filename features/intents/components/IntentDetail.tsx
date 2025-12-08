@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Intent, IntentTimelineEvent, IntentAttachment } from '../../../types';
 import { Icons } from '../../../constants';
@@ -348,9 +347,9 @@ const PrioritySelector: React.FC<{ priority: string; onChange: (val: string) => 
         <div className="relative" ref={containerRef}>
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border capitalize flex items-center gap-1 hover:opacity-80 transition-opacity ${colors[priority.toLowerCase()] || 'bg-slate-100'}`}
+                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border capitalize flex items-center gap-1 hover:opacity-80 transition-opacity ${colors[priority?.toLowerCase()] || 'bg-slate-100'}`}
             >
-                {priority}
+                {priority || 'low'}
                 <div className="w-3 h-3 opacity-50"><Icons.ChevronDown /></div>
             </button>
 
@@ -376,12 +375,11 @@ const StatusSelector: React.FC<{ status: string; onChange: (val: string) => void
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const colors: Record<string, string> = {
-        new: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-        pending: 'bg-amber-100 text-amber-800 border-amber-200',
-        in_progress: 'bg-blue-100 text-blue-800 border-blue-200',
-        resolved: 'bg-green-100 text-green-800 border-green-200',
-        closed: 'bg-slate-100 text-slate-600 border-slate-200'
+    const getButtonStyles = (s: string) => {
+        if (s === 'completed') return 'bg-emerald-600 text-white border-transparent hover:bg-emerald-700';
+        if (s === 'in-progress') return 'bg-amber-500 text-white border-transparent hover:bg-amber-600';
+        if (s === 'delayed') return 'bg-red-500 text-white border-transparent hover:bg-red-600';
+        return 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
     };
 
     useEffect(() => {
@@ -394,27 +392,37 @@ const StatusSelector: React.FC<{ status: string; onChange: (val: string) => void
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const formatStatus = (s: string) => s === 'new' ? 'New' : s.replace('_', ' ');
+    const formatStatus = (s: string) => s.replace('-', ' ');
 
     return (
         <div className="relative" ref={containerRef}>
-            <button 
-                onClick={() => setIsOpen(!isOpen)}
-                className={`px-2.5 py-0.5 rounded-full text-xs font-bold border capitalize flex items-center gap-1 hover:opacity-80 transition-opacity ${colors[status.toLowerCase()] || 'bg-slate-100'}`}
-            >
-                {formatStatus(status)}
-                <div className="w-3 h-3 opacity-50"><Icons.ChevronDown /></div>
-            </button>
+            <div className="flex">
+                <button 
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`px-4 py-1.5 rounded-l-lg text-sm font-bold border flex items-center gap-2 transition-all shadow-sm ${getButtonStyles(status)}`}
+                >
+                    {status === 'completed' && <Icons.Check className="w-4 h-4" />}
+                    {formatStatus(status || 'new')}
+                </button>
+                <button 
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`px-2 py-1.5 rounded-r-lg border-l-0 border text-sm font-bold transition-all shadow-sm flex items-center justify-center ${getButtonStyles(status)} opacity-90 hover:opacity-100`}
+                >
+                    <div className="w-4 h-4"><Icons.ChevronDown /></div>
+                </button>
+            </div>
 
             {isOpen && (
-                <div className="absolute top-full left-0 mt-1 w-44 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 p-1">
+                <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100 p-1">
                     {STATUSES.map(s => (
                         <div 
                             key={s}
                             onClick={() => { onChange(s); setIsOpen(false); }}
-                            className="px-2 py-1.5 cursor-pointer hover:bg-slate-50 rounded-md flex items-center justify-between group"
+                            className="px-3 py-2 cursor-pointer hover:bg-slate-50 rounded-md flex items-center justify-between group"
                         >
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize ${colors[s.toLowerCase()] || 'bg-slate-100'}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize ${s === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                                 {formatStatus(s)}
                             </span>
                             {s === status && <div className="w-3 h-3 text-slate-600"><Icons.Check /></div>}
@@ -426,16 +434,12 @@ const StatusSelector: React.FC<{ status: string; onChange: (val: string) => void
     );
 };
 
-const ListingStatusBadge: React.FC = () => {
-    // Mock status
-    const statuses = ['Dirty', 'Occupied', 'Cleaned', 'Ready to Check in'];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    
+export const ListingStatusBadge: React.FC<{status?: string}> = ({ status = 'Occupied' }) => {
     let colorClass = 'bg-slate-100 text-slate-600 border-slate-200';
     if (status === 'Dirty') colorClass = 'bg-rose-50 text-rose-700 border-rose-200';
     if (status === 'Occupied') colorClass = 'bg-amber-50 text-amber-700 border-amber-200';
     if (status === 'Cleaned') colorClass = 'bg-sky-50 text-sky-700 border-sky-200';
-    if (status === 'Ready to Check in') colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (status === 'Ready to Check') colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
 
     return (
         <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border tracking-wider ${colorClass}`}>
@@ -489,7 +493,7 @@ export const IntentDetail: React.FC<IntentDetailProps> = ({ intent: initialInten
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = e.target.files;
       if (!files || files.length === 0) return;
-      const newAttachments: IntentAttachment[] = Array.from(files).map((file, index) => {
+      const newAttachments: IntentAttachment[] = Array.from(files).map((file: File, index) => {
           const isImage = file.type.startsWith('image/');
           const type = isImage ? 'image' : 'document';
           return {

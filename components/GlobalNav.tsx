@@ -1,4 +1,8 @@
 
+
+
+
+
 import React, { useState } from 'react';
 import { Icons } from '../constants';
 
@@ -50,6 +54,8 @@ const SECTIONS: MenuSection[] = [
     title: 'SYSTEM',
     items: [
       { label: 'Users', icon: Icons.Users, id: 'users' },
+      { label: 'AI Agents', icon: Icons.Bot, id: 'ai-agents' },
+      { label: 'Agent Logs', icon: Icons.ClipboardCheck, id: 'ai-agent-logs' },
       { label: 'Roles', icon: Icons.Settings, id: 'roles' },
       { label: 'Owners', icon: Icons.User, id: 'owners' },
       { label: 'Guests', icon: Icons.User, id: 'guests' },

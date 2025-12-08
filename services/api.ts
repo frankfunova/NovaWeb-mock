@@ -2,11 +2,15 @@
 
 
 
+
+
+
+
 import { 
   Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
   TaskType, TaskStatus, ReservationSource, AttendanceStatus,
-  InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem
+  InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem, Agent, AgentLog
 } from '../types';
 import { 
   MOCK_STAFF, 
@@ -22,7 +26,9 @@ import {
   MOCK_MAP_STAFF,
   MOCK_INTENTS,
   MOCK_LISTINGS,
-  MOCK_GUEST_GUIDE_ITEMS
+  MOCK_GUEST_GUIDE_ITEMS,
+  MOCK_AGENTS,
+  MOCK_AGENT_LOGS
 } from './mockData';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -403,5 +409,31 @@ export const api = {
   fetchGuestGuide: async (): Promise<GuestGuideItem[]> => {
       await delay(400);
       return [...MOCK_GUEST_GUIDE_ITEMS];
+  },
+
+  // --- AI Agents ---
+  fetchAgents: async (): Promise<Agent[]> => {
+      await delay(400);
+      return [...MOCK_AGENTS];
+  },
+
+  fetchAgent: async (id: string): Promise<Agent | undefined> => {
+      await delay(300);
+      return MOCK_AGENTS.find(a => a.id === id);
+  },
+
+  // --- AI Agent Logs ---
+  fetchAgentLogs: async (filters?: { agentId?: string }): Promise<AgentLog[]> => {
+      await delay(400);
+      let logs = [...MOCK_AGENT_LOGS];
+      if (filters?.agentId) {
+          logs = logs.filter(log => log.agentId === filters.agentId);
+      }
+      return logs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  },
+
+  fetchAgentLog: async (id: string): Promise<AgentLog | undefined> => {
+      await delay(300);
+      return MOCK_AGENT_LOGS.find(l => l.id === id);
   }
 };

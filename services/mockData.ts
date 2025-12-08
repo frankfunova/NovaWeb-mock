@@ -2,7 +2,11 @@
 
 
 
-import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem } from '../types';
+
+
+
+
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem, Agent, AgentLog } from '../types';
 
 // Helper to create today's date with specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
@@ -13,6 +17,179 @@ const getTodayAt = (hour: number, minute: number = 0) => {
 
 // Snowflake ID Generator (Mock)
 const genId = (suffix: string) => `7333${suffix.padStart(14, '0')}`;
+
+// --- MOCK AGENTS ---
+export const MOCK_AGENTS: Agent[] = [
+    {
+        id: '1',
+        name: 'Reservation Assistant',
+        isActive: true,
+        description: 'Handles guest inquiries about availability and booking details. Automates responses for common questions.',
+        optimizedDescription: 'You are an expert reservation assistant for a vacation rental company. Your goal is to help guests find the perfect property and answer their questions accurately. Be polite, professional, and concise. Use the available tools to check calendar availability and pricing.',
+        tools: ['calendar_check', 'price_calculator', 'property_search'],
+        agentType: 'Customer Service',
+        modelName: 'gpt-4o',
+        createdAt: '2023-10-15T08:30:00Z',
+        updatedAt: '2023-11-20T14:15:00Z',
+        requiredInput: [['guest_query'], ['check_in_date', 'check_out_date']],
+        expectedOutput: 'A polite response answering the guest inquiry or providing booking options.'
+    },
+    {
+        id: '2',
+        name: 'Maintenance Dispatcher',
+        isActive: true,
+        description: 'Analyzes maintenance requests and assigns them to the appropriate staff member or vendor.',
+        optimizedDescription: 'Act as a maintenance dispatcher. Analyze the incoming maintenance request to determine the urgency and category (Plumbing, HVAC, Electrical, etc.). Based on the location and skill required, recommend the best available staff member from the list. Create a draft work order.',
+        tools: ['staff_availability', 'create_work_order', 'classify_issue'],
+        agentType: 'Operations',
+        modelName: 'gpt-4-turbo',
+        createdAt: '2023-09-01T10:00:00Z',
+        updatedAt: '2023-12-05T09:45:00Z',
+        requiredInput: [['issue_description'], ['property_id']],
+        expectedOutput: 'JSON object containing issue category, priority, and assigned staff ID.'
+    },
+    {
+        id: '3',
+        name: 'Review Responder',
+        isActive: false,
+        description: 'Drafts responses to guest reviews based on sentiment and specific feedback points.',
+        optimizedDescription: 'You are a PR specialist for a hospitality brand. Draft a warm and professional response to the following guest review. If the review is positive, thank them specifically for what they liked. If negative, apologize for the specific issues mentioned and state that the team is looking into it. Do not admit liability.',
+        tools: ['sentiment_analysis', 'draft_reply'],
+        agentType: 'Marketing',
+        modelName: 'gpt-3.5-turbo',
+        createdAt: '2023-11-10T11:20:00Z',
+        updatedAt: '2023-11-10T11:20:00Z',
+        requiredInput: [['review_text', 'rating']],
+        expectedOutput: 'A draft response string.'
+    },
+    {
+        id: '4',
+        name: 'Pricing Optimizer',
+        isActive: true,
+        description: 'Adjusts nightly rates based on occupancy, demand, and local events.',
+        tools: ['market_data_fetch', 'update_rates'],
+        agentType: 'Revenue Management',
+        createdAt: '2023-08-20T15:00:00Z',
+        updatedAt: '2024-01-10T08:00:00Z',
+        requiredInput: [['date_range'], ['listing_id']],
+    },
+    {
+        id: '5',
+        name: 'Housekeeping Scheduler',
+        isActive: true,
+        description: 'Auto-schedules cleaning tasks based on checkout times and staff availability.',
+        tools: ['schedule_task', 'get_checkouts'],
+        agentType: 'Operations',
+        modelName: 'gpt-4o',
+        createdAt: '2023-12-01T09:00:00Z',
+        updatedAt: '2024-01-15T16:30:00Z',
+        requiredInput: [['date']],
+    }
+];
+
+// --- MOCK AGENT LOGS ---
+export const MOCK_AGENT_LOGS: AgentLog[] = [
+    {
+        id: genId('701'),
+        agentId: '1',
+        toolName: 'Reservation Assistant',
+        status: 'success',
+        durationMs: 2450,
+        tokenUsage: 450,
+        promptTokens: 300,
+        completionTokens: 150,
+        modelName: 'gpt-4o',
+        llmCallCount: 1,
+        createdAt: '2025-11-20T14:30:00Z',
+        inputContext: {
+            guest_query: "Is the pool heated?",
+            property_id: "L-001"
+        },
+        finalPrompt: "Context: Property L-001 has a heated pool. Guest asks: Is the pool heated? Answer politely.",
+        userId: genId('1001'),
+        userName: 'Guest (System)'
+    },
+    {
+        id: genId('702'),
+        agentId: '2',
+        toolName: 'Maintenance Dispatcher',
+        status: 'success',
+        durationMs: 3100,
+        tokenUsage: 620,
+        promptTokens: 500,
+        completionTokens: 120,
+        modelName: 'gpt-4-turbo',
+        llmCallCount: 2,
+        createdAt: '2025-11-20T10:15:00Z',
+        inputContext: {
+            issue_description: "AC is leaking water in the living room",
+            property_id: "L-003"
+        },
+        finalPrompt: "Classify issue: AC leak. Urgency: High. Recommend staff: Frank Fu (HVAC specialist nearby).",
+        userId: genId('104'),
+        userName: 'Test OP'
+    },
+    {
+        id: genId('703'),
+        agentId: '1',
+        toolName: 'Reservation Assistant',
+        status: 'failed',
+        durationMs: 5000,
+        tokenUsage: 100,
+        promptTokens: 100,
+        completionTokens: 0,
+        modelName: 'gpt-4o',
+        llmCallCount: 1,
+        createdAt: '2025-11-19T18:20:00Z',
+        inputContext: {
+            guest_query: "What is the wifi password?",
+            property_id: "UNKNOWN"
+        },
+        errorMessage: "Property ID not found in database",
+        errorTraceback: "Error: Property ID not found\n    at Tool.execute (tools/property_search.ts:45)\n    at Agent.run (core/agent.ts:120)",
+        userId: genId('1001'),
+        userName: 'Guest (System)'
+    },
+    {
+        id: genId('704'),
+        agentId: '3',
+        toolName: 'Review Responder',
+        status: 'success',
+        durationMs: 1800,
+        tokenUsage: 350,
+        promptTokens: 250,
+        completionTokens: 100,
+        modelName: 'gpt-3.5-turbo',
+        llmCallCount: 1,
+        createdAt: '2025-11-19T09:00:00Z',
+        inputContext: {
+            review_text: "Great stay, but noisy neighbors.",
+            rating: 4
+        },
+        finalPrompt: "Draft reply to 4-star review mentioning noise. Apologize for noise, thank for stay.",
+        userId: genId('105'),
+        userName: 'John Smith'
+    },
+    {
+        id: genId('705'),
+        agentId: '2',
+        toolName: 'Maintenance Dispatcher',
+        status: 'success',
+        durationMs: 2900,
+        tokenUsage: 580,
+        promptTokens: 400,
+        completionTokens: 180,
+        modelName: 'gpt-4-turbo',
+        llmCallCount: 1,
+        createdAt: '2025-11-18T16:45:00Z',
+        inputContext: {
+            issue_description: "Pool light is flickering",
+            property_id: "L-005"
+        },
+        userId: genId('104'),
+        userName: 'Test OP'
+    }
+];
 
 // --- MOCK LISTINGS ---
 export const MOCK_LISTINGS: Listing[] = [
