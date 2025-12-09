@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AgentsToolbar } from './components/AgentsToolbar';
 import { AgentsTable } from './components/AgentsTable';
