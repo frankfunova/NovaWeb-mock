@@ -6,7 +6,10 @@
 
 
 
-import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem, Agent, AgentLog } from '../types';
+
+
+
+import { ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, Staff, ApiUserDashboardResponse, AttendanceRecord, Review, InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem, Agent, AgentLog, DynamicVariablesResponse, McpToolsResponse } from '../types';
 
 // Helper to create today's date with specific hour
 const getTodayAt = (hour: number, minute: number = 0) => {
@@ -17,6 +20,297 @@ const getTodayAt = (hour: number, minute: number = 0) => {
 
 // Snowflake ID Generator (Mock)
 const genId = (suffix: string) => `7333${suffix.padStart(14, '0')}`;
+
+// --- MOCK DYNAMIC VARIABLES ---
+export const MOCK_DYNAMIC_VARIABLES: DynamicVariablesResponse = {
+  "entities": [
+    {
+      "entity_type": "listing",
+      "input_key": "listing_id",
+      "fields": [
+        {
+          "code": "title",
+          "description": "Property title/name",
+          "template": "{{listing.title}}"
+        },
+        {
+          "code": "nickname",
+          "description": "Short property alias",
+          "template": "{{listing.nickname}}"
+        },
+        {
+          "code": "full_address",
+          "description": "Complete address",
+          "template": "{{listing.full_address}}"
+        },
+        {
+          "code": "city",
+          "description": "City name",
+          "template": "{{listing.city}}"
+        },
+        {
+          "code": "state",
+          "description": "State/Province",
+          "template": "{{listing.state}}"
+        },
+        {
+          "code": "country",
+          "description": "Country",
+          "template": "{{listing.country}}"
+        },
+        {
+          "code": "bedrooms",
+          "description": "Number of bedrooms",
+          "template": "{{listing.bedrooms}}"
+        },
+        {
+          "code": "bathrooms",
+          "description": "Number of bathrooms",
+          "template": "{{listing.bathrooms}}"
+        },
+        {
+          "code": "accommodates",
+          "description": "Maximum guest capacity",
+          "template": "{{listing.accommodates}}"
+        },
+        {
+          "code": "property_type_code",
+          "description": "Property type code",
+          "template": "{{listing.property_type_code}}"
+        },
+        {
+          "code": "timezone",
+          "description": "Property timezone",
+          "template": "{{listing.timezone}}"
+        }
+      ]
+    },
+    {
+      "entity_type": "guest",
+      "input_key": "guest_id",
+      "fields": [
+        {
+          "code": "full_name",
+          "description": "Guest full name",
+          "template": "{{guest.full_name}}"
+        },
+        {
+          "code": "first_name",
+          "description": "First name",
+          "template": "{{guest.first_name}}"
+        },
+        {
+          "code": "last_name",
+          "description": "Last name",
+          "template": "{{guest.last_name}}"
+        },
+        {
+          "code": "email",
+          "description": "Email address",
+          "template": "{{guest.email}}"
+        },
+        {
+          "code": "phone",
+          "description": "Phone number",
+          "template": "{{guest.phone}}"
+        },
+        {
+          "code": "preferred_language",
+          "description": "Preferred language",
+          "template": "{{guest.preferred_language}}"
+        }
+      ]
+    },
+    {
+      "entity_type": "reservation",
+      "input_key": "reservation_id",
+      "fields": [
+        {
+          "code": "guest_full_name",
+          "description": "Guest name on reservation",
+          "template": "{{reservation.guest_full_name}}"
+        },
+        {
+          "code": "reservation_status_code",
+          "description": "Reservation status",
+          "template": "{{reservation.reservation_status_code}}"
+        },
+        {
+          "code": "ota_confirmation_code",
+          "description": "OTA booking reference",
+          "template": "{{reservation.ota_confirmation_code}}"
+        },
+        {
+          "code": "check_in",
+          "description": "Check-in date",
+          "template": "{{reservation.check_in}}"
+        },
+        {
+          "code": "check_out",
+          "description": "Check-out date",
+          "template": "{{reservation.check_out}}"
+        },
+        {
+          "code": "nights_count",
+          "description": "Number of nights",
+          "template": "{{reservation.nights_count}}"
+        },
+        {
+          "code": "guestscount",
+          "description": "Number of guests",
+          "template": "{{reservation.guestscount}}"
+        }
+      ]
+    },
+    {
+      "entity_type": "task",
+      "input_key": "task_id",
+      "fields": [
+        {
+          "code": "title",
+          "description": "Task title",
+          "template": "{{task.title}}"
+        },
+        {
+          "code": "task_type_code",
+          "description": "Task type",
+          "template": "{{task.task_type_code}}"
+        },
+        {
+          "code": "status",
+          "description": "Task status",
+          "template": "{{task.status}}"
+        },
+        {
+          "code": "priority",
+          "description": "Priority level",
+          "template": "{{task.priority}}"
+        },
+        {
+          "code": "planned_start_at",
+          "description": "Planned start time",
+          "template": "{{task.planned_start_at}}"
+        },
+        {
+          "code": "due_at",
+          "description": "Due date/time",
+          "template": "{{task.due_at}}"
+        },
+        {
+          "code": "planned_duration_sec",
+          "description": "Planned duration in seconds",
+          "template": "{{task.planned_duration_sec}}"
+        },
+        {
+          "code": "actual_duration_sec",
+          "description": "Actual duration in seconds",
+          "template": "{{task.actual_duration_sec}}"
+        }
+      ]
+    }
+  ]
+};
+
+// --- MOCK MCP TOOLS ---
+export const MOCK_MCP_TOOLS: McpToolsResponse = {
+  "tools": [
+    {
+      "name": "get_access_token_claims",
+      "description": "Get the authenticated user's access token claims.",
+      "inputSchema": null
+    },
+    {
+      "name": "get_users",
+      "description": "Search users (workers) with optional filtering. Supports MULTIPLE filter conditions.\n\nIMPORTANT - Understanding Users:\n- Users in this system are WORKERS (cleaners, maintenance staff, property managers, etc.)\n- The 'position_type_code' field indicates the worker's role/skills\n- This field is CRITICAL for task assignment - it helps match tasks to workers with appropriate skills\n- Examples: \"cleaner\", \"maintenance\", \"inspector\", \"manager\", etc.\n- Always consider position_type_code when assigning tasks to ensure the worker has the right skills\n\nKey fields: full_name, email, position_type_code, is_active, mobile, whatsapp_number\n\nArgs:\n    params: SearchParams with page, page_size, filters, order_by, columns.\n            filters supports multiple conditions: {\"field1\": {...}, \"field2\": {...}}",
+      "inputSchema": null
+    },
+    {
+      "name": "get_user",
+      "description": "Get a specific user by ID.\n\nArgs:\n    user_id: User ID (snowflake ID)",
+      "inputSchema": null
+    },
+    {
+      "name": "get_listings",
+      "description": "Search listings (properties) with optional filtering. Supports MULTIPLE filter conditions.\n\nKey fields: nickname, title, full_address, bedrooms, is_active, group_id\n\nArgs:\n    params: SearchParams with page, page_size, filters, order_by, columns.\n            filters supports multiple conditions: {\"field1\": {...}, \"field2\": {...}}",
+      "inputSchema": null
+    },
+    {
+      "name": "get_listing",
+      "description": "Get a specific listing by ID.\n\nArgs:\n    listing_id: Listing ID (snowflake ID)",
+      "inputSchema": null
+    },
+    {
+      "name": "get_reviews",
+      "description": "Search reviews with optional filtering. Supports MULTIPLE filter conditions.\n\nKey fields: ota_type_code, public_review, private_review, overall_rating\n\nArgs:\n    params: SearchParams with page, page_size, filters, order_by, columns.\n            filters supports multiple conditions: {\"field1\": {...}, \"field2\": {...}}",
+      "inputSchema": null
+    },
+    {
+      "name": "get_review",
+      "description": "Get a specific review by ID.\n\nArgs:\n    review_id: Review ID (snowflake ID)",
+      "inputSchema": null
+    },
+    {
+        "name": "calendar_check",
+        "description": "Check availability of a property for a given date range.",
+        "inputSchema": null
+    },
+    {
+        "name": "price_calculator",
+        "description": "Calculate price for a stay based on dates and property.",
+        "inputSchema": null
+    },
+    {
+        "name": "property_search",
+        "description": "Search for properties based on criteria.",
+        "inputSchema": null
+    },
+    {
+        "name": "staff_availability",
+        "description": "Check staff availability.",
+        "inputSchema": null
+    },
+    {
+        "name": "create_work_order",
+        "description": "Create a new work order task.",
+        "inputSchema": null
+    },
+    {
+        "name": "classify_issue",
+        "description": "Classify a maintenance issue.",
+        "inputSchema": null
+    },
+    {
+        "name": "sentiment_analysis",
+        "description": "Analyze sentiment of text.",
+        "inputSchema": null
+    },
+    {
+        "name": "draft_reply",
+        "description": "Draft a reply to a review or message.",
+        "inputSchema": null
+    },
+    {
+        "name": "market_data_fetch",
+        "description": "Fetch market data for pricing.",
+        "inputSchema": null
+    },
+    {
+        "name": "update_rates",
+        "description": "Update nightly rates for a property.",
+        "inputSchema": null
+    },
+    {
+        "name": "schedule_task",
+        "description": "Schedule a task for a staff member.",
+        "inputSchema": null
+    },
+    {
+        "name": "get_checkouts",
+        "description": "Get checkout events for a date.",
+        "inputSchema": null
+    }
+  ]
+};
 
 // --- MOCK AGENTS ---
 export const MOCK_AGENTS: Agent[] = [

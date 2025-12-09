@@ -11,11 +11,25 @@ interface AiAgentsPageProps {
   onNavigate: (page: string, params?: Record<string, string>) => void;
 }
 
+const DEFAULT_AGENT: Agent = {
+  id: '',
+  name: '',
+  isActive: true,
+  description: '',
+  tools: [],
+  agentType: 'Structured',
+  modelName: 'gemini-2.5-flash',
+  createdAt: '',
+  updatedAt: '',
+  requiredInput: []
+};
+
 export const AiAgentsPage: React.FC<AiAgentsPageProps> = ({ onNavigate }) => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [isFlyoutOpen, setIsFlyoutOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,7 +52,19 @@ export const AiAgentsPage: React.FC<AiAgentsPageProps> = ({ onNavigate }) => {
   };
 
   const handleCreate = () => {
-      alert("Create Agent wizard would open here.");
+      setIsCreateOpen(true);
+  };
+
+  const handleSaveNewAgent = (newAgent: Agent) => {
+      // Mock save logic - normally this would call API
+      const agentWithId = { 
+          ...newAgent, 
+          id: `new-${Date.now()}`, 
+          createdAt: new Date().toISOString(), 
+          updatedAt: new Date().toISOString() 
+      };
+      setAgents([agentWithId, ...agents]);
+      setIsCreateOpen(false);
   };
 
   const handleViewLogs = () => {
@@ -72,6 +98,7 @@ export const AiAgentsPage: React.FC<AiAgentsPageProps> = ({ onNavigate }) => {
             </div>
         </div>
 
+        {/* View/Edit Agent Flyout */}
         <Flyout
             isOpen={isFlyoutOpen}
             onClose={() => setIsFlyoutOpen(false)}
@@ -81,6 +108,26 @@ export const AiAgentsPage: React.FC<AiAgentsPageProps> = ({ onNavigate }) => {
             noPadding={true}
         >
             {selectedAgent && <AgentDetail agent={selectedAgent} />}
+        </Flyout>
+
+        {/* Create Agent Flyout */}
+        <Flyout
+            isOpen={isCreateOpen}
+            onClose={() => setIsCreateOpen(false)}
+            title="New Agent"
+            side="right"
+            size="lg"
+            noPadding={true}
+            hideDefaultActions={true}
+        >
+            {isCreateOpen && (
+                <AgentDetail 
+                    agent={DEFAULT_AGENT} 
+                    isNew={true} 
+                    onSave={handleSaveNewAgent} 
+                    onCancel={() => setIsCreateOpen(false)} 
+                />
+            )}
         </Flyout>
     </div>
   );

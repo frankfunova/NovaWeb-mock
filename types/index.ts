@@ -1,7 +1,4 @@
 
-
-
-
 // --- UI Domain Types (Used by React Components) ---
 
 export type TaskType = 'cleaning' | 'maintenance' | 'inspection' | 'delivery';
@@ -325,6 +322,8 @@ export interface Agent {
   createdAt: string;
   updatedAt: string;
   requiredInput?: string[][]; // Array of acceptable alternatives, e.g. [["listing_id", "listing.nickname"]]
+  extraInfo?: Record<string, any>;
+  outputSchema?: Record<string, any>;
 }
 
 export interface AgentLog {
@@ -345,6 +344,32 @@ export interface AgentLog {
     finalPrompt?: string;
     userId?: string;
     userName?: string; 
+}
+
+export interface DynamicVariableField {
+  code: string;
+  description: string;
+  template: string;
+}
+
+export interface DynamicVariableEntity {
+  entity_type: string;
+  input_key: string;
+  fields: DynamicVariableField[];
+}
+
+export interface DynamicVariablesResponse {
+  entities: DynamicVariableEntity[];
+}
+
+export interface McpTool {
+  name: string;
+  description: string;
+  inputSchema: any;
+}
+
+export interface McpToolsResponse {
+  tools: McpTool[];
 }
 
 // --- Dashboard & Stats Types (OpenAPI) ---

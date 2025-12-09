@@ -1,16 +1,10 @@
 
-
-
-
-
-
-
-
+import { GoogleGenAI } from "@google/genai";
 import { 
   Task, Staff, Reservation, AttendanceRecord, Review, ReviewInsight,
   ApiTaskOutput, ApiReservationOutput, ApiAttendanceOutput, ApiUserDashboardResponse,
   TaskType, TaskStatus, ReservationSource, AttendanceStatus,
-  InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem, Agent, AgentLog
+  InboxThread, InboxMessage, MapProperty, MapStaff, Intent, Listing, GuestGuideItem, Agent, AgentLog, DynamicVariablesResponse, McpTool
 } from '../types';
 import { 
   MOCK_STAFF, 
@@ -28,7 +22,9 @@ import {
   MOCK_LISTINGS,
   MOCK_GUEST_GUIDE_ITEMS,
   MOCK_AGENTS,
-  MOCK_AGENT_LOGS
+  MOCK_AGENT_LOGS,
+  MOCK_DYNAMIC_VARIABLES,
+  MOCK_MCP_TOOLS
 } from './mockData';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -422,6 +418,39 @@ export const api = {
       return MOCK_AGENTS.find(a => a.id === id);
   },
 
+  runAgent: async (agent: Agent, prompt: string): Promise<string> => {
+      if (!process.env.API_KEY) {
+          console.warn("API_KEY is missing. Using mock response.");
+          await delay(1000);
+          return "Simulation: API_KEY is missing. Please configure it to run live models. \n\nPrompt:\n" + prompt;
+      }
+
+      try {
+          const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+          const modelName = agent.modelName && agent.modelName.includes('gemini') ? agent.modelName : 'gemini-2.5-flash';
+          
+          const response = await ai.models.generateContent({
+              model: modelName,
+              contents: prompt,
+              config: {
+                  systemInstruction: agent.optimizedDescription || agent.description,
+                  temperature: 0.7
+              }
+          });
+
+          return response.text || "No output generated.";
+      } catch (e: any) {
+          console.error("Agent execution failed", e);
+          return `Error executing agent: ${e.message || 'Unknown error'}`;
+      }
+  },
+
+  generateAgentConfig: async (name: string, description: string, expectedOutput: string): Promise<{ optimizedDescription: string }> => {
+      await delay(1500);
+      const output = `Role: You are ${name || 'an AI assistant'}.\n\nObjective: ${description || 'Perform tasks as requested.'}\n\nGuidelines:\n1. Be precise and concise.\n2. Output format: ${expectedOutput || 'Plain text'}.\n3. Use available tools when necessary.\n\nTone: Professional and helpful.`;
+      return { optimizedDescription: output };
+  },
+
   // --- AI Agent Logs ---
   fetchAgentLogs: async (filters?: { agentId?: string }): Promise<AgentLog[]> => {
       await delay(400);
@@ -435,5 +464,15 @@ export const api = {
   fetchAgentLog: async (id: string): Promise<AgentLog | undefined> => {
       await delay(300);
       return MOCK_AGENT_LOGS.find(l => l.id === id);
-  }
+  },
+
+  fetchDynamicVariables: async (): Promise<DynamicVariablesResponse> => {
+      await delay(300);
+      return MOCK_DYNAMIC_VARIABLES;
+  },
+
+  fetchMcpTools: async (): Promise<McpTool[]> => {
+      await delay(300);
+      return MOCK_MCP_TOOLS.tools;
+  },
 };
